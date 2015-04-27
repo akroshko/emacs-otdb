@@ -1,0 +1,8 @@
+* Grocery produce
+* Grocery meat/dairy
+* Grocery canned/bottled
+  - [X] vegetable oil
+* Grocery frozen
+* Grocery dry
+  - [X] traditional yeast
+  - [X] white sugar

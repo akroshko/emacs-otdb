@@ -1,0 +1,32 @@
+* Grocery backpacking
+  - [ ] M&Ms
+  - [ ] black pepper
+  - [ ] capellini
+  - [ ] cashews
+  - [ ] cinnamon
+  - [X] cloves
+  - [ ] curry powder
+  - [ ] dark brown sugar
+  - [ ] dried apples
+  - [ ] dried apricots
+  - [ ] dried basil
+  - [ ] dried mushrooms
+  - [ ] dried tomato
+  - [ ] dried vegetables
+  - [ ] garlic powder
+  - [X] ginger
+  - [ ] margarine
+  - [ ] minute rice
+  - [ ] nutmeg
+  - [ ] onion flakes
+  - [ ] parsley
+  - [ ] peanuts
+  - [ ] pecans
+  - [ ] quick oats
+  - [X] raisins
+  - [ ] shreddies
+  - [ ] sliced almonds
+  - [ ] unsweetened coconut
+  - [ ] veggie bullion powder
+  - [ ] walnuts
+  - [ ] white sugar

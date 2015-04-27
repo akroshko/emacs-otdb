@@ -1,0 +1,198 @@
+* Basic tomato sauce :recipe:
+  :PROPERTIES:
+  :END:
+  |----------+---------------------------+----------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------|
+  | Quantity | Ingredient                | Note                 |    Cal |  Pro |  Fat |     $ | $/kCal | $/100g pro |  % carb |  % pro |   % fat |  Weight | Volume |
+  |----------+---------------------------+----------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------|
+  | 2 tbsp   | olive oil                 |                      |  240.0 |  0.0 | 27.0 | 0.160 |  0.667 |            |  -1.250 |  0.000 | 101.250 |         |        |
+  | 1        | medium onions             | diced                |   79.2 |  1.8 |  0.1 | 0.330 |  4.167 |     18.333 |  89.773 |  9.091 |   1.136 | 161.778 |        |
+  | 2        | cloves garlic             | crushed              |   17.9 |  0.8 |  0.1 | 0.038 |  2.123 |      4.750 |  77.095 | 17.877 |   5.028 |   9.667 |        |
+  |----------+---------------------------+----------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------|
+  | 1        | 28oz can diced tomatoes   |                      |  199.0 |  6.6 |  0.0 | 1.190 |  5.980 |     18.030 |  86.734 | 13.266 |   0.000 |         |        |
+  | 1        | 28oz can crushed tomatoes |                      |  331.7 | 19.9 |  0.0 | 1.190 |  3.588 |      5.980 |  76.002 | 23.998 |   0.000 |         |        |
+  | 1        | 6oz can tomato paste      |                      |  104.0 |  5.2 |  0.0 | 0.690 |  6.635 |     13.269 |  80.000 | 20.000 |   0.000 |         |        |
+  |----------+---------------------------+----------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------|
+  | 2        | bay leaves                |                      |        |      |      |       |        |            |         |        |         |         |        |
+  | 1 tbsp   | basil                     |                      |        |      |      |       |        |            |         |        |         |         |        |
+  | 1/2 tbsp | oregano                   |                      |        |      |      |       |        |            |         |        |         |         |        |
+  | 1 tbsp   | dark brown sugar          |                      |   48.0 |  0.0 |  0.0 | 0.027 |  0.562 |            | 100.000 |  0.000 |   0.000 |  12.000 |        |
+  | 1 tsp    | salt                      |                      |    0.0 |  0.0 |  0.0 | 0.012 |        |            |         |        |         |   4.000 |        |
+  | 1/2 tsp  | black pepper              |                      |    0.0 |  0.2 |  0.0 | 0.016 |        |      8.000 |         |        |         |   1.000 |        |
+  | 1/4 tsp  | red pepper flakes         | or less              |        |      |      |       |        |            |         |        |         |         |        |
+  |----------+---------------------------+----------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------|
+  | 1        | 10oz can mushrooms        | (optional)           |   82.8 |  4.7 |  0.0 | 0.970 | 11.715 |     20.638 |  77.295 | 22.705 |   0.000 |         |        |
+  | 2 tbsp   | balsamic vinegar          | (optional, or wine?) |   30.0 |  0.2 |  0.0 | 0.190 |  6.333 |     95.000 |  97.333 |  2.667 |   0.000 |         |        |
+  |----------+---------------------------+----------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------|
+  | 1        |                           |                      | 1132.6 | 39.4 | 27.2 | 4.813 |  4.250 |     12.216 |  64.471 | 13.915 |  21.614 | 188.445 |      0 |
+  |----------+---------------------------+----------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------|
+  #+TBLFM: @>$4 = vsum(@2$4..@>>$4)/@>$1::@>$5 = vsum(@2$5..@>>$5)/@>$1::@>$6 = vsum(@2$6..@>>$6)/@>$1::@>$13 = vsum(@2$13..@>>$13)/@>$1::@>$14 = vsum(@2$14..@>>$14)/@>$1::@>$7 = vsum(@2$7..@>>$7)/@>$1::$8='(nts-nan (ignore-errors (* (/ $7 $4) 1000.0)));N::$9='(nts-nan (ignore-errors (* (/ $7 $5) 100.0)));N::$10='(nts-nan (ignore-errors (* (/ (- $4 (* $5 4) (* $6 9.0)) $4) 100.0)));N::$11='(nts-nan (ignore-errors (* (/ (* $5 4.0) $4) 100.0)));N::$12='(nts-nan (ignore-errors (* (/ (* $6 9.0) $4) 100.0)));N
+  1) Combine all ingredients, except last group, in slow cooker.
+  2) Cook on low/normal for 6 hours
+  3) Add last group of ingredients and let cool for 30-60 minutes.
+  #+BEGIN_COMMENT
+  - budget bytes one, try until it's good
+  - wine and balsamic vinegar
+  - possibly go back to tbsp/0.5tbsp of basil/oregano
+  - zuchini???
+  - put thyme back in?
+  - parsley?
+  - [[http://www.inspiredtaste.net/22164/homemade-marinara-sauce/]]
+  - [[http://www.bhg.com/recipe/sauces/slow-cooker-marinara-sauce/]]
+  - [[BHG2011 -- The Ultimate Slow Cooker Book::508.0]]
+  - [[http://www.budgetbytes.com/2011/11/slow-cooker-marinara/]]  see this one
+  - [[http://www.theeffervescentvegan.com/2012/01/red-wine-vs-balsamic-vinegar.html]]
+  - [[http://heartlandrenaissance.com/2012/09/marinara-sauce/]]
+  - [[http://www.examiner.com/article/parsley-basil-and-oregano-three-useful-herbs-italian-cooking]]
+  - [[http://www.epicurious.com/articlesguides/seasonalcooking/farmtotable/visualguidefreshherbs]]
+  - [[ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers::507.0]]]
+  - [[BHG2011 -- The Ultimate Slow Cooker Book::505.6]]
+    2.25 oz can black olives
+    red wine
+  #+END_COMMENT
+* Meat tomato sauce :recipe:
+  :PROPERTIES:
+  :DESCRIPTION: nil
+  :END:
+  |----------+---------------------------+----------------------+--------+-------+-------+-------+--------+------------+--------+--------+---------+---------+--------|
+  | Quantity | Ingredient                | Note                 |    Cal |   Pro |   Fat |     $ | $/kCal | $/100g pro | % carb |  % pro |   % fat |  Weight | Volume |
+  |----------+---------------------------+----------------------+--------+-------+-------+-------+--------+------------+--------+--------+---------+---------+--------|
+  | 2 tbsp   | olive oil                 |                      |  240.0 |   0.0 |  27.0 | 0.160 |  0.667 |            | -1.250 |  0.000 | 101.250 |         |        |
+  | 1lb      | lean ground beef          |                      |  997.9 |  90.7 |  68.0 | 4.210 |  4.219 |      4.642 |  2.315 | 36.356 |  61.329 | 453.592 |        |
+  | 1        | medium onions             |                      |   79.2 |   1.8 |   0.1 | 0.330 |  4.167 |     18.333 | 89.773 |  9.091 |   1.136 | 161.778 |        |
+  | 2        | cloves garlic             | crushed              |   17.9 |   0.8 |   0.1 | 0.038 |  2.123 |      4.750 | 77.095 | 17.877 |   5.028 |   9.667 |        |
+  | 4        | strips bacon              | chopped (optional)   |  400.0 |   8.0 |  38.0 | 0.796 |  1.990 |      9.950 |  6.500 |  8.000 |  85.500 | 100.000 |        |
+  |----------+---------------------------+----------------------+--------+-------+-------+-------+--------+------------+--------+--------+---------+---------+--------|
+  | 1        | 28oz can diced tomatoes   |                      |  199.0 |   6.6 |   0.0 | 1.190 |  5.980 |     18.030 | 86.734 | 13.266 |   0.000 |         |        |
+  | 1        | 28oz can crushed tomatoes |                      |  331.7 |  19.9 |   0.0 | 1.190 |  3.588 |      5.980 | 76.002 | 23.998 |   0.000 |         |        |
+  | 1        | 6oz can tomato paste      |                      |  104.0 |   5.2 |   0.0 | 0.690 |  6.635 |     13.269 | 80.000 | 20.000 |   0.000 |         |        |
+  |----------+---------------------------+----------------------+--------+-------+-------+-------+--------+------------+--------+--------+---------+---------+--------|
+  | 2        | bay leaves                |                      |        |       |       |       |        |            |        |        |         |         |        |
+  | 1 tbsp   | basil                     |                      |        |       |       |       |        |            |        |        |         |         |        |
+  | 1 tbsp   | dried parsley             |                      |        |       |       |       |        |            |        |        |         |         |        |
+  | 1/2 tbsp | oregano                   |                      |        |       |       |       |        |            |        |        |         |         |        |
+  | 1 tsp    | salt                      |                      |    0.0 |   0.0 |   0.0 | 0.012 |        |            |        |        |         |   4.000 |        |
+  | 1/2 tsp  | black pepper              |                      |    0.0 |   0.2 |   0.0 | 0.016 |        |      8.000 |        |        |         |   1.000 |        |
+  | 1/4 tsp  | red pepper flakes         | 0-1/2 tsp?           |        |       |       |       |        |            |        |        |         |         |        |
+  |----------+---------------------------+----------------------+--------+-------+-------+-------+--------+------------+--------+--------+---------+---------+--------|
+  | 2 tbsp   | balsamic vinegar          | (optional, or wine?) |   30.0 |   0.2 |   0.0 | 0.190 |  6.333 |     95.000 | 97.333 |  2.667 |   0.000 |         |        |
+  | 1        | 10oz can mushrooms        | (optional)           |   82.8 |   4.7 |   0.0 | 0.970 | 11.715 |     20.638 | 77.295 | 22.705 |   0.000 |         |        |
+  |----------+---------------------------+----------------------+--------+-------+-------+-------+--------+------------+--------+--------+---------+---------+--------|
+  | 1        |                           |                      | 2482.5 | 138.1 | 133.2 | 9.792 |  3.944 |      7.091 | 29.458 | 22.252 |  48.290 | 730.037 |      0 |
+  |----------+---------------------------+----------------------+--------+-------+-------+-------+--------+------------+--------+--------+---------+---------+--------|
+  #+TBLFM: @>$4 = vsum(@2$4..@>>$4)/@>$1::@>$5 = vsum(@2$5..@>>$5)/@>$1::@>$6 = vsum(@2$6..@>>$6)/@>$1::@>$13 = vsum(@2$13..@>>$13)/@>$1::@>$14 = vsum(@2$14..@>>$14)/@>$1::@>$7 = vsum(@2$7..@>>$7)/@>$1::$8='(nts-nan (ignore-errors (* (/ $7 $4) 1000.0)));N::$9='(nts-nan (ignore-errors (* (/ $7 $5) 100.0)));N::$10='(nts-nan (ignore-errors (* (/ (- $4 (* $5 4) (* $6 9.0)) $4) 100.0)));N::$11='(nts-nan (ignore-errors (* (/ (* $5 4.0) $4) 100.0)));N::$12='(nts-nan (ignore-errors (* (/ (* $6 9.0) $4) 100.0)));N
+  1) Heat olive oil in skillet.
+  2) Brown meat in skillet then set aside.
+  3) Brown onions, garlic and, bacon in skillet.
+  4) Combine all ingredients, except last group but including browned
+     meat, in slow cooker.
+  5) Cook on low/normal for 6 hours
+  6) Add last group of ingredients and let cool for 30-60 minutes.
+  #+BEGIN_COMMENT
+  9 cups
+  - [[Louise2008 -- The complete slow cooker cookbook - essential recipes for hearty and delicious one-pot meals::110][My Mom Betty's Spaghetti Dinner]]
+  - [[http://iowagirleats.com/2012/08/22/crock-pot-spaghetti-sauce-with-omg-garlic-bread/][::dwRzJuivAPo::]]
+  - [[Moeller2012 -- Creative slow-cooker meals::140][Spaghetti Night and Italian Bread Basket]]
+  - italian seasoning
+  - thyme?
+  - also 28oz diced, 28 oz crush
+  - capers and olives
+  - [[ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers::507.0]]
+  - [[ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers::519.0][Weeknight Meat Sauce]]
+    - don't like ATK habbit of using bread...
+  - [[BHG2011 -- The Ultimate Slow Cooker Book::367.4][spaghetti sauce italiano]]
+  - [[http://www.eatliverun.com/spaghetti-with-meat-sauce/]]
+    1/2 tsp thyme
+    2 tsp dark brown sugar
+    1/2 cup red wine
+    2.25 oz can black olives
+  #+END_COMMENT
+* ================================================================================
+* Classic meat lasagna :recipe:
+  :PROPERTIES:
+  :DESCRIPTION: nil
+  :END:
+  |----------+-------------------------+----------------+--------+-------+-------+--------+--------+------------+--------+--------+--------+----------+--------|
+  | Quantity | Ingredient              | Note           |    Cal |   Pro |   Fat |      $ | $/kCal | $/100g pro | % carb |  % pro |  % fat |   Weight | Volume |
+  |----------+-------------------------+----------------+--------+-------+-------+--------+--------+------------+--------+--------+--------+----------+--------|
+  | 3/4      | Meat tomato sauce       | (up to 4 cups) | 1861.9 | 103.6 |  99.9 |  7.344 |  3.944 |      7.089 | 29.454 | 22.257 | 48.289 |  547.528 |  0.000 |
+  | 16oz     | cottage cheese          |                |  400.0 |  56.0 |  10.0 |  3.490 |  8.725 |      6.232 | 21.500 | 56.000 | 22.500 |  500.000 |        |
+  | 1/2lb    | mozzarella cheese       |                |  680.4 |  68.0 |  37.8 |  4.400 |  6.467 |      6.471 | 10.024 | 39.976 | 50.000 |  226.796 |        |
+  | 12       | no-boil lasagna noodles |                |  768.0 |  26.4 |   3.6 |  1.893 |  2.465 |      7.170 | 82.031 | 13.750 |  4.219 |  204.000 |        |
+  |----------+-------------------------+----------------+--------+-------+-------+--------+--------+------------+--------+--------+--------+----------+--------|
+  | 1        |                         |                | 3710.3 |  254. | 151.3 | 17.127 |  4.616 |      6.743 | 35.916 | 27.383 | 36.701 | 1478.324 |     0. |
+  |----------+-------------------------+----------------+--------+-------+-------+--------+--------+------------+--------+--------+--------+----------+--------|
+  #+TBLFM: @>$4 = vsum(@2$4..@>>$4)/@>$1::@>$5 = vsum(@2$5..@>>$5)/@>$1::@>$6 = vsum(@2$6..@>>$6)/@>$1::@>$13 = vsum(@2$13..@>>$13)/@>$1::@>$14 = vsum(@2$14..@>>$14)/@>$1::@>$7 = vsum(@2$7..@>>$7)/@>$1::$8='(nts-nan (ignore-errors (* (/ $7 $4) 1000.0)));N::$9='(nts-nan (ignore-errors (* (/ $7 $5) 100.0)));N::$10='(nts-nan (ignore-errors (* (/ (- $4 (* $5 4) (* $6 9.0)) $4) 100.0)));N::$11='(nts-nan (ignore-errors (* (/ (* $5 4.0) $4) 100.0)));N::$12='(nts-nan (ignore-errors (* (/ (* $6 9.0) $4) 100.0)));N
+  1) Put 1 1/2 cups sauce in the bottom of slow cooker.
+  2) 3 noodles.
+  3) 1/3 cheese.
+  4) 1 1/2 cups sauce.
+  5) 3 noodles.
+  6) 1 1/2 cups sauce.
+  7) 3 noodles.
+  8) 1/3 cheese.
+  9) 1 1/2 cups sauce.
+  10) 3 noodles.
+  11) 1 cup sauce.
+  12) Top with remaining mozza and 1/4 cup parmesan.
+  13) Cook on low/normal for 4 to 6 hours.
+  #+BEGIN_COMMENT
+  - [[http://allrecipes.com/recipe/slow-cooker-lasagna/]]
+  - [[http://www.weightwatchers.com/food/rcp/RecipePage.aspx?recipeId=135321]]
+  - [[http://www.tablespoon.com/recipes/easy-crockpot-lasagna/fc587848-9ea5-4f95-a1f7-8d50a3f011f9]]
+  - [[http://www.tasteofhome.com/recipes/slow-cooker-lasagna]]
+  - [[http://crockpot365.blogspot.ca/2008/01/super-easy-crockpot-lasagna.html]]
+  - [[http://www.examiner.com/article/inexpensive-dinners-under-2-per-serving-crock-pot-lasagna]]
+  - [[http://tastycheapskate.blogspot.ca/2012/04/crock-pot-spinach-lasagna.html]]
+    - more good stuff?
+  - [[http://www.cookinglight.com/food/recipe-finder/healthy-lasagna-recipes-00412000074099/]]
+  - [[http://www.myrecipes.com/recipe/pesto-lasagna-with-spinach-mushrooms-10000000549820/]]
+  - [[BHG2011 -- The Ultimate Slow Cooker Book::458.9]]
+    - good one to base it on
+    - 3 layers
+    - sauce on bottom
+    - start with noodles, end with sauce
+  #+END_COMMENT
+* Spinach Lasagna :recipe:
+  :PROPERTIES:
+  :DESCRIPTION: nil
+  :END:
+  |----------+-------------------------+----------------+-------+------+------+--------+--------+------------+--------+--------+--------+----------+--------|
+  | Quantity | Ingredient              | Note           |   Cal |  Pro |  Fat |      $ | $/kCal | $/100g pro | % carb |  % pro |  % fat |   Weight | Volume |
+  |----------+-------------------------+----------------+-------+------+------+--------+--------+------------+--------+--------+--------+----------+--------|
+  | 3/4      | Basic tomato sauce      | (up to 4 cups) | 849.4 | 29.5 | 20.4 |  3.610 |  4.250 |     12.237 | 64.493 | 13.892 | 21.615 |  141.334 |  0.000 |
+  | 16oz     | cottage cheese          |                | 400.0 | 56.0 | 10.0 |  3.490 |  8.725 |      6.232 | 21.500 | 56.000 | 22.500 |  500.000 |        |
+  | 1lb      | frozen spinach          |                | 151.2 | 18.1 |  3.0 |  2.268 | 15.000 |     12.530 | 34.259 | 47.884 | 17.857 |  453.592 |        |
+  | 1/2lb    | mozzarella cheese       |                | 680.4 | 68.0 | 37.8 |  4.400 |  6.467 |      6.471 | 10.024 | 39.976 | 50.000 |  226.796 |        |
+  | 1/2 cup  | Parmesan cheese         |                | 200.0 | 16.0 | 16.0 |  1.007 |  5.035 |      6.294 | -4.000 | 32.000 | 72.000 |   48.000 |        |
+  | 12       | no-boil lasagna noodles |                | 768.0 | 26.4 |  3.6 |  1.893 |  2.465 |      7.170 | 82.031 | 13.750 |  4.219 |  204.000 |        |
+  |----------+-------------------------+----------------+-------+------+------+--------+--------+------------+--------+--------+--------+----------+--------|
+  | 1        |                         |                | 3049. | 214. | 90.8 | 16.668 |  5.467 |      7.789 | 45.123 | 28.075 | 26.802 | 1573.722 |     0. |
+  |----------+-------------------------+----------------+-------+------+------+--------+--------+------------+--------+--------+--------+----------+--------|
+  #+TBLFM: @>$4 = vsum(@2$4..@>>$4)/@>$1::@>$5 = vsum(@2$5..@>>$5)/@>$1::@>$6 = vsum(@2$6..@>>$6)/@>$1::@>$13 = vsum(@2$13..@>>$13)/@>$1::@>$14 = vsum(@2$14..@>>$14)/@>$1::@>$7 = vsum(@2$7..@>>$7)/@>$1::$8='(nts-nan (ignore-errors (* (/ $7 $4) 1000.0)));N::$9='(nts-nan (ignore-errors (* (/ $7 $5) 100.0)));N::$10='(nts-nan (ignore-errors (* (/ (- $4 (* $5 4) (* $6 9.0)) $4) 100.0)));N::$11='(nts-nan (ignore-errors (* (/ (* $5 4.0) $4) 100.0)));N::$12='(nts-nan (ignore-errors (* (/ (* $6 9.0) $4) 100.0)));N
+  1) Thaw spinach in microwave and wrap in dish cloth or paper towels
+     to get as much liquid as possible out.
+  2) Put spinach, ricota, 1 1/2 cup mozza in bowl. (1/4 cup parm?)
+  3) Put 1 1/2 cups sauce in the bottom of slow cooker.
+  4) 3 noodles
+  5) 1/3 cheese
+  6) 1 1/2 cups sauce
+  7) 3 noodles
+  8) 1 1/2 cups sauce
+  9) 3 noodles.
+  10) 1/3 cheese
+  11) 1 1/2 cups sauce
+  12) 3 noodles
+  13) 1 cup sauce
+  14) Top with remaining mozza and 1/4 cup parmesan.
+  15) Cook on low/normal for 4 to 6 hours.
+  #+BEGIN_COMMENT
+  - [[http://www.eatliverun.com/crock-pot-spinach-lasagna/]]
+    - primary
+  - [[ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers::723.0]]
+    - see this for better version and instructions next time
+    - think about sauce from this one too
+  - [[Larsen2009 -- The 7 dollar a meal slow cooker cookbook - 301 inexpensive meals the whole family will love::330.0]]
+  - [[Rappaport2013 -- The big book of slow cooker recipes - more than 700 slow cooker recipes for breakfast, lunch, dinner and dessert::306]]
+  - carrots?
+  - pepper flakes
+  #+END_COMMENT

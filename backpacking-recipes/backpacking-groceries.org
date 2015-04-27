@@ -1,0 +1,4 @@
+* Grocery backpacking
+  - [X] cloves
+  - [X] ginger
+  - [X] raisins

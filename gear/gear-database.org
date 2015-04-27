@@ -1,0 +1,30 @@
+* Gear
+  |---------------------------------------+--------+-------+------|
+  | Item                                  | Weight |  Cost | Note |
+  |---------------------------------------+--------+-------+------|
+  | 11 oz MSR fuel bottle                 | 87g    |       |      |
+  | 12 Advil                              | 6g     |       |      |
+  | 10 Advil liquigels                    | 20g    |  6.99 |      |
+  | Osprey Xenith 88 pack                 | 2510g  |       |      |
+  | Z-rest sleeping pad                   | 277g   |       |      |
+  | Backcountry banff                     | 297g   |       |      |
+  | Bear spray                            | 306g   |       |      |
+  | Sea to summit 13L silnylon stuff sack | 44g    |       |      |
+  | Sea to summit 2L silnylon stuff sack  | 22g    |       |      |
+  | Sea to summit 8L silnylon stuff sack  | 35g    |       |      |
+  | Fenix headlamp                        | 59g    |       |      |
+  | 3 lithium AAA batteries               | 23g    | 19.49 |      |
+  | AA battery                            | 23g    |       |      |
+  | MSR whisperlite                       | 276g   |       |      |
+  | MSR wind screen (bottom)              | 15g    |       |      |
+  | MSR wind screen (top)                 | 45g    |       |      |
+  | Optimus folding titanium spork        | 18g    |       |      |
+  | orange storm whistle                  | 21g    |       |      |
+  | mosquito net                          | 38g    |       |      |
+  | nail clippers                         | 20g    |       |      |
+  | North Face sleeping bag               | 1193g  |       |      |
+  | moleskin                              | 13g    |       |      |
+  | Banff map                             | 104g   |       |      |
+  | Lake Louise map                       | 65g    |       |      |
+  | SPOT locator                          | 96g    |       |      |
+  |---------------------------------------+--------+-------+------|

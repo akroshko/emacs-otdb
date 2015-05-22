@@ -23,10 +23,21 @@ Requirements
 
 This package requires a standard Emacs installation, of course. It has
 mostly been tested with the current Emacs package on Debian Linux
-(Jessie) and currently should not require any other packages.
+(Jessie) and should not require any other packages from the Debian
+package manager.  The associated library from
+[http://github.com/akroshko/emacs-stdlib](http://github.com/akroshko/emacs-stdlib)
+is the only additional Emacs requirement.  The `git` version control
+system is an optional requirement to using the installation
+instructions below.
 
-As well; it requires the library from
-[http://github.com/akroshko/emacs-stdlib](http://github.com/akroshko/emacs-stdlib).
+Installation
+============
+
+The library from
+[http://github.com/akroshko/emacs-stdlib](http://github.com/akroshko/emacs-stdlib)
+can be installed using the command `git clone
+https://github.com/akroshko/emacs-stdlib.git ../emacs-stdlib` so by
+default it is in a sibling directory of this package.
 
 Basic usage
 ===========

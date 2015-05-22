@@ -1,13 +1,13 @@
-;;; otdblb-sample-config.el --- A sample config file I used for
+;;; otdb-sample-config.el --- A sample config file I used for
 ;;; testing this library in isolation from my main Emacs installation.
 ;;
 ;; Copyright (C) 2015, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
-;; Maintainer: Andrew Kroshko <akroshko@gmail.com>
+;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20150427
-;; URL: https://github.com/akroshko/emacs-otdblb
+;; Version: 20150522
+;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -28,8 +28,9 @@
 ;;
 ;; Commentary:
 ;;
-;; Use this file with "emacs -q --load otdblb-sample-init.el".  See
-;; the included README.md file for more information on this package.
+;; Use this file with the command "emacs -q --load
+;; otdb-sample-init.el".  See the included README.md file for more
+;; information on this package.
 ;;
 ;; Features that might be required by this library:
 ;;

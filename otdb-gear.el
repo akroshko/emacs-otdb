@@ -3,10 +3,10 @@
 ;; Copyright (C) 2015, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
-;; Maintainer: Andrew Kroshko <akroshko@gmail.com>
+;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20150427
-;; URL: https://github.com/akroshko/emacs-otdblb
+;; Version: 20150522
+;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 ;;
 ;; Commentary:
 ;;
-;; Use this file with "emacs -q --load otdblb-sample-init.el".  See
+;; Use this file with "emacs -q --load otdb-sample-init.el".  See
 ;; the included README.md file for more information on this package.
 ;;
 ;; Features that might be required by this library:

@@ -4,10 +4,10 @@
 ;; Copyright (C) 2015, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
-;; Maintainer: Andrew Kroshko <akroshko@gmail.com>
+;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20150427
-;; URL: https://github.com/akroshko/emacs-otdblb
+;; Version: 20150522
+;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -28,8 +28,9 @@
 ;;
 ;; Commentary:
 ;;
-;; Use this file with "emacs -q --load otdblb-sample-init.el".  See
-;; the included README.md file for more information on this package.
+;; Use this file with the command "emacs -q --load
+;; otdb-sample-init.el".  See the included README.md file for more
+;; information on this package.
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -64,14 +65,14 @@
 (global-set-key (kbd "s-d d") 'otdb-table-goto-key-in-database)
 ;; XXXX this makes sense to do on a new row or checklist item, or to complete something
 (global-set-key (kbd "s-d i") 'otdb-table-insert-key)
-;; update key from main database
-;; TODO want to be able to go and pop back
 ;; (global-set-key (kbd "s-d u") 'otdb-table-update-key-in-database)
 (global-set-key (kbd "s-d j") 'otdb-table-agenda-jump)
 ;; TODO: find occurences in database and collections
 ;; (global-set-key (kbd "s-d o") 'otdb-table-occurences-key)
 ; put key into main database, ask for key, update key at point if necessary
 (global-set-key (kbd "s-d p") 'otdb-table-put-key-in-database)
+;; update key from main database
+;; TODO want to be able to go and pop back
 ; update the "agenda" with the key
 (global-set-key (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
 

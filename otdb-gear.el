@@ -5,7 +5,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20150522
+;; Version: 20150904
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -40,6 +40,9 @@
 
 ;; TODO: have cost only for expendables, or optional cost for other things
 ;; TODO: need to decide on unit... kgs or grams best, convert at to lbs at end if desired
+
+(defconst otdb-gear-types
+  '("gear"))
 
 (defun otdb-gear-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
@@ -113,13 +116,13 @@ TODO: can I make this function universal between gear and recipe?"
     (if otdb-gear-database-cache
         (setq lisp-table otdb-gear-database-cache)
       (with-current-file-org-table database table-name
-                                   (setq lisp-table (apk:org-table-to-lisp-no-separators))
+                                   (setq lisp-table (cic:org-table-to-lisp-no-separators))
                                    (setq otdb-gear-database-cache lisp-table)))
     (dolist (row lisp-table)
       ;; when column is a member
       (let ((column-stripped (strip-full-no-properties (elt row (- column 1)))))
         (when (member column-stripped key-list)
-          (setq found-rows-alist (cons (list column-stripped (apk:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
+          (setq found-rows-alist (cons (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
     found-rows-alist))
 
 (defun otdb-gear-get-weight (row)
@@ -164,18 +167,18 @@ DATABASE-ROW."
   (let ((collection-location (otdb-gear-find-collection collection)))
     (with-current-file (car collection-location)
       (goto-char (cadr collection-location))
-      (apk:org-find-table)
-      (apk:org-table-last-row)
+      (cic:org-find-table)
+      (cic:org-table-last-row)
       (list (string-to-number (org-table-get nil 3)) (string-to-number (org-table-get nil 4))))))
 
 (defun otdb-gear-find-item (item)
   "Find the location of the ITEM."
-  (apk:org-table-lookup-location otdb-gear-database otdb-gear-database-headline item 1))
+  (cic:org-table-lookup-location otdb-gear-database otdb-gear-database-headline item 1))
 
 (defun otdb-gear-get-items ()
   "Get list of all gear items from the database."
-  (let* ((items (apk:org-table-get-keys otdb-gear-database otdb-gear-database-headline))
-         (dups (apk:get-list-duplicates items)))
+  (let* ((items (cic:org-table-get-keys otdb-gear-database otdb-gear-database-headline))
+         (dups (cic:get-list-duplicates items)))
     (when (> (length dups) 0)
       (mpp-echo (concat "Duplicate items: " (pp-to-string dups) otdb-gear-message-buffer)))
     items))
@@ -208,7 +211,7 @@ DATABASE-ROW."
         (do-org-tables gear-file table-name table
                        (when (string-match "\\(.*\\) :gear:" table-name)
                          (setq collection-list (cons (match-string 1 table-name) collection-list)))))
-      (setq dups (apk:get-list-duplicates collection-list))
+      (setq dups (cic:get-list-duplicates collection-list))
       (when (> (length dups) 0)
         (mpp-echo (concat "Duplicate collections: " (pp-to-string dups)) otdb-gear-message-buffer))
       (setq otdb-gear-collections-cache collection-list)
@@ -216,6 +219,6 @@ DATABASE-ROW."
 
 (defun otdb-gear-database-row (item)
   "Get the database row corresponding to gear item ITEM."
-  (apk:org-table-lookup-row otdb-gear-database otdb-gear-database-headline item))
+  (cic:org-table-lookup-row otdb-gear-database otdb-gear-database-headline item))
 
 (provide 'otdb-gear)

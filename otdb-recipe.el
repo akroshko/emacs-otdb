@@ -7,7 +7,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20150522
+;; Version: 20150904
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -108,7 +108,7 @@ point or entered item."
                                (save-excursion
                                  (org-narrow-to-subtree)
                                  (goto-char (point-min))
-                                 (when (ignore-errors (re-search-forward (concat apk:emacs-stdlib-checkbox-regexp " " selected-item)))
+                                 (when (ignore-errors (re-search-forward (concat cic:emacs-stdlib-checkbox-regexp " " selected-item)))
                                    (org-toggle-checkbox))
                                  (widen))))
            (mpp-echo (format "Grocery item %s successfully checked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -135,7 +135,7 @@ point or entered item."
                                               (hide-subtree)
                                               (org-show-subtree)
                                               (org-end-of-subtree)
-                                              (org-insert-indent-list-item)
+                                              (cic:org-insert-indent-list-item)
                                               (insert (concat "[X] " selected-item))))
                  ((equal unmatched-item (string-to-char "q"))
                   ;; just finish
@@ -166,7 +166,7 @@ point or entered item."
                                (save-excursion
                                  (org-narrow-to-subtree)
                                  (goto-char (point-min))
-                                 (when (ignore-errors (re-search-forward (concat apk:emacs-stdlib-checkbox-regexp " " selected-item)))
+                                 (when (ignore-errors (re-search-forward (concat cic:emacs-stdlib-checkbox-regexp " " selected-item)))
                                    (org-toggle-checkbox))
                                  (widen))))
            (mpp-echo (format "Shopping item %s successfully unchecked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -193,12 +193,12 @@ point or entered item."
           (t
            (find-file (otdb-recipe-get-variable 'otdb-recipe-agenda))
            (goto-char (point-min))
-           (re-search-forward (concat apk:emacs-stdlib-checkbox-regexp " " selected-item))
+           (re-search-forward (concat cic:emacs-stdlib-checkbox-regexp " " selected-item))
            (org-back-to-heading)
            (beginning-of-line)
            (hide-subtree)
            (org-show-subtree)
-           (re-search-forward (concat apk:emacs-stdlib-checkbox-regexp " " selected-item))
+           (re-search-forward (concat cic:emacs-stdlib-checkbox-regexp " " selected-item))
            (beginning-of-line)))))
 
 (defun otdb-recipe-agenda-price-check ()
@@ -223,7 +223,7 @@ point or entered item."
     (hide-subtree)
     (org-show-subtree)
     (org-end-of-subtree)
-    (org-insert-indent-list-item)
+    (cic:org-insert-indent-list-item)
     (insert selected-item)))
 
 (defun otdb-recipe-get-shopping (&optional checktype)
@@ -233,18 +233,18 @@ point or entered item."
         shopping-list
         (shopping-file (otdb-recipe-get-variable 'otdb-recipe-agenda)))
     (cond ((eq checktype 'checked)
-           (setq checkbox-regexp apk:emacs-stdlib-checkbox-checked-regexp))
+           (setq checkbox-regexp cic:emacs-stdlib-checkbox-checked-regexp))
           ((eq checktype 'unchecked)
-           (setq checkbox-regexp apk:emacs-stdlib-checkbox-unchecked-regexp))
+           (setq checkbox-regexp cic:emacs-stdlib-checkbox-unchecked-regexp))
           (t
-           (setq checkbox-regexp apk:emacs-stdlib-checkbox-regexp)))
+           (setq checkbox-regexp cic:emacs-stdlib-checkbox-regexp)))
     (do-org-headlines shopping-file headline-name headline-subtree
                       (when (string-match "Grocery.*" headline-name)
                         (do-org-list-items shopping-file headline-name item-line
                                            (when (string-match checkbox-regexp item-line)
                                              (setq matched-text (match-string 3 item-line))
                                              (setq shopping-list (cons (strip-full-no-properties matched-text) shopping-list))))))
-    (setq dups (apk:get-list-duplicates shopping-list))
+    (setq dups (cic:get-list-duplicates shopping-list))
     (when (> (length dups) 0)
       (mpp-echo (concat "Duplicate groceries: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
     (nreverse shopping-list)))
@@ -255,8 +255,8 @@ another recipe."
   (let ((recipe-location (otdb-recipe-find recipe)))
     (with-current-file (car recipe-location)
       (goto-char (cadr recipe-location))
-      (apk:org-find-table)
-      (apk:org-table-last-row)
+      (cic:org-find-table)
+      (cic:org-table-last-row)
       ;; TODO replace with configurable alist
       (list (string-to-number (org-table-get nil 4))
             (string-to-number (org-table-get nil 5))
@@ -297,7 +297,7 @@ TODO return location at beginning of line"
         (do-org-tables recipe-file table-name table
                        (when (string-match "\\(.*\\) :recipe:" table-name)
                          (setq recipe-list (cons (match-string 1 table-name) recipe-list)))))
-      (setq dups (apk:get-list-duplicates recipe-list))
+      (setq dups (cic:get-list-duplicates recipe-list))
       (when (> (length dups) 0)
         (mpp-echo (concat "Duplicate recipes: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
       (setq otdb-recipe-recipes-cache recipe-list)
@@ -308,14 +308,14 @@ TODO return location at beginning of line"
 (defun otdb-recipe-calories-protein-fat-weight (ingredient-row quantity column to-unit)
   "Return the nutritional values of QUANTITY from database row
 INGREDIENT-ROW from COLUMN converting to units TO-UNIT.
-TODO combine with similar cost function, maybe use dynamic binding"
+TODO combine with very similar cost function"
   (let* ((unit-type (otdb-table-unit-type (otdb-table-unit quantity)))
          ;; used to convert within servings
          (to-quantity (cond ((eq unit-type 'weight)
                              (elt ingredient-row 4))
                             ((eq unit-type 'volume)
                              (elt ingredient-row 5))
-                            ;; TODO want to go for dimensionless quantity
+                            ;; TODO want to know what to do when quantity is dimensionless
                             (t
                              (elt ingredient-row 5)))))
     (cond
@@ -469,7 +469,8 @@ TODO combine with similar cost function, maybe use dynamic binding"
 (defun otdb-recipe-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular recipe.
-Test on an actual table with (otdb-recipe-lookup-function (apk:org-table-to-lisp-no-separators))"
+Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp-no-separators))"
+  ;; TODO: think this function is broken
   (let (database-row-alist
         calories-protein-fat-weight-volume-cost-list
         key-list
@@ -600,13 +601,13 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (if otdb-recipe-database-cache
         (setq lisp-table otdb-recipe-database-cache)
       (with-current-file-org-table database table-name
-                                   (setq lisp-table (apk:org-table-to-lisp-no-separators))
+                                   (setq lisp-table (cic:org-table-to-lisp-no-separators))
                                    (setq otdb-recipe-database-cache lisp-table)))
     (dolist (row lisp-table)
       ;; when column is a member
       (let ((column-stripped (strip-full-no-properties (elt row (- column 1)))))
         (when (member column-stripped key-list)
-          (setq found-rows-alist (cons (list column-stripped (apk:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
+          (setq found-rows-alist (cons (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
     found-rows-alist))
 
 (defun otdb-recipe-find-ingredient (ingredient)
@@ -615,15 +616,15 @@ recipe)."
   ;; TODO this will probably become a pretty general table lookup function for databases
   (if (member ingredient (otdb-recipe-get-recipes))
       (otdb-recipe-find ingredient)
-    (apk:org-table-lookup-location (otdb-recipe-get-variable 'otdb-recipe-database)
+    (cic:org-table-lookup-location (otdb-recipe-get-variable 'otdb-recipe-database)
                                (otdb-recipe-get-variable 'otdb-recipe-database-headline)
                                ingredient 1)))
 
-;; TODO raise flag if duplicates
+;; TODO raise something if there are duplicates
 (defun otdb-recipe-get-ingredients ()
   "Get list of all ingredients from the database."
-  (let* ((ingredients (apk:org-table-get-keys (otdb-recipe-get-variable 'otdb-recipe-database) (otdb-recipe-get-variable 'otdb-recipe-database-headline)))
-         (dups (apk:get-list-duplicates ingredients)))
+  (let* ((ingredients (cic:org-table-get-keys (otdb-recipe-get-variable 'otdb-recipe-database) (otdb-recipe-get-variable 'otdb-recipe-database-headline)))
+         (dups (cic:get-list-duplicates ingredients)))
     (when (> (length dups) 0)
       (mpp-echo (concat "Duplicate ingredients: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
     ingredients))
@@ -632,7 +633,7 @@ recipe)."
   "Look up row of INGREDIENT ingredient in the database."
   ;; XXXX assume on top of table
   ;; XXXX assume Ingredient.... etc. header is first
-  (apk:org-table-lookup-row (otdb-recipe-get-variable 'otdb-recipe-database)
+  (cic:org-table-lookup-row (otdb-recipe-get-variable 'otdb-recipe-database)
                         (otdb-recipe-get-variable 'otdb-recipe-database-headline)
                         ingredient))
 
@@ -642,6 +643,7 @@ recipe)."
 
 (defun otdb-recipe-agenda-push-groceries ()
   "Push the currently checked groceries to the special file for export."
+  (interactive)
   (with-current-file otdb-recipe-shopping
     (erase-buffer))
   ;; loop over the headings with "Grocery"
@@ -654,7 +656,7 @@ recipe)."
   (with-current-file (otdb-recipe-get-variable 'otdb-recipe-shopping)
     (goto-char (point-min))
     (while (= (forward-line 1) 0)
-      (let ((current-line (get-current-line)))
+      (let ((current-line (cic:get-current-line)))
         (when (string-match "\\[ \\]" current-line)
           (beginning-of-line)
           (let ((kill-whole-line t))
@@ -704,7 +706,7 @@ in the database."
           (heading-name-collection (save-excursion
                                      (org-back-to-heading)
                                      ;; strip off after first colon
-                                     (strip-full (car (split-string (apk:get-headline-text (get-current-line)) ":")))))
+                                     (strip-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
           (current-file (buffer-file-name))
           (first-row t))
       (with-current-file (concat otdb-recipe-temp-directory heading-name-collection ".org")
@@ -715,7 +717,7 @@ in the database."
                              (if first-row
                                  (setq first-row nil)
                                ;; ingredient should be empty if on invalid non-first row
-                               (when (apk:is-not-empty-string-nil (elt current-row 1))
+                               (when (cic:is-not-empty-string-nil (elt current-row 1))
                                  ;; lookup recipe and get subtree from there
                                  ;; do process to add one recipe to buffer, get this into a function
                                  (let ((recipe-location (otdb-recipe-find (elt current-row 1))))
@@ -741,7 +743,7 @@ pdf file in ~/tmp."
     (let ((heading-name (save-excursion
                           (org-back-to-heading)
                           ;; strip off after first colon
-                          (strip-full (car (split-string (apk:get-headline-text (get-current-line)) ":")))))
+                          (strip-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
           ;; TODO: better way to do this?
           (current-recipe-subtree (buffer-substring (region-beginning) (region-end)))
           (otdb-recipe-temp-directory "~/tmp/"))
@@ -789,16 +791,16 @@ TODO: There should be a way to add finalized comments (as opposed to informal co
       (kill-region (point) (point-max)))
     (goto-char (point-min))
     ;; get rid of tags?
-    (when (string-match ":" (get-current-line))
+    (when (string-match ":" (cic:get-current-line))
       (search-forward ":")
       (backward-char)
       (kill-line))
     ;; add in latex attributes
     (goto-char (point-min))
-    (apk:org-find-table)
+    (cic:org-find-table)
     (insert "#+ATTR_LATEX: :center nil\n")
     ;; get rid of the last two columns
-    (apk:org-find-table)
+    (cic:org-find-table)
     (forward-line)
     (org-table-goto-column 13)
     (org-table-delete-column)

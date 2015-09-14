@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20150522
+;; Version: 20150904
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -46,14 +46,14 @@
   "The filename to use.")
 
 (defvar otdb-gear-database
-  (join-paths otdb-root "gear/gear-database.org")
+  (cic:join-paths otdb-root "gear/gear-database.org")
   "The main location of the gear database.")
 
 (defvar otdb-gear-database-headline
   "Gear")
 
 (defvar otdb-gear-collection-files
-  (list (join-paths otdb-root "gear/gear-collections.org")))
+  (list (cic:join-paths otdb-root "gear/gear-collections.org")))
 
 (defvar otdb-gear-message-buffer
   "*Backpacking messages*")
@@ -62,7 +62,7 @@
 ;; normal recipes
 
 (defvar otdb-recipe-normal-database
-  (join-paths otdb-root "recipes/food-database.org")
+  (cic:join-paths otdb-root "recipes/food-database.org")
   "The main location of the database, should be re-re-factored
 out of code.and use a list.")
 
@@ -70,12 +70,12 @@ out of code.and use a list.")
   "Ingredients")
 
 (defvar otdb-recipe-normal-agenda
-  (join-paths otdb-root "recipes/sample-agenda.org")
+  (cic:join-paths otdb-root "recipes/sample-agenda.org")
   "The main location of the agenda, should be re-re-factored out
   of code.")
 
 (defvar otdb-recipe-normal-shopping
-  (join-paths otdb-root "recipes/groceries.org")
+  (cic:join-paths otdb-root "recipes/groceries.org")
   "The grocery list used for mobile use.")
 
 (defvar otdb-recipe-normal-price-check-headline
@@ -84,7 +84,7 @@ out of code.and use a list.")
 
 (defvar otdb-recipe-normal-files
   (mapcar (lambda (f)
-            (join-paths otdb-root f))
+            (cic:join-paths otdb-root f))
           '("recipes/recipes.org"
             "recipes/meals.org"
             "recipes/slowcooker-recipes.org")))
@@ -95,10 +95,9 @@ out of code.and use a list.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; backpacking recipes
 
-;; TODO need to decide how to do databases
+;; TODO need to decide how to have more databases
 (defvar otdb-recipe-backpacking-database
-  (join-paths otdb-root "recipes/food-database.org")
-  ;; "g:backpacking-recipes/backpacking-food-database.org"
+  (cic:join-paths otdb-root "recipes/food-database.org")
   "The main location of the database, should be re-re-factored
 out of code.and use a list.")
 
@@ -106,12 +105,12 @@ out of code.and use a list.")
   "Ingredients")
 
 (defvar otdb-recipe-backpacking-agenda
-  (join-paths otdb-root "backpacking-recipes/backpacking-agenda.org")
+  (cic:join-paths otdb-root "backpacking-recipes/backpacking-agenda.org")
   "The main location of the agenda, should be re-re-factored out
   of code.")
 
 (defvar otdb-recipe-backpacking-shopping
-  (join-paths otdb-root "backpacking-recipes/backpacking-groceries.org")
+  (cic:join-paths otdb-root "backpacking-recipes/backpacking-groceries.org")
   "The grocery list used for mobile use.")
 
 (defvar otdb-recipe-backpacking-price-check-headline
@@ -120,7 +119,7 @@ out of code.and use a list.")
 
 (defvar otdb-recipe-backpacking-files
   (mapcar (lambda (f)
-            (join-paths otdb-root f))
+            (cic:join-paths otdb-root f))
           '("backpacking-recipes/backpacking-meals.org"
             "backpacking-recipes/backpacking-recipes.org")))
 

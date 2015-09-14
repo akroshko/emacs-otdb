@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20150522
+;; Version: 20150904
 ;; URL:
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -47,11 +47,19 @@
 (add-to-list 'load-path ".")
 (add-to-list 'load-path "../emacs-stdlib/")
 (load "../emacs-stdlib/emacs-config.el")
+(requiring-package (emacs-stdlib-aliases))
 (requiring-package (emacs-stdlib-constants))
 (requiring-package (emacs-stdlib-functions))
 (requiring-package (emacs-stdlib-commands))
 (requiring-package (emacs-stdlib-keys))
+;; XXXX: uncomment to use my keys
+;; (emacs-stdlib-keys-mode t)
+;; (emacs-stdlib-keys-non-term-mode t)
 (requiring-package (emacs-stdlib-super-hyper-keys))
+;; XXXX: uncomment to use my super and hyper keys
+;; (emacs-stdlib-super-keys-mode t)
+;; (emacs-stdlib-hyper-keys-all-mode t)
+;; TODO put these in an accessible place
 (requiring-package (otdb-sample-config))
 (requiring-package (otdb-table))
 (requiring-package (otdb-recipe))

@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20150522
+;; Version: 20150904
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -55,26 +55,35 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; database/table keys
-(global-set-key (kbd "s-d !") 'otdb-table-agenda-attention)
-(global-set-key (kbd "s-d *") 'otdb-table-recalculate)
-(global-set-key (kbd "s-d +") (lambda () (interactive)
-                                (otdb-recipe-agenda-push-groceries)))
-;; update the "agenda" with the key
-(global-set-key (kbd "s-d a") 'otdb-table-agenda-check-add-key)
-;; goto key in main database
-(global-set-key (kbd "s-d d") 'otdb-table-goto-key-in-database)
-;; XXXX this makes sense to do on a new row or checklist item, or to complete something
-(global-set-key (kbd "s-d i") 'otdb-table-insert-key)
-;; (global-set-key (kbd "s-d u") 'otdb-table-update-key-in-database)
-(global-set-key (kbd "s-d j") 'otdb-table-agenda-jump)
-;; TODO: find occurences in database and collections
-;; (global-set-key (kbd "s-d o") 'otdb-table-occurences-key)
-; put key into main database, ask for key, update key at point if necessary
-(global-set-key (kbd "s-d p") 'otdb-table-put-key-in-database)
-;; update key from main database
-;; TODO want to be able to go and pop back
-; update the "agenda" with the key
-(global-set-key (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
+(define-minor-mode otdb-mode
+  ;; TODO: better way than global trees, trigger on appopriate files
+  :global t
+  ;; :lighter "Org-mode table database."
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "s-d !") 'otdb-table-agenda-attention)
+            (define-key map (kbd "s-d *") 'otdb-table-recalculate)
+            (define-key map (kbd "s-d +") 'otdb-recipe-agenda-push-groceries)
+            ;; update the "agenda" with the key
+            (define-key map (kbd "s-d a") 'otdb-table-agenda-check-add-key)
+            ;; goto key in main database
+            (define-key map (kbd "s-d d") 'otdb-table-goto-key-in-database)
+            ;; XXXX this makes sense to do on a new row or checklist item, or to complete something
+            (define-key map (kbd "s-d i") 'otdb-table-insert-key)
+            ;; (define-key map (kbd "s-d u") 'otdb-table-update-key-in-database)
+            (define-key map (kbd "s-d j") 'otdb-table-agenda-jump)
+            ;; TODO: find occurences in database and collections
+            ;; (define-key map (kbd "s-d o") 'otdb-table-occurences-key)
+            ;; put key into main database, ask for key, update key at point if necessary
+            (define-key map (kbd "s-d p") 'otdb-table-put-key-in-database)
+            ;; update key from main database
+            ;; TODO want to be able to go and pop back
+            ;; update the "agenda" with the key
+            (define-key map (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
+            map))
+(otdb-mode 1)
+(defun otdb-setup-minibuffer-hook ()
+  (otdb-mode 0))
+(add-hook 'minibuffer-setup-hook 'otdb-setup-minibuffer-hook)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; table variables that can be bound
@@ -107,8 +116,8 @@ helper functions.  MESSAGE-BUFFER gives messages."
          (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer))
         (t
          (let ((table-filename (buffer-file-name))
-               (table-lisp (apk:org-table-to-lisp-no-separators))
-               (table-heading (save-excursion (org-back-to-heading) (apk:get-headline-text (get-current-line))))
+               (table-lisp (cic:org-table-to-lisp-no-separators))
+               (table-heading (save-excursion (org-back-to-heading) (cic:get-headline-text (cic:get-current-line))))
                looked-up)
            ;; writing table-lookup functions is good
            (setq looked-up (funcall lookup-function table-lisp))
@@ -246,7 +255,7 @@ TODO: Fix some of the hardcoding here.
 TODO: probably want an error if not at proper table
 TODO: how to handle multiple databases"
   (let (key
-        (line (get-current-line))
+        (line (cic:get-current-line))
         (column 2))
     (when (or
            (equal (file-name-nondirectory (buffer-file-name)) "food-database.org")
@@ -255,11 +264,11 @@ TODO: how to handle multiple databases"
     (cond ((org-at-table-p)
            ;; get first column of current row
            (setq key (strip-full (org-table-get nil column))))
-          ((org-list-p line)
-           (when (string-match apk:emacs-stdlib-list-regexp line)
+          ((cic:org-list-p line)
+           (when (string-match cic:emacs-stdlib-list-regexp line)
              (setq key (match-string 3 line))))
           (t
-           (error)))
+           (error "Not in valid file!")))
     (strip-full-no-properties key)))
 
 (defun otdb-table-insert-key-database (new-key)
@@ -272,7 +281,7 @@ TODO: document further and remove hardcoding."
            (with-current-file-org-table (otdb-recipe-get-variable 'otdb-recipe-database)
                                         (otdb-recipe-get-variable 'otdb-recipe-database-headline)
                                         ;; go to last row
-                                        (apk:org-table-last-row)
+                                        (cic:org-table-last-row)
                                         ;; insert the new key
                                         (org-table-insert-row '(4))
                                         (insert new-key)
@@ -280,29 +289,29 @@ TODO: document further and remove hardcoding."
           ((eq table-detect 'backpacking)
            (with-current-file-org-table otdb-gear-database otdb-gear-database-headline
                                         ;; go to last row
-                                        (apk:org-table-last-row)
+                                        (cic:org-table-last-row)
                                         ;; insert the new key
                                         (org-table-insert-row '(4))
                                         (insert new-key)
                                         (org-table-align)))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (defun otdb-table-insert-key-at-point (new-key)
   "Insert a key at point.
 TODO: document further and remove hardcoding."
-  (let ((line (get-current-line)))
+  (let ((line (cic:get-current-line)))
     (cond ((org-at-table-p)
            ;; insert new-key into column 1
            (org-table-put nil 2 new-key))
-          ((org-plain-list-p line)
+          ((cic:org-plain-list-p line)
            (move-beginning-of-line 1)
            (search-forward-regexp "[-+*]" nil t)
            (kill-line)
            ;; insert new-key
            (insert (concat " " new-key))
            (org-table-align))
-          ((org-checkbox-p line)
+          ((cic:org-checkbox-p line)
            ;; go to end of checkbox
            (move-beginning-of-line 1)
            (search-forward "" nil t)
@@ -311,7 +320,7 @@ TODO: document further and remove hardcoding."
            ;; insert new-key
            (insert (concat " " new-key)))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (setq otdb-recipe-key-history nil)
 (setq otdb-gear-key-history nil)
@@ -324,9 +333,9 @@ TODO: document further and remove hardcoding."
            ;; check context to determine, or select if context cannot be determined
            (otdb-recipe-add-check))
           ((eq table-detect 'backpacking)
-           (error))
+           (error "Not in valid file!"))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (defun otdb-table-goto-key-in-database (&optional arg)
   "Goto a key in a database.
@@ -349,7 +358,7 @@ XXXX: ARG does nothing for now."
               (otdb-gear-find-item
                (completing-read "Item: " item-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (defun otdb-table-insert-key (&optional arg)
   "Insert a key into a database.
@@ -358,7 +367,7 @@ TODO: Document usage further."
   (otdb-table-reset-cache)
   (let ((table-detect (otdb-table-detect)))
     (cond ((eq table-detect 'recipe)
-           (let* ((line (get-current-line))
+           (let* ((line (cic:get-current-line))
                   (completion-list (if (equal arg '(4))
                                        (otdb-recipe-get-ingredients)
                                      (append (otdb-recipe-get-ingredients) (otdb-recipe-get-recipes))))
@@ -368,9 +377,9 @@ TODO: Document usage further."
                ;; add a new checkbox
                (otdb-table-insert-key-at-point ingredient))
               (t
-               (error)))))
+               (error "Not in valid file!")))))
           ((eq table-detect 'backpacking)
-           (let* ((line (get-current-line))
+           (let* ((line (cic:get-current-line))
                   (completion-list (if (equal arg '(4))
                                        (otdb-gear-get-items)
                                      (append (otdb-gear-get-items) (otdb-gear-get-collections))))
@@ -379,7 +388,7 @@ TODO: Document usage further."
               ((eq major-mode 'org-mode)
                (otdb-table-insert-key-at-point item))
               (t
-               (error)))))))
+               (error "Not in valid file!")))))))
   (org-table-align))
 
 (defun otdb-table-put-key-in-database ()
@@ -419,7 +428,7 @@ TODO: Document usage further."
                    (otdb-table-insert-key-database new-key))
                (mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (defun otdb-table-recalculate (&optional arg)
   "Recalculate a database.  ARG gets passed to
@@ -442,7 +451,7 @@ otdb-table-update."
                              'otdb-gear-insert-function
                              otdb-gear-message-buffer))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (defun otdb-table-agenda-attention ()
   "Call attention in agenda to a key in the table for things such
@@ -454,9 +463,9 @@ item are in need of checking."
     (cond ((eq table-detect 'recipe)
            (otdb-recipe-agenda-price-check))
           ((eq table-detect 'backpacking)
-           (error))
+           (error "Not in valid file!"))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (defun otdb-table-agenda-uncheck-key ()
   "Uncheck a database key from an agenda."
@@ -466,9 +475,9 @@ item are in need of checking."
     (cond ((eq table-detect 'recipe)
            (otdb-recipe-uncheck))
           ((eq table-detect 'backpacking)
-           (error))
+           (error "Not in valid file!"))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (defun otdb-table-update-key-in-database ()
   "Update a database key everywhere.
@@ -483,8 +492,8 @@ TODO: Needs further documentation."
              (otdb-table-insert-database
               (completing-read "Ingredient: " ingredient-list nil nil nil 'otdb-table-key-history))))
           ((eq table-detect 'backpacking)
-           (error))
+           (error "Not in valid file!"))
           (t
-           (error)))))
+           (error "Not in valid file!")))))
 
 (provide 'otdb-table)

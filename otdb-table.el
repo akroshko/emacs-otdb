@@ -55,10 +55,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; database/table keys
-(define-minor-mode otdb-mode
-  ;; TODO: better way than global trees, trigger on appopriate files
-  :global t
-  ;; :lighter "Org-mode table database."
+;; modes, macros, and utility commands
+
+;; TODO: flip units
+(define-minor-mode otdb-table-mode
+  :global nil
+  :lighter " otdb"
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "s-d !") 'otdb-table-agenda-attention)
             (define-key map (kbd "s-d *") 'otdb-table-recalculate)
@@ -79,11 +81,121 @@
             ;; TODO want to be able to go and pop back
             ;; update the "agenda" with the key
             (define-key map (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
-            map))
-(otdb-mode 1)
+            (define-key map (kbd "H-T") 'otdb-table-invalid-toggle-line)
+            (define-key map (kbd "H-<up>") 'otdb-table-increment-line)
+            (define-key map (kbd "H-<down>") 'otdb-table-decrement-line)
+            (define-key map (kbd "H-m") 'otdb-toggle-tablet-mode)
+            map)
+  (make-local-variable 'otdb-table-tablet-mode)
+  (make-local-variable 'otdb-old-modeline-color)
+  (make-local-variable 'otdb-old-modeline-color-inactive)
+  (setq-local otdb-table-tablet-mode nil))
+
+(defun otdb-table-detect ()
+  "Users should modify this file to meet their file structure.
+May eventually be generalized a little better."
+  (let ((current-directory (file-name-base (directory-file-name default-directory)))
+        (current-filename (buffer-file-name)))
+    (cond ((with-current-file-min current-filename
+             (re-search-forward "^\\*.*:recipe:" nil t))
+           'recipe)
+          ((with-current-file-min current-filename
+             (re-search-forward "^\\*.*:gear:" nil t))
+           'backpacking)
+          (t
+           nil))))
+
+;; TODO: eventually move onto a hook
+(defun otdb-toggle-tablet-mode ()
+  "A tablet mode where the otdb-table-mode buffer is read-only except for certain
+commands."
+  (interactive)
+  (when (otdb-table-buffer-p)
+    (if otdb-table-tablet-mode
+        (progn
+          (face-remap-remove-relative otdb-old-modeline-color)
+          (face-remap-remove-relative otdb-old-modeline-color-inactive)
+          (setq otdb-table-tablet-mode nil)
+          ;; TODO: want to make sure buffer stays read-only if for other reasons?
+          (read-only-mode -1))
+      (progn
+        (setq-local otdb-old-modeline-color (face-remap-add-relative 'mode-line :background "green"))
+        (setq-local otdb-old-modeline-color-inactive (face-remap-add-relative 'mode-line-inactive :background "red"))
+        (setq otdb-table-tablet-mode t)
+        (read-only-mode t)))))
+
+(defun otdb-table-buffer-p ()
+  "Check if we are in an otdb-table buffer.
+This is seperate from the otdb-database."
+  (and (eq major-mode 'org-mode)
+       (save-excursion (goto-char (point-min))
+                       ;; assume two spaces in front of TBLEL
+                       (re-search-forward "^  #\\+TBLEL:" nil t))
+       t))
+
+(defun otdb-setup-hook ()
+  (when (otdb-table-buffer-p)
+    (otdb-table-mode 1)))
+
+(add-hook 'org-mode-hook 'otdb-setup-hook)
+
 (defun otdb-setup-minibuffer-hook ()
-  (otdb-mode 0))
+  (otdb-table-mode 0))
 (add-hook 'minibuffer-setup-hook 'otdb-setup-minibuffer-hook)
+
+(defun otdb-table-elp-instrument ()
+  "Standard profiling setup"
+  (interactive)
+  (require 'elp)
+  (elp-restore-all)
+  (elp-reset-all)
+  (elp-instrument-package "otdb")
+  (elp-instrument-package "cic:")
+  (elp-instrument-package "org-table")
+  ;; some commonly used functions
+  (elp-instrument-function 'format)
+  (elp-instrument-function 'number-to-string)
+  (elp-instrument-function 'org-table-put)
+  (elp-reset-all))
+
+;; TODO: is there a better way to do this?
+(defmacro otdb-table-inhibit-read-only (&rest body)
+  "Inhibit read-only for certain commands for use with tablet
+mode."
+  ;; TODO: inhibit for all otdb buffers
+  `(when (and (boundp 'otdb-table-tablet-mode) (otdb-table-buffer-p))
+     (if otdb-table-tablet-mode
+         (progn
+           (toggle-read-only -1)
+           ,@body
+           (toggle-read-only t))
+       (progn
+         ,@body))
+     t))
+
+(defun otdb-table-inhibit-read-only-advice (orig-fun &rest args)
+  ;; TODO: inhibit for all otdb buffers
+  (let (return-value)
+    (if (and (boundp 'otdb-table-tablet-mode) otdb-table-tablet-mode)
+        (progn
+          (toggle-read-only -1)
+          (setq return-value (apply orig-fun args))
+          (toggle-read-only t))
+      (progn
+        (setq return-value (apply orig-fun args))))
+    return-value))
+
+;; ensure C-c C-c works in tablet mode
+(advice-add 'org-ctrl-c-ctrl-c :around #'otdb-table-inhibit-read-only-advice)
+(advice-add 'cic:org-table-eval-tblel :around #'otdb-table-inhibit-read-only-advice)
+
+(defun otdb-table-database-buffer-p ()
+  "Check if we are in an otdb-table buffer.
+This is seperate from the otdb-database."
+  (when (save-excursion (goto-char (point-min))
+                        ;; assume two spaces in front of TBLEL
+                        (and (eq major-mode 'org-mode)
+                             (re-search-forward "^  #\\+TBLEL:" nil t)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; table variables that can be bound
@@ -102,27 +214,214 @@ TODO: Make less application-specific."
 DATABASE and HEADING gives the database.  COLLECTION-FILES gives
 the collection of files.  LOOKUP-FUNCTION and INSERT-FUNCTION are
 helper functions.  MESSAGE-BUFFER gives messages."
-  (cond ((equal arg '(4))
-         (save-excursion
-           (point-min)
-           (org-table-map-tables (lambda () (otdb-table-update nil database heading collection-files lookup-function insert-function message-buffer)))))
-        ((equal arg '(16))
-         (dolist (collection-file collection-files)
-           (with-current-file-min collection-file
-             (otdb-table-update '(4) database heading collection-files lookup-function insert-function message-buffer))))
-        ((equal arg '(64))
-         (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)
-         (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)
-         (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer))
-        (t
-         (let ((table-filename (buffer-file-name))
-               (table-lisp (cic:org-table-to-lisp-no-separators))
-               (table-heading (save-excursion (org-back-to-heading) (cic:get-headline-text (cic:get-current-line))))
-               looked-up)
-           ;; writing table-lookup functions is good
-           (setq looked-up (funcall lookup-function table-lisp))
-           ;; get columns from org-table-lisp
-           (funcall insert-function table-filename table-heading looked-up)))))
+  (otdb-table-inhibit-read-only
+   (cond ((equal arg '(4))
+          (save-excursion
+            (point-min)
+            (org-table-map-tables (lambda () (otdb-table-update nil database heading collection-files lookup-function insert-function message-buffer)))))
+         ((equal arg '(16))
+          (dolist (collection-file collection-files)
+            (with-current-file-min collection-file
+              (otdb-table-update '(4) database heading collection-files lookup-function insert-function message-buffer))))
+         ((equal arg '(64))
+          (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)
+          (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)
+          (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer))
+         (t
+          (let ((table-filename (buffer-file-name))
+                (table-lisp (cic:org-table-to-lisp-no-separators))
+                (table-heading (save-excursion (org-back-to-heading) (cic:get-headline-text (cic:get-current-line))))
+                looked-up)
+            ;; writing table-lookup functions is good
+            (setq looked-up (funcall lookup-function table-lisp))
+            ;; get columns from org-table-lisp
+            (funcall insert-function table-filename table-heading looked-up))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; some commands and associated functions for dealing with the check column
+
+(defun otdb-table-check-line ()
+  "Check current line in otdb-table.."
+  (interactive)
+  (otdb-table-inhibit-read-only
+   (when (otdb-table-buffer-p)
+     (when (and (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+       (let ((x-column (otdb-table-check-find-column)))
+         ;; find X column in header and record
+         (when x-column
+           (org-table-put nil x-column "X")))
+       ;; TODO: only align if interactive
+       (org-table-align)))))
+
+;; TODO: find status
+(defun otdb-table-uncheck-line ()
+  "Uncheck current line in otdb-table.."
+  (interactive)
+  (otdb-table-inhibit-read-only
+   (when (otdb-table-buffer-p)
+     (when (and (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+       (let ((x-column (otdb-table-check-find-column)))
+         ;; find X column in header and record
+         (when x-column
+           (org-table-put nil x-column " ")))
+       ;; TODO: only align if interactive
+       (org-table-align)))))
+
+(defun otdb-table-invalid-line ()
+  "Check current line in otdb-table.."
+  (interactive)
+  (otdb-table-inhibit-read-only
+   (when (otdb-table-buffer-p)
+     (when (and (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+       (let ((x-column (otdb-table-check-find-column)))
+         ;; find X column in header and record
+         (when x-column
+           (org-table-put nil x-column "-")))
+       ;; TODO: only align if interactive
+       (org-table-align)))))
+
+(defun otdb-table-check-toggle-line ()
+  "Toggle check current line in otdb-table."
+  (interactive)
+  ;; TODO: add proper save-excursion
+  ;; TODO: toggles becoming more difficult
+  (otdb-table-inhibit-read-only
+   (when (otdb-table-buffer-p)
+     (org-table-goto-column 1)
+     (when (org-table-p)
+       (when (and  (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+         ;; find X column in header and record
+         (let* ((x-column (otdb-table-check-find-column))
+                (x-column-value (strip-full-no-properties (org-table-get nil x-column))))
+           (when x-column
+             (when (or (string= x-column-value "X")
+                       (string= x-column-value ""))
+               (if (string= x-column-value "")
+                   (org-table-put nil x-column "X")
+                 (org-table-put nil x-column " ")))))
+         ;; TODO: only align if interactive
+         (org-table-align))))))
+
+(defun otdb-table-invalid-toggle-line ()
+  "Toggle check current line in otdb-table."
+  (interactive)
+  ;; TODO: add proper save-excursion
+  ;; TODO: toggles becoming more difficult
+  (otdb-table-inhibit-read-only
+   (when (otdb-table-buffer-p)
+     (org-table-goto-column 1)
+     (when (org-table-p)
+       (when (and  (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+         ;; find X column in header and record
+         (let* ((x-column (otdb-table-check-find-column))
+                (x-column-value (strip-full-no-properties (org-table-get nil x-column))))
+           (when x-column
+             (when (or (string= x-column-value "-")
+                       (string= x-column-value ""))
+               (if (string= x-column-value "")
+                   (org-table-put nil x-column "-")
+                 (org-table-put nil x-column " ")))))
+         ;; TODO: only align if interactive
+         (org-table-align))))))
+
+(defun otdb-table-decrement-line (&optional arg)
+  "Decrement check on current line in otdb-table."
+  (interactive "P")
+  (otdb-table-inhibit-read-only
+   (cond ((equal arg '(4))
+          (otdb-table-increment-line arg))
+         ((equal arg nil)
+          (otdb-table-increment-line -1))
+         (t
+          (otdb-table-increment-line (- arg))))))
+
+(defun otdb-table-increment-line (&optional arg)
+  "Increment check on current line in otdb-table."
+  (interactive "P")
+  ;; TODO: add proper save-excursion
+  ;; TODO: toggles becoming more difficult
+  (otdb-table-inhibit-read-only
+   (when (otdb-table-buffer-p)
+     (org-table-goto-column 1)
+     (when (org-table-p)
+       (when (and (org-table-check-inside-data-field t)
+                  (> (org-table-current-line) 1))
+         ;; find X column in header and record
+         (let* ((x-column (otdb-table-check-find-column))
+                (x-column-value (strip-full-no-properties (org-table-get nil x-column))))
+           (when x-column
+             ;; TODO: if not on seperator
+             (when (or (string= x-column-value "")
+                       (cic:string-integer-p x-column-value))
+               ;; if current value goes to zero
+               ;; get number corresponding to arg?
+               ;; TODO: reverse arg properly if
+               (let ((change (cond ((equal arg '(4))
+                                    nil)
+                                   (arg
+                                    arg)
+                                   (t
+                                    1))))
+                 (org-table-put nil x-column (otdb-table-increment-string x-column-value change))))))
+         ;; TODO: only align if interactive
+         (org-table-align))))))
+
+
+(defun otdb-table-increment-string (string change)
+  "Appropriately increment an integer string."
+  (if change
+      (cond ((string= string "")
+             (number-to-string change))
+            (t
+             (let ((new-string (number-to-string (+ (string-to-number string) change))))
+               (if (string= new-string "0")
+                   ""
+                 new-string))))
+    ""))
+
+(defun otdb-table-check-find-column ()
+  "Find if a check column exists in an otdb-table."
+  (when (org-table-p)
+    ;; found converting to lisp-table was easiest way to do this
+    (let ((lisp-table (cic:org-table-to-lisp-no-separators))
+          (current-column 1)
+          found-column)
+      (dolist (lisp-element (car lisp-table))
+        (when (and
+               (not found-column)
+               (string= "X" (strip-full-no-properties lisp-element)))
+          (setq found-column current-column))
+        (setq current-column (1+ current-column)))
+      found-column)))
+
+(add-to-list 'cic:org-mark-toggle-headline-hook 'otdb-table-check-toggle-line)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; other?
+
+(defun otdb-table-recalculate (&optional arg)
+  "Recalculate a database.  ARG gets passed to
+otdb-table-update."
+  (interactive "P")
+  (otdb-table-reset-cache)
+  (otdb-table-inhibit-read-only
+   (let ((table-detect (otdb-table-detect)))
+     (cond ((eq table-detect 'recipe)
+            (otdb-table-update arg
+                               (otdb-recipe-get-variable 'otdb-recipe-database)
+                               (otdb-recipe-get-variable 'otdb-recipe-database-headline)
+                               (otdb-recipe-get-variable 'otdb-recipe-files)
+                               'otdb-recipe-lookup-function 'otdb-recipe-insert-function (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
+           ((eq table-detect 'backpacking)
+            (otdb-table-update arg
+                               otdb-gear-database
+                               otdb-gear-database-headline
+                               otdb-gear-collection-files
+                               'otdb-gear-lookup-function
+                               'otdb-gear-insert-function
+                               otdb-gear-message-buffer))
+           (t
+            (error "Not in valid file!"))))))
 
 (defun otdb-table-number (value)
   "Read from string VALUE and convert to a number."
@@ -248,7 +547,6 @@ TO-UNIT units."
            ("ml" 1.0))))
   "Conversion table for volume units.")
 
-
 (defun otdb-table-get-key-at-point ()
   "Get the KEY from the current table, works for both collections and databases.
 TODO: Fix some of the hardcoding here.
@@ -365,30 +663,31 @@ XXXX: ARG does nothing for now."
 TODO: Document usage further."
   (interactive "P")
   (otdb-table-reset-cache)
-  (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           (let* ((line (cic:get-current-line))
-                  (completion-list (if (equal arg '(4))
-                                       (otdb-recipe-get-ingredients)
-                                     (append (otdb-recipe-get-ingredients) (otdb-recipe-get-recipes))))
-                  (ingredient (completing-read "Ingredient: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))
-             (cond
-              ((eq major-mode 'org-mode)
-               ;; add a new checkbox
-               (otdb-table-insert-key-at-point ingredient))
-              (t
-               (error "Not in valid file!")))))
-          ((eq table-detect 'backpacking)
-           (let* ((line (cic:get-current-line))
-                  (completion-list (if (equal arg '(4))
-                                       (otdb-gear-get-items)
-                                     (append (otdb-gear-get-items) (otdb-gear-get-collections))))
-                  (item (completing-read "Items: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))
-             (cond
-              ((eq major-mode 'org-mode)
-               (otdb-table-insert-key-at-point item))
-              (t
-               (error "Not in valid file!")))))))
+  (otdb-table-inhibit-read-only
+   (let ((table-detect (otdb-table-detect)))
+     (cond ((eq table-detect 'recipe)
+            (let* ((line (cic:get-current-line))
+                   (completion-list (if (equal arg '(4))
+                                        (otdb-recipe-get-ingredients)
+                                      (append (otdb-recipe-get-ingredients) (otdb-recipe-get-recipes))))
+                   (ingredient (completing-read "Ingredient: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))
+              (cond
+               ((eq major-mode 'org-mode)
+                ;; add a new checkbox
+                (otdb-table-insert-key-at-point ingredient))
+               (t
+                (error "Not in valid file!")))))
+           ((eq table-detect 'backpacking)
+            (let* ((line (cic:get-current-line))
+                   (completion-list (if (equal arg '(4))
+                                        (otdb-gear-get-items)
+                                      (append (otdb-gear-get-items) (otdb-gear-get-collections))))
+                   (item (completing-read "Items: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))
+              (cond
+               ((eq major-mode 'org-mode)
+                (otdb-table-insert-key-at-point item))
+               (t
+                (error "Not in valid file!"))))))))
   (org-table-align))
 
 (defun otdb-table-put-key-in-database ()
@@ -427,29 +726,6 @@ TODO: Document usage further."
                    ;; add a new row to the database
                    (otdb-table-insert-key-database new-key))
                (mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))))
-          (t
-           (error "Not in valid file!")))))
-
-(defun otdb-table-recalculate (&optional arg)
-  "Recalculate a database.  ARG gets passed to
-otdb-table-update."
-  (interactive "P")
-  (otdb-table-reset-cache)
-  (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           (otdb-table-update arg
-                             (otdb-recipe-get-variable 'otdb-recipe-database)
-                             (otdb-recipe-get-variable 'otdb-recipe-database-headline)
-                             (otdb-recipe-get-variable 'otdb-recipe-files)
-                             'otdb-recipe-lookup-function 'otdb-recipe-insert-function (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
-          ((eq table-detect 'backpacking)
-           (otdb-table-update arg
-                             otdb-gear-database
-                             otdb-gear-database-headline
-                             otdb-gear-collection-files
-                             'otdb-gear-lookup-function
-                             'otdb-gear-insert-function
-                             otdb-gear-message-buffer))
           (t
            (error "Not in valid file!")))))
 
@@ -495,5 +771,27 @@ TODO: Needs further documentation."
            (error "Not in valid file!"))
           (t
            (error "Not in valid file!")))))
+
+(defun otdb-table-lisp-row-check (lisp-row index)
+  "Check that the INDEX of a particular elisp table-row LISP-ROW is a
+non-zero float"
+  (ignore-errors (/= (cic:string-to-float-empty-zero (elt lisp-row index)) 0.0)))
+
+(defun otdb-table-lisp-row-float (lisp-row index)
+  "From LISP-ROW get the float from INDEX."
+  (cic:string-to-float-empty-zero (elt lisp-row index)))
+
+(defun otdb-table-format-number-nil (num format)
+  "Format a number NUM with FORMAT decimal places or return an
+empty string for nil."
+  (if num
+      (format (concat "%." (number-to-string format) "f") num)
+    ""))
+
+(defun otdb-table-format-number-zero (num format)
+  "Format a number NUM with FORMAT decimal places or return zero string for nil."
+  (if num
+      (format (concat "%." (number-to-string format) "f") num)
+    "0.0"))
 
 (provide 'otdb-table)

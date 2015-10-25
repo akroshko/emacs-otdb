@@ -61,109 +61,46 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; normal recipes
 
-(defvar otdb-recipe-normal-database
-  (cic:join-paths otdb-root "recipes/food-database.org")
-  "The main location of the database, should be re-re-factored
-out of code.and use a list.")
-
-(defvar otdb-recipe-normal-database-headline
-  "Ingredients")
-
-(defvar otdb-recipe-normal-agenda
-  (cic:join-paths otdb-root "recipes/sample-agenda.org")
-  "The main location of the agenda, should be re-re-factored out
-  of code.")
-
-(defvar otdb-recipe-normal-shopping
-  (cic:join-paths otdb-root "recipes/groceries.org")
-  "The grocery list used for mobile use.")
-
-(defvar otdb-recipe-normal-price-check-headline
-  "Price checks"
-  "The headline for price checks to make.")
-
-(defvar otdb-recipe-normal-files
-  (mapcar (lambda (f)
-            (cic:join-paths otdb-root f))
-          '("recipes/recipes.org"
-            "recipes/meals.org"
-            "recipes/slowcooker-recipes.org")))
-
-(defvar otdb-recipe-normal-message-buffer
-  "*Recipe messages*")
+(defvar otdb-recipe-normal-alist
+  (list
+   ;; The main location of the database
+   (cons 'otdb-recipe-database (cic:join-paths otdb-root "recipes/food-database.org"))
+   (cons 'otdb-recipe-database-headline "Ingredients")
+   ;; The main location of the agenda, should be re-re-factored out of code.
+   (cons 'otdb-recipe-agenda (cic:join-paths otdb-root "recipes/sample-agenda.org"))
+   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
+   ;; The grocery list used for mobile use.
+   (cons 'otdb-recipe-shopping (cic:join-paths otdb-root "recipes/groceries.org"))
+   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
+   ;; The headline for price checks to make.
+   (cons 'otdb-recipe-price-check-headline "Price checks")
+   (cons 'otdb-recipe-files (mapcar (lambda (f)
+                                      (cic:join-paths otdb-root f))
+                                    '("recipes/recipes.org"
+                                      "recipes/meals.org"
+                                      "recipes/slowcooker-recipes.org")))
+   (cons 'otdb-recipe-message-buffer "*Recipe messages*")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; backpacking recipes
 
-;; TODO need to decide how to have more databases
-(defvar otdb-recipe-backpacking-database
-  (cic:join-paths otdb-root "recipes/food-database.org")
-  "The main location of the database, should be re-re-factored
-out of code.and use a list.")
-
-(defvar otdb-recipe-backpacking-database-headline
-  "Ingredients")
-
-(defvar otdb-recipe-backpacking-agenda
-  (cic:join-paths otdb-root "backpacking-recipes/backpacking-agenda.org")
-  "The main location of the agenda, should be re-re-factored out
-  of code.")
-
-(defvar otdb-recipe-backpacking-shopping
-  (cic:join-paths otdb-root "backpacking-recipes/backpacking-groceries.org")
-  "The grocery list used for mobile use.")
-
-(defvar otdb-recipe-backpacking-price-check-headline
-  "Price checks"
-  "The headline for price checks to make.")
-
-(defvar otdb-recipe-backpacking-files
-  (mapcar (lambda (f)
-            (cic:join-paths otdb-root f))
-          '("backpacking-recipes/backpacking-meals.org"
-            "backpacking-recipes/backpacking-recipes.org")))
-
-(defvar otdb-recipe-backpacking-message-buffer
-  "*Backpacking recipe messages*")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; global variables
-
-(defvar otdb-recipe-database
-  otdb-recipe-normal-database)
-
-(defvar otdb-recipe-database-headline
-  otdb-recipe-normal-database-headline)
-
-(defvar otdb-recipe-agenda
-  otdb-recipe-normal-agenda)
-
-(defvar otdb-recipe-shopping
-  otdb-recipe-normal-shopping)
-
-(defvar otdb-recipe-price-check-headline
-  otdb-recipe-normal-price-check-headline)
-
-(defvar otdb-recipe-files
-  otdb-recipe-normal-files)
-
-(defvar otdb-recipe-message-buffer
-  otdb-recipe-normal-message-buffer)
-
-(defun otdb-table-detect ()
-  "Users should modify this file to meet their file structure.
-May eventually be generalized a little better."
-  (let ((current-directory (file-name-base (directory-file-name default-directory)))
-        (current-filename (buffer-file-name)))
-    (cond ((or
-            (equal current-directory "recipes")
-            (equal current-filename "food-database.org")
-            (equal current-directory "backpacking-recipes"))
-           'recipe)
-          ((or
-            (equal current-directory "gear"))
-           'backpacking)
-          (t
-           nil))))
+(defvar otdb-recipe-backpacking-alist
+  (list
+   ;; The main location of the database
+   (cons 'otdb-recipe-database (cic:join-paths otdb-root "recipes/food-database.org"))
+   (cons 'otdb-recipe-database-headline "Ingredients")
+   ;; The main location of the agenda, should be re-re-factored out of code.
+   (cons 'otdb-recipe-agenda (cic:join-paths otdb-root "backpacking-recipes/backpacking-agenda.org"))
+   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
+   ;; The grocery list used for mobile use.
+   (cons 'otdb-recipe-shopping (cic:join-paths otdb-root "backpacking-recipes/backpacking-groceries.org"))
+   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
+   ;; The headline for price checks to make.
+y   (cons 'otdb-recipe-price-check-headline "Price checks")
+   (cons 'otdb-recipe-files (mapcar (lambda (f)
+                                      (cic:join-paths otdb-root f))
+                                    '("backpacking-recipes/backpacking-meals.org"
+                                      "backpacking-recipes/backpacking-recipes.org")))
+   (cons 'otdb-recipe-message-buffer "*Backpacking recipe messages*")))
 
 (provide 'otdb-sample-config)

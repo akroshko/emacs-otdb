@@ -5,7 +5,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20150904
+;; Version: 20151010
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -43,6 +43,16 @@
 
 (defconst otdb-gear-types
   '("gear"))
+
+;; XXXX: I'm Canadian and like small weights in grams and large
+;; weights in pounds.
+;; (setq otdb-gear-weight-units 'lb)
+;; (setq otdb-gear-weight-units 'kg)
+;; (setq otdb-gear-weight-units 'lb-g)
+(defvar otdb-gear-weight-units
+  'lb-g
+  "Use 'kg for kilograms, 'lb for pounds, and 'lb-g for lbs for
+  larger weights and g for smaller weights..")
 
 (defun otdb-gear-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
@@ -94,13 +104,12 @@ WEIGHT-COST-LIST."
                          (setq new-cost (elt (assoc new-item weight-cost-list) 2))
                          (if (not new-weight)
                              (org-table-put count 3 "")
-                           (org-table-put count 3 (format "%.4f" new-weight)))
+                           (org-table-put count 3 (otdb-gear-weight-string new-weight)))
                          (if (not new-cost)
                              (org-table-put count 4 "")
-                           (org-table-put count 4 (format "%.4f" new-cost))))
-                       (setq count (+ count 1)))
-    (org-table-align)
-    (org-table-recalculate (quote (16)))))
+                           (org-table-put count 4 (otdb-gear-cost-string new-cost))))
+                       (setq count (1+ count)))
+    (cic:org-table-eval-tblel)))
 
 (defvar otdb-gear-database-cache
   nil
@@ -125,6 +134,27 @@ TODO: can I make this function universal between gear and recipe?"
           (setq found-rows-alist (cons (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
     found-rows-alist))
 
+(defun otdb-gear-weight-string (weight)
+  "Convert the WEIGHT into a proper string."
+  (if (numberp weight)
+    (cond ((eq otdb-gear-weight-units 'kg)
+           (format "%.4f kg" (float weight)))
+          ((eq otdb-gear-weight-units 'lb)
+           (format "%.4f lb" (float weight)))
+          ((eq otdb-gear-weight-units 'lb-g)
+           (if (>= (* (float weight) (otdb-table-unit-conversion 'weight "g" "lb")) 2.0)
+               (format "%.4f lb" (* (otdb-table-unit-conversion 'weight "g" "lb") (float weight)))
+             (format "%.1fg" (float weight))))
+          (t
+           error "Unit not properly defined."))
+    ""))
+
+(defun otdb-gear-cost-string (cost)
+  "Convert the COST into a proper string."
+  (if (numberp cost)
+      (format "$%.3f" (float cost))
+    ""))
+
 (defun otdb-gear-get-weight (row)
   "Get the weight of key in the ROW."
   (let* ((collection-list (otdb-gear-get-collections)))
@@ -135,15 +165,18 @@ TODO: can I make this function universal between gear and recipe?"
 (defun otdb-gear-get-weight-database (item quantity)
   "Get the weight of QUANTITY of the ITEM from the database."
   (let* ((database-row (otdb-gear-database-row item)))
-    (* (otdb-table-number quantity)
-       (otdb-table-number (elt database-row 1))
-       (otdb-table-unit-conversion 'weight (otdb-table-unit (elt database-row 1)) "kg"))))
+    (otdb-gear-get-weight-database-row database-row quantity)))
 
 (defun otdb-gear-get-weight-database-row (database-row quantity)
   "Get the weight of QUANTITY from database row DATABASE-ROW."
   (* (otdb-table-number quantity)
      (otdb-table-number (elt database-row 1))
-     (otdb-table-unit-conversion 'weight (otdb-table-unit (elt database-row 1)) "kg")))
+     (cond ((eq otdb-gear-weight-units 'kg)
+            (otdb-table-unit-conversion 'weight (otdb-table-unit (elt database-row 1)) "kg"))
+           ((eq otdb-gear-weight-units 'lb)
+            (otdb-table-unit-conversion 'weight (otdb-table-unit (elt database-row 1)) "lb"))
+           ((eq otdb-gear-weight-units 'lb-g)
+            (otdb-table-unit-conversion 'weight (otdb-table-unit (elt database-row 1)) "g")))))
 
 (defun otdb-gear-get-cost (row)
   "Get the cost of the item.  No idea if this is actually a valid thing."
@@ -169,7 +202,16 @@ DATABASE-ROW."
       (goto-char (cadr collection-location))
       (cic:org-find-table)
       (cic:org-table-last-row)
-      (list (string-to-number (org-table-get nil 3)) (string-to-number (org-table-get nil 4))))))
+      (list
+       (*
+        (string-to-number (org-table-get nil 3))
+        (cond ((eq otdb-gear-weight-units 'kg)
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "kg"))
+              ((eq otdb-gear-weight-units 'lb)
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "lb"))
+              ((eq otdb-gear-weight-units 'lb-g)
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "g"))))
+       (string-to-number (org-table-get nil 4))))))
 
 (defun otdb-gear-find-item (item)
   "Find the location of the ITEM."
@@ -220,5 +262,35 @@ DATABASE-ROW."
 (defun otdb-gear-database-row (item)
   "Get the database row corresponding to gear item ITEM."
   (cic:org-table-lookup-row otdb-gear-database otdb-gear-database-headline item))
+
+(defun otdb-gear-calc-gear (lisp-table)
+  "Calculated an updated lisp table from the LISP-TABLE
+corresponding to a gear collection."
+  (let ((weight 0)
+        (cost 0)
+        (new-lisp-table (butlast lisp-table))
+        (last-row (car (last lisp-table))))
+    (dolist (lisp-row (butlast (cdr lisp-table)))
+      (cond ((or (eq otdb-gear-weight-units 'lb)
+                 (eq otdb-gear-weight-units 'kg))
+             (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
+            ((eq otdb-gear-weight-units 'lb-g)
+             ;; otherwise make sure weight is in grams
+             (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
+                                       (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g"))))))
+      (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3))))
+    ;; insert into last row
+    (setq new-lisp-table
+          (nconc
+           new-lisp-table
+           (list
+            (nconc
+             (list
+              (elt last-row 0)
+              (elt last-row 1)
+              (otdb-gear-weight-string weight)
+              (otdb-gear-cost-string cost))
+             (nthcdr 4 last-row)))))
+    new-lisp-table))
 
 (provide 'otdb-gear)

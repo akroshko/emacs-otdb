@@ -624,7 +624,7 @@ recipe)."
 (defun otdb-recipe-agenda-push-groceries ()
   "Push the currently checked groceries to the special file for export."
   (interactive)
-  (with-current-file otdb-recipe-shopping
+  (with-current-file (cdr (assoc 'otdb-recipe-shopping otdb-recipe-normal-alist))
     (erase-buffer))
   ;; loop over the headings with "Grocery"
   (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree

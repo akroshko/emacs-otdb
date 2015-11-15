@@ -22,9 +22,9 @@ Requirements
 ============
 
 This package requires a standard Emacs installation, of course. It has
-mostly been tested with the current Emacs package on Debian Linux
-(Jessie) and should not require any other packages from the Debian
-package manager.  The associated library from
+mostly been tested with the current Emacs package on *Debian Linux
+(Jessie) 8.2* and should not require any other packages from the
+Debian package manager.  The associated library from
 [http://github.com/akroshko/emacs-stdlib](http://github.com/akroshko/emacs-stdlib)
 is the only additional Emacs requirement.  The `git` version control
 system is an optional requirement to using the installation
@@ -35,9 +35,11 @@ Installation
 
 The library from
 [http://github.com/akroshko/emacs-stdlib](http://github.com/akroshko/emacs-stdlib)
-can be installed using the command `git clone
-https://github.com/akroshko/emacs-stdlib.git ../emacs-stdlib` so by
-default it is in a sibling directory of this package.
+can be installed using the command:
+
+    git clone https://github.com/akroshko/emacs-stdlib.git ../emacs-stdlib
+
+so by default it is in a sibling directory of this package.
 
 Basic usage
 ===========
@@ -155,12 +157,9 @@ package provides a very unique and useful option.
 Planned Development
 ===================
 
-- a special function to use instead of `TBLFM: ` to speed up
-  recalculation of the recipe tables
-
 - templates/keys to create a recipe/collection and to insert a line
 
-- more profiling to speed up the package overall
+- regex filters to find totals for particular matching items
 
 - export to nicely formatted .html
 
@@ -168,8 +167,8 @@ Planned Development
 
 - improve export to .pdf, collections of recipes with one recipe per page
 
-- export to .pdf for mobile devices or hardcopy in a way that will
-  convienient while travelling
+- export to .pdf for mobile devices or hardcopy for convenience while
+  working or travelling
 
 - more complete agenda integration with better testing
 

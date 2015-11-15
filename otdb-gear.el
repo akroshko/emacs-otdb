@@ -143,7 +143,7 @@ TODO: can I make this function universal between gear and recipe?"
            (format "%.4f lb" (float weight)))
           ((eq otdb-gear-weight-units 'lb-g)
            (if (>= (* (float weight) (otdb-table-unit-conversion 'weight "g" "lb")) 2.0)
-               (format "%.4f lb" (* (otdb-table-unit-conversion 'weight "g" "lb") (float weight)))
+               (format "%.4flb" (* (otdb-table-unit-conversion 'weight "g" "lb") (float weight)))
              (format "%.1fg" (float weight))))
           (t
            error "Unit not properly defined."))

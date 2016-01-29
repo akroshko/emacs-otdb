@@ -264,14 +264,10 @@ TODO return location at beginning of line"
             (setq location (list recipe-file found))))))
     location))
 
-(defvar otdb-recipe-recipes-cache
-  nil
-  "Variable to store list of recipes.")
-
 (defun otdb-recipe-get-recipes ()
   "Get the full list of recipes."
-  (if otdb-recipe-recipes-cache
-      otdb-recipe-recipes-cache
+  (if otdb-table-collections-cache
+      otdb-table-collections-cache
     (let (table
           table-name
           recipe-list
@@ -283,7 +279,7 @@ TODO return location at beginning of line"
       (setq dups (cic:get-list-duplicates recipe-list))
       (when (> (length dups) 0)
         (mpp-echo (concat "Duplicate recipes: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
-      (setq otdb-recipe-recipes-cache recipe-list)
+      (setq otdb-table-collections-cache recipe-list)
       recipe-list)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -482,7 +478,7 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
                                      quantity-alist))
           (setq key-list (cons (strip-full-no-properties (elt row 1)) key-list)))))
     ;; get the database rows
-    (setq database-row-alist (otdb-recipe-ingredient-row-multiple
+    (setq database-row-alist (otdb-table-item-row-multiple
                               (otdb-recipe-get-variable 'otdb-recipe-database)
                               (otdb-recipe-get-variable 'otdb-recipe-database-headline)
                               key-list 1))
@@ -566,29 +562,6 @@ CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST."
                            (org-table-put count 7 (format "%.3f" new-cost))))
                        (setq count (1+ count)))
     (cic:org-table-eval-tblel)))
-
-(defvar otdb-recipe-database-cache
-  nil
-  "Cache of the recipe database table.")
-
-(defun otdb-recipe-ingredient-row-multiple (database table-name key-list &optional column)
-  "Look up multiple ingredient rows in DATABASE file with heading
-TABLE-NAME and keys KEY-LIST in column COLUMN."
-  ;; get multiple things out
-  ;; return a list of rows indexed by key
-  (let (lisp-table
-        found-rows-alist)
-    (if otdb-recipe-database-cache
-        (setq lisp-table otdb-recipe-database-cache)
-      (with-current-file-org-table database table-name
-                                   (setq lisp-table (cic:org-table-to-lisp-no-separators))
-                                   (setq otdb-recipe-database-cache lisp-table)))
-    (dolist (row lisp-table)
-      ;; when column is a member
-      (let ((column-stripped (strip-full-no-properties (elt row (- column 1)))))
-        (when (member column-stripped key-list)
-          (setq found-rows-alist (cons (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
-    found-rows-alist))
 
 (defun otdb-recipe-find-ingredient (ingredient)
   "Find the location of INGREDIENT ingredient in database (or
@@ -723,7 +696,6 @@ pdf file in ~/tmp."
                           (org-back-to-heading)
                           ;; strip off after first colon
                           (strip-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
-          ;; TODO: better way to do this?
           (current-recipe-subtree (buffer-substring (region-beginning) (region-end)))
           (otdb-recipe-temp-directory "~/tmp/"))
       ;; put table in temporary file named after headline

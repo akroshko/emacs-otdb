@@ -57,7 +57,6 @@
 ;; database/table keys
 ;; modes, macros, and utility commands
 
-;; TODO: flip units
 (define-minor-mode otdb-table-mode
   :global nil
   :lighter " otdb"
@@ -105,7 +104,7 @@ May eventually be generalized a little better."
           (t
            nil))))
 
-;; TODO: eventually move onto a hook
+;; TODO: eventually move onto a hook, should I really have a hook or just a minor mode?
 (defun otdb-toggle-tablet-mode ()
   "A tablet mode where the otdb-table-mode buffer is read-only except for certain
 commands."
@@ -116,7 +115,7 @@ commands."
           (face-remap-remove-relative otdb-old-modeline-color)
           (face-remap-remove-relative otdb-old-modeline-color-inactive)
           (setq otdb-table-tablet-mode nil)
-          ;; TODO: want to make sure buffer stays read-only if for other reasons?
+          ;; TODO: want to make sure buffer stays read-only if it has been made so for other reasons?
           (read-only-mode -1))
       (progn
         (setq-local otdb-old-modeline-color (face-remap-add-relative 'mode-line :background "green"))
@@ -197,16 +196,21 @@ This is seperate from the otdb-database."
                         (and (eq major-mode 'org-mode)
                              (re-search-forward "^  #\\+TBLEL:" nil t)))))
 
+(defvar otdb-table-collections-cache
+  nil
+  "Variable to store list of collections.")
+
+(defvar otdb-table-database-cache
+  nil
+  "Cache of the database table.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; table variables that can be bound
 (defun otdb-table-reset-cache ()
   "Reset the cache of information stored, because tables and
-databases are not edited during calculations.
-TODO: Make less application-specific."
-  (setq otdb-recipe-recipes-cache nil)
-  (setq otdb-recipe-database-cache nil)
-  (setq otdb-gear-database-cache nil)
-  (setq otdb-gear-collections-cache nil))
+databases are not edited during calculations."
+  (setq otdb-table-collections-cache nil)
+  (setq otdb-table-database-cache nil))
 
 (defun otdb-table-update (arg database heading collection-files lookup-function insert-function message-buffer)
   "Update otdb tables in current context.
@@ -793,5 +797,24 @@ empty string for nil."
   (if num
       (format (concat "%." (number-to-string format) "f") num)
     "0.0"))
+
+(defun otdb-table-item-row-multiple (database table-name key-list &optional column)
+  "Look up multiple ingredient rows in DATABASE file with heading
+TABLE-NAME and keys KEY-LIST in column COLUMN."
+  ;; get multiple things out
+  ;; return a list of rows indexed by key
+  (let (lisp-table
+        found-rows-alist)
+    (if otdb-table-database-cache
+        (setq lisp-table otdb-table-database-cache)
+      (with-current-file-org-table database table-name
+                                   (setq lisp-table (cic:org-table-to-lisp-no-separators))
+                                   (setq otdb-table-database-cache lisp-table)))
+    (dolist (row lisp-table)
+      ;; when column is a member
+      (let ((column-stripped (strip-full-no-properties (elt row (- column 1)))))
+        (when (member column-stripped key-list)
+          (setq found-rows-alist (cons (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
+    found-rows-alist))
 
 (provide 'otdb-table)

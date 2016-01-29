@@ -39,7 +39,6 @@
 ;;; Code:
 
 ;; TODO: have cost only for expendables, or optional cost for other things
-;; TODO: need to decide on unit... kgs or grams best, convert at to lbs at end if desired
 
 (defconst otdb-gear-types
   '("gear"))
@@ -73,7 +72,7 @@ for ROW-LIST from a particular collection."
                                            (strip-full-no-properties (elt row 0)))
                                      quantity-alist))
           (setq key-list (cons (strip-full-no-properties (elt row 1)) key-list)))))
-    (setq database-row-alist (otdb-gear-item-row-multiple otdb-gear-database otdb-gear-database-headline key-list 1))
+    (setq database-row-alist (otdb-table-item-row-multiple otdb-gear-database otdb-gear-database-headline key-list 1))
     ;; calculate cost and weight
     (dolist (row-alist database-row-alist)
       (let ((row (cadr row-alist))
@@ -110,29 +109,6 @@ WEIGHT-COST-LIST."
                            (org-table-put count 4 (otdb-gear-cost-string new-cost))))
                        (setq count (1+ count)))
     (cic:org-table-eval-tblel)))
-
-(defvar otdb-gear-database-cache
-  nil
-  "Cache of the gear database table.")
-
-(defun otdb-gear-item-row-multiple (database table-name key-list &optional column)
-  "Look up multiple ingredient rows in DATABASE file with heading
-TABLE-NAME and keys KEY-LIST in column COLUMN.
-TODO: can I make this function universal between gear and recipe?"
-  ;; TODO this defun is duplicate between gear and recipe, not good!
-  (let (lisp-table
-        found-rows-alist)
-    (if otdb-gear-database-cache
-        (setq lisp-table otdb-gear-database-cache)
-      (with-current-file-org-table database table-name
-                                   (setq lisp-table (cic:org-table-to-lisp-no-separators))
-                                   (setq otdb-gear-database-cache lisp-table)))
-    (dolist (row lisp-table)
-      ;; when column is a member
-      (let ((column-stripped (strip-full-no-properties (elt row (- column 1)))))
-        (when (member column-stripped key-list)
-          (setq found-rows-alist (cons (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
-    found-rows-alist))
 
 (defun otdb-gear-weight-string (weight)
   "Convert the WEIGHT into a proper string."

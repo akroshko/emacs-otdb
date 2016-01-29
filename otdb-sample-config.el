@@ -96,7 +96,7 @@
    (cons 'otdb-recipe-shopping (cic:join-paths otdb-root "backpacking-recipes/backpacking-groceries.org"))
    ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
    ;; The headline for price checks to make.
-y   (cons 'otdb-recipe-price-check-headline "Price checks")
+   (cons 'otdb-recipe-price-check-headline "Price checks")
    (cons 'otdb-recipe-files (mapcar (lambda (f)
                                       (cic:join-paths otdb-root f))
                                     '("backpacking-recipes/backpacking-meals.org"

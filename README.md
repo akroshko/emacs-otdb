@@ -173,7 +173,7 @@ Planned Development
 - more complete agenda integration with better testing
 
 - ability to generate a complete list of ingredients/items from nested
-  recipes/gear collections
+  recipes/gear collections (including optional, consumable, and checked)
 
 - give a range of values when optional ingredients are included or
   excluded
@@ -181,5 +181,6 @@ Planned Development
 - more convenient ways to query recipes/gear collections for
   tablet/laptop/mobile
 
-- more complete examples that demonstrate the usefulness of this
-  package for specific situations
+- finish adding real data for gear
+
+- add BibTeX references for export and to help in org-mode

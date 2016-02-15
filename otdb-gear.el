@@ -38,8 +38,6 @@
 ;;
 ;;; Code:
 
-;; TODO: have cost only for expendables, or optional cost for other things
-
 (defconst otdb-gear-types
   '("gear"))
 
@@ -195,10 +193,8 @@ DATABASE-ROW."
 
 (defun otdb-gear-get-items ()
   "Get list of all gear items from the database."
-  (let* ((items (cic:org-table-get-keys otdb-gear-database otdb-gear-database-headline))
-         (dups (cic:get-list-duplicates items)))
-    (when (> (length dups) 0)
-      (mpp-echo (concat "Duplicate items: " (pp-to-string dups) otdb-gear-message-buffer)))
+  ;; TODO: where is this used???
+  (let ((items (cic:org-table-get-keys otdb-gear-database otdb-gear-database-headline)))
     items))
 
 (defun otdb-gear-find-collection (collection)
@@ -214,14 +210,10 @@ DATABASE-ROW."
             (setq location (list collection-file found))))))
     location))
 
-(defvar otdb-gear-collections-cache
-  nil
-  "Variable to store list of recipes.")
-
 (defun otdb-gear-get-collections ()
   "Get list of all gear collections."
-  (if otdb-gear-collections-cache
-      otdb-gear-collections-cache
+  (if otdb-table-collections-cache
+      otdb-table-collections-cache
     (let (table
           table-name
           collection-list)
@@ -229,15 +221,18 @@ DATABASE-ROW."
         (do-org-tables gear-file table-name table
                        (when (string-match "\\(.*\\) :gear:" table-name)
                          (setq collection-list (cons (match-string 1 table-name) collection-list)))))
-      (setq dups (cic:get-list-duplicates collection-list))
-      (when (> (length dups) 0)
-        (mpp-echo (concat "Duplicate collections: " (pp-to-string dups)) otdb-gear-message-buffer))
-      (setq otdb-gear-collections-cache collection-list)
+      (setq otdb-table-collections-cache collection-list)
       collection-list)))
 
 (defun otdb-gear-database-row (item)
   "Get the database row corresponding to gear item ITEM."
   (cic:org-table-lookup-row otdb-gear-database otdb-gear-database-headline item))
+
+;; XXXX: if above global flag is set, only calculate non-nil and non-invalid for select columns
+;; TODO: need key and/or menu item to toggle this variable
+(defvar otdb-gear-column-mark
+  nil
+  "Set to string \"X\" for check and string \"C\" for consumable.")
 
 (defun otdb-gear-calc-gear (lisp-table)
   "Calculated an updated lisp table from the LISP-TABLE
@@ -245,28 +240,39 @@ corresponding to a gear collection."
   (let ((weight 0)
         (cost 0)
         (new-lisp-table (butlast lisp-table))
-        (last-row (car (last lisp-table))))
+        (last-row (car (last lisp-table)))
+        (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
+        new-last-row)
+    (when char-column
+      (setq char-column (- char-column 1)))
     (dolist (lisp-row (butlast (cdr lisp-table)))
-      (cond ((or (eq otdb-gear-weight-units 'lb)
-                 (eq otdb-gear-weight-units 'kg))
-             (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
-            ((eq otdb-gear-weight-units 'lb-g)
-             ;; otherwise make sure weight is in grams
-             (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
-                                       (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g"))))))
+      (unless (and char-column (or (string= (strip-full (elt lisp-row char-column)) "")
+                                   (string= (strip-full (elt lisp-row char-column)) "-")))
+        (cond ((or (eq otdb-gear-weight-units 'lb)
+                   (eq otdb-gear-weight-units 'kg))
+               (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
+              ((eq otdb-gear-weight-units 'lb-g)
+               ;; otherwise make sure weight is in grams
+               (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
+                                         (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
       (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3))))
     ;; insert into last row
+    (setq new-last-row (list
+                        (nconc
+                         (list
+                          (elt last-row 0)
+                          (elt last-row 1)
+                          (otdb-gear-weight-string weight)
+                          (otdb-gear-cost-string cost))
+                         ;; TODO: not great, really want only do for single character headers
+                         (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
+    ;; add in char-column if necessary
+    (when char-column
+      (setcar (nthcdr char-column (car new-last-row)) otdb-gear-column-mark))
     (setq new-lisp-table
           (nconc
            new-lisp-table
-           (list
-            (nconc
-             (list
-              (elt last-row 0)
-              (elt last-row 1)
-              (otdb-gear-weight-string weight)
-              (otdb-gear-cost-string cost))
-             (nthcdr 4 last-row)))))
+           new-last-row))
     new-lisp-table))
 
 (provide 'otdb-gear)

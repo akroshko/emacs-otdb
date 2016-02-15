@@ -52,13 +52,13 @@
 (requiring-package (emacs-stdlib-functions))
 (requiring-package (emacs-stdlib-commands))
 (requiring-package (emacs-stdlib-keys))
-;; XXXX: uncomment to use my keys
+(requiring-package (emacs-stdlib-super-hyper-keys))
+;; XXXX: uncomment to use my other keys
 ;; (emacs-stdlib-keys-mode t)
 ;; (emacs-stdlib-keys-non-term-mode t)
-(requiring-package (emacs-stdlib-super-hyper-keys))
-;; XXXX: uncomment to use my super and hyper keys
+;; (emacs-stdlib-keys-org-mode t)
 ;; (emacs-stdlib-super-keys-mode t)
-;; (emacs-stdlib-hyper-keys-all-mode t)
+;; (emacs-stdlib-hyper-keys-mode t)
 ;; TODO put these in an accessible place
 (requiring-package (otdb-sample-config))
 (requiring-package (otdb-table))

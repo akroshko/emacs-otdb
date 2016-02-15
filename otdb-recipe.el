@@ -270,15 +270,11 @@ TODO return location at beginning of line"
       otdb-table-collections-cache
     (let (table
           table-name
-          recipe-list
-          dups)
+          recipe-list)
       (dolist (recipe-file (otdb-recipe-get-variable 'otdb-recipe-files))
         (do-org-tables recipe-file table-name table
                        (when (string-match "\\(.*\\) :recipe:" table-name)
                          (setq recipe-list (cons (match-string 1 table-name) recipe-list)))))
-      (setq dups (cic:get-list-duplicates recipe-list))
-      (when (> (length dups) 0)
-        (mpp-echo (concat "Duplicate recipes: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
       (setq otdb-table-collections-cache recipe-list)
       recipe-list)))
 
@@ -458,7 +454,6 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
     ;; get list of keys to lookup
     (dolist (row (cdr row-list))
       ;; get the key if applicable
-      ;; TODO add to this
       (if (member (strip-full-no-properties (elt row 1)) recipe-list)
           (progn
             (setq recipe-calories-protein-fat-weight-volume-cost-list
@@ -563,32 +558,38 @@ CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST."
                        (setq count (1+ count)))
     (cic:org-table-eval-tblel)))
 
+;; TODO: appears broken
 (defun otdb-recipe-find-ingredient (ingredient)
   "Find the location of INGREDIENT ingredient in database (or
 recipe)."
   ;; TODO this will probably become a pretty general table lookup function for databases
   (if (member ingredient (otdb-recipe-get-recipes))
       (otdb-recipe-find ingredient)
+    ;; TODO: this will need to be modified for multiple files
     (cic:org-table-lookup-location (otdb-recipe-get-variable 'otdb-recipe-database)
-                               (otdb-recipe-get-variable 'otdb-recipe-database-headline)
-                               ingredient 1)))
+                                   (otdb-recipe-get-variable 'otdb-recipe-database-headline)
+                                   ingredient 1)))
 
-;; TODO raise something if there are duplicates
+;; TODO: appears to only be called from other broken functions
 (defun otdb-recipe-get-ingredients ()
   "Get list of all ingredients from the database."
+  ;; TODO: will need to be modified for multiple files
   (let* ((ingredients (cic:org-table-get-keys (otdb-recipe-get-variable 'otdb-recipe-database) (otdb-recipe-get-variable 'otdb-recipe-database-headline)))
          (dups (cic:get-list-duplicates ingredients)))
     (when (> (length dups) 0)
       (mpp-echo (concat "Duplicate ingredients: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
     ingredients))
 
+;; TODO: will need to modified for multiple files
+;; TODO: does not appear to be used....
 (defun otdb-recipe-ingredient-row (ingredient)
   "Look up row of INGREDIENT ingredient in the database."
   ;; XXXX assume on top of table
   ;; XXXX assume Ingredient.... etc. header is first
   (cic:org-table-lookup-row (otdb-recipe-get-variable 'otdb-recipe-database)
-                        (otdb-recipe-get-variable 'otdb-recipe-database-headline)
-                        ingredient))
+                            ;; TODO: this variable will have to be modified for multiple files
+                            (otdb-recipe-get-variable 'otdb-recipe-database-headline)
+                            ingredient))
 
 (defun otdb-recipe-get-invalid-text (text)
   "XXXX: unused for now, want to mark things that are bad with a color."
@@ -730,8 +731,7 @@ with an optional TITLE."
 (defun otdb-recipe-add-tmp-buffer (current-recipe-subtree)
   "Add a recipe form CURRENT-RECIPE-SUBTREE to a temporary
 buffer, then return the string after processing.  Generally
-deletes volume, weights, and any comments.
-TODO: There should be a way to add finalized comments (as opposed to informal comments) into print."
+deletes volume, weights, and any comments."
   (with-temp-buffer
     (insert current-recipe-subtree)
     (goto-char (point-min))

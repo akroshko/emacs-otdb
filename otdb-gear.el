@@ -219,6 +219,8 @@ DATABASE-ROW."
           collection-list)
       (dolist (gear-file otdb-gear-collection-files)
         (do-org-tables gear-file table-name table
+                       (mpp table-name)
+                       (mpp table)
                        (when (string-match "\\(.*\\) :gear:" table-name)
                          (setq collection-list (cons (match-string 1 table-name) collection-list)))))
       (setq otdb-table-collections-cache collection-list)

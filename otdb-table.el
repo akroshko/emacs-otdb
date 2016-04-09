@@ -80,6 +80,7 @@
             ;; TODO want to be able to go and pop back
             ;; update the "agenda" with the key
             (define-key map (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
+            ;; TODO: figure out better key scheme
             (define-key map (kbd "H-t") 'otdb-table-set-toggle-check-line)
             (define-key map (kbd "H-T") 'otdb-table-invalid-toggle-check-line)
             (define-key map (kbd "M-H-t") 'otdb-table-set-toggle-consumable-line)

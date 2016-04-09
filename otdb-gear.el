@@ -93,20 +93,27 @@ WEIGHT-COST-LIST."
   (let (new-item
         new-weight
         new-cost
-        (count 1))
-    (do-org-table-rows collection-filename collection-heading row
-                       (setq new-item (strip-full-no-properties (elt row 1)))
-                       (when (not (equal count 1))
-                         (setq new-weight (elt (assoc new-item weight-cost-list) 1))
-                         (setq new-cost (elt (assoc new-item weight-cost-list) 2))
-                         (if (not new-weight)
-                             (org-table-put count 3 "")
-                           (org-table-put count 3 (otdb-gear-weight-string new-weight)))
-                         (if (not new-cost)
-                             (org-table-put count 4 "")
-                           (org-table-put count 4 (otdb-gear-cost-string new-cost))))
-                       (setq count (1+ count)))
-    (cic:org-table-eval-tblel)))
+        (count 1)
+        (ask-continue (if (and otdb-gear-need-warning-partial (or otdb-gear-column-mark otdb-gear-item-pattern))
+                          (let ((answer (y-or-n-p " Warning! Patterns or column marks activated!  Partial answer will be given!  Continue")))
+                            (setq otdb-gear-need-warning-partial nil)
+                            answer)
+                        t)))
+    ;; TODO: also asking here to avoid killing table, need general function
+    (when ask-continue
+      (do-org-table-rows collection-filename collection-heading row
+                         (setq new-item (strip-full-no-properties (elt row 1)))
+                         (when (not (equal count 1))
+                           (setq new-weight (elt (assoc new-item weight-cost-list) 1))
+                           (setq new-cost (elt (assoc new-item weight-cost-list) 2))
+                           (if (not new-weight)
+                               (org-table-put count 3 "")
+                             (org-table-put count 3 (otdb-gear-weight-string new-weight)))
+                           (if (not new-cost)
+                               (org-table-put count 4 "")
+                             (org-table-put count 4 (otdb-gear-cost-string new-cost))))
+                         (setq count (1+ count)))
+      (cic:org-table-eval-tblel))))
 
 (defun otdb-gear-weight-string (weight)
   "Convert the WEIGHT into a proper string."
@@ -236,6 +243,26 @@ DATABASE-ROW."
   nil
   "Set to string \"X\" for check and string \"C\" for consumable.")
 
+(defvar otdb-gear-item-pattern
+  nil
+  ;; TODO: need a better interface
+  "Set to pattern needed for filtering results.")
+
+(defvar otdb-gear-need-warning-partial
+  t
+  "Monitor if a warning is needed about partial computations.")
+
+;; add to post-command-hook
+(add-hook 'post-command-hook (lambda ()
+                               (setq otdb-gear-need-warning-partial t)))
+
+;; common patterns
+;; reset
+;; (setq otdb-gear-item-pattern nil)
+;; for checking amount of stuff sacks and packaging
+;; (setq otdb-gear-item-pattern "ziplock\\|sack\\|drybag\\|ditty\\|mesh")
+;; TODO: for checking amount of clothing
+
 (defun otdb-gear-calc-gear (lisp-table)
   "Calculated an updated lisp table from the LISP-TABLE
 corresponding to a gear collection."
@@ -244,37 +271,54 @@ corresponding to a gear collection."
         (new-lisp-table (butlast lisp-table))
         (last-row (car (last lisp-table)))
         (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
-        new-last-row)
-    (when char-column
-      (setq char-column (- char-column 1)))
-    (dolist (lisp-row (butlast (cdr lisp-table)))
-      (unless (and char-column (or (string= (strip-full (elt lisp-row char-column)) "")
-                                   (string= (strip-full (elt lisp-row char-column)) "-")))
-        (cond ((or (eq otdb-gear-weight-units 'lb)
-                   (eq otdb-gear-weight-units 'kg))
-               (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
-              ((eq otdb-gear-weight-units 'lb-g)
-               ;; otherwise make sure weight is in grams
-               (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
-                                         (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
-      (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3))))
-    ;; insert into last row
-    (setq new-last-row (list
-                        (nconc
-                         (list
-                          (elt last-row 0)
-                          (elt last-row 1)
-                          (otdb-gear-weight-string weight)
-                          (otdb-gear-cost-string cost))
-                         ;; TODO: not great, really want only do for single character headers
-                         (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
-    ;; add in char-column if necessary
-    (when char-column
-      (setcar (nthcdr char-column (car new-last-row)) otdb-gear-column-mark))
-    (setq new-lisp-table
-          (nconc
-           new-lisp-table
-           new-last-row))
-    new-lisp-table))
+        new-last-row
+        (ask-continue (if (and otdb-gear-need-warning-partial (or otdb-gear-column-mark otdb-gear-item-pattern))
+                          (let ((answer (y-or-n-p " Warning! Patterns or column marks activated!  Partial answer will be given!  Continue")))
+                            (setq otdb-gear-need-warning-partial nil)
+                            answer)
+                        t)))
+    (when ask-continue
+      (when char-column
+          (setq char-column (- char-column 1)))
+        (dolist (lisp-row (butlast (cdr lisp-table)))
+          ;; TODO: how to deal with both?
+          ;;       make it easy to disable in menu
+          ;;       ask here but set a flag that is reset at beginning of command
+          ;;       buffer-local pre-command-hook?
+          (unless (or
+                   (and char-column
+                        (or (string= (strip-full (elt lisp-row char-column)) "")
+                            (string= (strip-full (elt lisp-row char-column)) "-")))
+                   ;; XXXX: allow continuing if thing is a collection of gear that does not match
+                   ;;       items only
+                   (and otdb-gear-item-pattern
+                        (not (otdb-gear-find-collection (elt lisp-row 1)))
+                        (not (string-match otdb-gear-item-pattern (elt lisp-row 1)))))
+            (cond ((or (eq otdb-gear-weight-units 'lb)
+                       (eq otdb-gear-weight-units 'kg))
+                   (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
+                  ((eq otdb-gear-weight-units 'lb-g)
+                   ;; otherwise make sure weight is in grams
+                   (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
+                                             (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
+          (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3))))
+        ;; insert into last row
+        (setq new-last-row (list
+                            (nconc
+                             (list
+                              (elt last-row 0)
+                              (elt last-row 1)
+                              (otdb-gear-weight-string weight)
+                              (otdb-gear-cost-string cost))
+                             ;; TODO: not great, really want only do for single character headers
+                             (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
+        ;; add in char-column if necessary
+        (when char-column
+          (setcar (nthcdr char-column (car new-last-row)) otdb-gear-column-mark))
+        (setq new-lisp-table
+              (nconc
+               new-lisp-table
+               new-last-row))
+        new-lisp-table)))
 
 (provide 'otdb-gear)

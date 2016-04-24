@@ -57,46 +57,56 @@
 ;; database/table keys
 ;; modes, macros, and utility commands
 
-(define-minor-mode otdb-table-mode
-  :global nil
-  :lighter " otdb"
-  :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "s-d !") 'otdb-table-agenda-attention)
-            (define-key map (kbd "s-d *") 'otdb-table-recalculate)
-            (define-key map (kbd "s-d +") 'otdb-recipe-agenda-push-groceries)
-            ;; update the "agenda" with the key
-            (define-key map (kbd "s-d a") 'otdb-table-agenda-check-add-key)
-            ;; goto key in main database
-            (define-key map (kbd "s-d d") 'otdb-table-goto-key-in-database)
-            ;; XXXX this makes sense to do on a new row or checklist item, or to complete something
-            (define-key map (kbd "s-d i") 'otdb-table-insert-key)
-            ;; (define-key map (kbd "s-d u") 'otdb-table-update-key-in-database)
-            (define-key map (kbd "s-d j") 'otdb-table-agenda-jump)
-            ;; TODO: find occurences in database and collections
-            ;; (define-key map (kbd "s-d o") 'otdb-table-occurences-key)
-            ;; put key into main database, ask for key, update key at point if necessary
-            (define-key map (kbd "s-d p") 'otdb-table-put-key-in-database)
-            ;; update key from main database
-            ;; TODO want to be able to go and pop back
-            ;; update the "agenda" with the key
-            (define-key map (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
-            ;; TODO: figure out better key scheme
-            (define-key map (kbd "H-t") 'otdb-table-set-toggle-check-line)
-            (define-key map (kbd "H-T") 'otdb-table-invalid-toggle-check-line)
-            (define-key map (kbd "M-H-t") 'otdb-table-set-toggle-consumable-line)
-            (define-key map (kbd "M-H-T") 'otdb-table-invalid-toggle-consumable-line)
-            ;; TODO: I use these for other things now.... but good on laptops
-            ;;       change somewhere?
-            ;; (define-key map (kbd "H-<up>") 'otdb-table-increment-line)
-            ;; (define-key map (kbd "H-<down>") 'otdb-table-decrement-line)
-            ;; (define-key map (kbd "H-M-<up>") nil)
-            ;; (define-key map (kbd "H-M-<down>") nil)
-            (define-key map (kbd "H-m") 'otdb-toggle-tablet-mode)
-            map)
-  (make-local-variable 'otdb-table-tablet-mode)
-  (make-local-variable 'otdb-old-modeline-color)
-  (make-local-variable 'otdb-old-modeline-color-inactive)
-  (setq-local otdb-table-tablet-mode nil))
+;; http://ergoemacs.org/emacs/elisp_menu_for_major_mode.html
+;; see particular files for minor modes for menus
+(defun otdb-table-skeleton-map (map)
+  (define-key map (kbd "s-d !") 'otdb-table-agenda-attention)
+  (define-key map (kbd "s-d *") 'otdb-table-recalculate)
+  (define-key map (kbd "s-d +") 'otdb-recipe-agenda-push-groceries)
+  ;; update the "agenda" with the key
+  (define-key map (kbd "s-d a") 'otdb-table-agenda-check-add-key)
+  ;; goto key in main database
+  (define-key map (kbd "s-d d") 'otdb-table-goto-key-in-database)
+  ;; XXXX this makes sense to do on a new row or checklist item, or to complete something
+  (define-key map (kbd "s-d i") 'otdb-table-insert-key)
+  ;; (define-key map (kbd "s-d u") 'otdb-table-update-key-in-database)
+  (define-key map (kbd "s-d j") 'otdb-table-agenda-jump)
+  ;; TODO: find occurences in database and collections
+  ;; (define-key map (kbd "s-d o") 'otdb-table-occurences-key)
+  ;; put key into main database, ask for key, update key at point if necessary
+  (define-key map (kbd "s-d p") 'otdb-table-put-key-in-database)
+  ;; update key from main database
+  ;; TODO want to be able to go and pop back
+  ;; update the "agenda" with the key
+  (define-key map (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
+  ;; TODO: figure out better key scheme, do I actually want these (or like them) with the menu
+  (define-key map (kbd "H-t") 'otdb-table-set-toggle-check-line)
+  (define-key map (kbd "H-T") 'otdb-table-invalid-toggle-check-line)
+  (define-key map (kbd "M-H-t") 'otdb-table-set-toggle-consumable-line)
+  (define-key map (kbd "M-H-T") 'otdb-table-invalid-toggle-consumable-line)
+  ;; TODO: I use these for other things now.... but good on laptops
+  ;;       change somewhere?
+  ;; (define-key map (kbd "H-<up>") 'otdb-table-increment-line)
+  ;; (define-key map (kbd "H-<down>") 'otdb-table-decrement-line)
+  ;; (define-key map (kbd "H-M-<up>") nil)
+  ;; (define-key map (kbd "H-M-<down>") nil)
+  (define-key map (kbd "H-m") 'otdb-toggle-tablet-mode)
+  ;; menu keys
+  (define-key map [menu-bar] (make-sparse-keymap "otdb")))
+
+;; TODO: resurect this mode for better extensibility, derive other modes
+;; (define-minor-mode otdb-table-mode
+;;   :global nil
+;;   :lighter " otdb"
+;;   :keymap (let ((table-detect (otdb-table-detect)))
+;;             (cond ((eq table-detect 'backpacking)
+;;                    otdb-gear-mode-map)
+;;                   ((eq table-detect 'recipe)
+;;                    otdb-recipe-mode-map)))
+;;   (make-local-variable 'otdb-table-tablet-mode)
+;;   (make-local-variable 'otdb-old-modeline-color)
+;;   (make-local-variable 'otdb-old-modeline-color-inactive)
+;;   (setq-local otdb-table-tablet-mode nil))
 
 (defun otdb-table-detect ()
   "Users should modify this file to meet their file structure.
@@ -139,14 +149,23 @@ This is seperate from the otdb-database."
                        (re-search-forward "^  #\\+TBLEL:" nil t))
        t))
 
+;; TODO: better detect here
 (defun otdb-setup-hook ()
   (when (otdb-table-buffer-p)
-    (otdb-table-mode 1)))
+    (let ((otdb-detect (otdb-table-detect))
+          (current-filename (ignore-errors (buffer-file-name))))
+      (cond ((eq otdb-detect 'backpacking)
+             (otdb-gear-mode 1))
+            ((eq otdb-detect 'recipe)
+             (if (member current-filename (cdr (assoc 'otdb-recipe-files otdb-recipe-backpacking-alist)))
+                 (otdb-recipe-backpacking-mode 1)
+               (otdb-recipe-mode 1)))))))
 
 (add-hook 'org-mode-hook 'otdb-setup-hook)
 
 (defun otdb-setup-minibuffer-hook ()
-  (otdb-table-mode 0))
+  (and (boundp 'otdb-recipe-mode) (otdb-recipe-mode 0))
+  (and (boundp 'otdb-gear-mode) (otdb-gear-mode 0)))
 (add-hook 'minibuffer-setup-hook 'otdb-setup-minibuffer-hook)
 
 (defun otdb-table-elp-instrument ()
@@ -869,9 +888,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
       (if (otdb-table-data-sanity database table-name)
           (error "Database not sane!")
         (progn
-          (if (listp database)
-              (setq database-files database)
-            (setq database-files (list database)))
+          (setq database-files (cic:ensure-list database))
           (dolist (database-file database-files)
             (with-current-file-org-table database-file table-name
                                          (setq lisp-table (append lisp-table (cic:org-table-to-lisp-no-separators)))))
@@ -904,9 +921,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
            (setq message-buffer (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
           ((eq table-detect 'backpacking)
            (setq message-buffer otdb-gear-message-buffer)))
-    (if (listp database)
-        (setq database-files database)
-      (setq database-files (list database)))
+    (setq database-files (cic:ensure-list database))
     (dolist (database-file database-files)
       ;; TODO: heading not found? do I need it at all?
       (with-current-file-org-table database-file table-name

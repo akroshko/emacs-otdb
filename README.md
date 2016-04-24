@@ -154,12 +154,19 @@ some spreadsheets and web applications can offer similar
 functionality, for users skilled in text editing using Emacs this
 package provides a very unique and useful option.
 
-Planned Development
+New development that needs to be documented
+===========================================
+
+- regex filters to find totals for particular matching items
+
+
+Planned development
 ===================
 
 - templates/keys to create a recipe/collection and to insert a line
 
-- regex filters to find totals for particular matching items
+- create complete lists of ingredients/items and complete lists of
+  missing ingredients/items
 
 - export to nicely formatted .html
 
@@ -180,7 +187,5 @@ Planned Development
 
 - more convenient ways to query recipes/gear collections for
   tablet/laptop/mobile
-
-- finish adding real data for gear
 
 - add BibTeX references for export and to help in org-mode

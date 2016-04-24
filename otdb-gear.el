@@ -51,6 +51,98 @@
   "Use 'kg for kilograms, 'lb for pounds, and 'lb-g for lbs for
   larger weights and g for smaller weights..")
 
+(defvar otdb-gear-mode-map
+  nil
+  "Keymap for otdb-gear.")
+
+;; XXXX: if above global flag is set, only calculate non-nil and non-invalid for select columns
+;; TODO: need key and/or menu item to toggle this variable
+(defvar otdb-gear-column-mark
+  nil
+  "Set to string \"X\" for check and string \"C\" for consumable.")
+
+(defvar otdb-gear-item-pattern
+  nil
+  ;; TODO: need a better interface
+  "Set to pattern needed for filtering results.")
+
+(defvar otdb-gear-item-last-pattern
+  nil
+  ;; TODO: need a better interface
+  "Holds the last pattern needed for filtering results.")
+
+(defvar otdb-gear-need-warning-partial
+  t
+  "Monitor if a warning is needed about partial computations.")
+
+(defun otdb-gear-menu-item-pattern ()
+  (cons (if otdb-gear-item-pattern
+            (concat "Disable gear pattern: " (pp-to-string otdb-gear-item-pattern))
+          (concat "Re-enable gear pattern: " (pp-to-string otdb-gear-item-pattern)))
+        (lambda ()
+          (interactive)
+          (if otdb-gear-item-pattern
+              (progn
+                (setq otdb-gear-item-last-pattern otdb-gear-item-pattern)
+                (setq otdb-gear-item-pattern nil))
+            (progn
+              (setq otdb-gear-item-pattern otdb-gear-item-last-pattern))))))
+
+(defun otdb-gear-menu-files (map)
+  (define-key map [menu-bar otdb-menu gear-collections]        (cons "Gear collections" (make-sparse-keymap "gear collections")))
+  ;; TODO: does not update dynamically at the moment
+  (dolist (collection (cic:ensure-list otdb-gear-collection-files))
+    (define-key map (vector 'menu-bar 'otdb-menu 'gear-collections collection) (cons collection (lambda () (interactive) nil))))
+  (define-key map [menu-bar otdb-menu gear-databases]          (cons "Gear databases" (make-sparse-keymap "gear databases")))
+  (dolist (database (cic:ensure-list otdb-gear-database))
+    (define-key map (vector 'menu-bar 'otdb-menu 'gear-databases database) (cons database (lambda () (interactive) nil)))))
+
+(defun otdb-gear-mode-map ()
+  ;; XXXX: are there any problems to doing this?
+  (let ((map (make-sparse-keymap)))
+    (otdb-table-skeleton-map map)
+    (define-key map [menu-bar otdb-menu]                         (cons "otdb-gear" (make-sparse-keymap "otdb-gear")))
+    ;; put these in reverse order they are displayed
+    ;; TODO: menu to jump to database(s)
+    (define-key map [menu-bar otdb-menu item-patterns]           (cons "Gear item patterns" (make-sparse-keymap "gear item patterns")))
+    ;; TODO: generate these
+    (define-key map [menu-bar otdb-menu item-patterns clothing]  (cons "Clothing" (lambda () (interactive) nil)))
+    (define-key map [menu-bar otdb-menu item-patterns packaging] (cons "Packaging" (lambda () (interactive) nil)))
+    (otdb-gear-menu-files map)
+    (define-key map [menu-bar otdb-menu column-mark-cost]        '(menu-item "Toggle column mark consumable (C)" (lambda () (interactive) (setq otdb-gear-column-mark "C"))
+                                                                             :button (:radio
+                                                                                      . (equal otdb-gear-column-mark "C"))))
+    (define-key map [menu-bar otdb-menu column-mark-check]       '(menu-item "Toggle column mark check (X)" (lambda () (interactive) (setq otdb-gear-column-mark "X"))
+                                                                             :button (:radio
+                                                                                      . (equal otdb-gear-column-mark "X"))))
+    (define-key map [menu-bar otdb-menu column-mark-nil]         '(menu-item "Toggle column mark empty" (lambda () (interactive) (setq otdb-gear-column-mark nil))
+                                                                             :button (:radio
+                                                                                      . (equal otdb-gear-column-mark nil))))
+    (define-key map [menu-bar otdb-menu item-pattern]            (otdb-gear-menu-item-pattern))
+    (define-key map [menu-bar otdb-menu recalculate]             '("Recalculate table" . otdb-table-recalculate))
+    (define-key map [menu-bar otdb-menu recalculate-global]      '("Recalculate tables globally" . (lambda () (interactive) (otdb-table-recalculate '(64)))))
+    (define-key map [menu-bar otdb-menu tablet-mode]             '(menu-item "Tablet mode" otdb-toggle-tablet-mode
+                                                                             :button (:toggle
+                                                                                      . (and otdb-table-tablet-mode))))
+    map))
+(setq otdb-gear-mode-map (otdb-gear-mode-map))
+
+
+(defun otdb-gear-update-menu ()
+  (define-key otdb-gear-mode-map [menu-bar otdb-menu item-pattern] (otdb-gear-menu-item-pattern)))
+
+(add-hook 'menu-bar-update-hook 'otdb-gear-update-menu)
+
+(define-minor-mode otdb-gear-mode
+  :global nil
+  :lighter " otdb-gear"
+  :keymap otdb-gear-mode-map
+  (make-local-variable 'otdb-table-tablet-mode)
+  (make-local-variable 'otdb-old-modeline-color)
+  (make-local-variable 'otdb-old-modeline-color-inactive)
+  (setq-local otdb-table-tablet-mode nil))
+
+;; TODO: menu items specifly for gear
 (defun otdb-gear-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular collection."
@@ -85,6 +177,13 @@ for ROW-LIST from a particular collection."
                                        weight-cost-list)))))
     (append collection-weight-cost-list weight-cost-list)))
 
+(defun otdb-gear-ask-continue ()
+  (if (and otdb-gear-need-warning-partial (or otdb-gear-column-mark otdb-gear-item-pattern))
+      (let ((answer (y-or-n-p " Warning! Patterns or column marks activated!  Partial answer will be given!  Continue")))
+        (setq otdb-gear-need-warning-partial nil)
+        answer)
+    t))
+
 (defun otdb-gear-insert-function (collection-filename collection-heading weight-cost-list)
   "Helper function for otdb-table-update to insert information
 into a recipe.  The recipe is COLLECTION-HEADING in
@@ -94,11 +193,7 @@ WEIGHT-COST-LIST."
         new-weight
         new-cost
         (count 1)
-        (ask-continue (if (and otdb-gear-need-warning-partial (or otdb-gear-column-mark otdb-gear-item-pattern))
-                          (let ((answer (y-or-n-p " Warning! Patterns or column marks activated!  Partial answer will be given!  Continue")))
-                            (setq otdb-gear-need-warning-partial nil)
-                            answer)
-                        t)))
+        (ask-continue (otdb-gear-ask-continue)))
     ;; TODO: also asking here to avoid killing table, need general function
     (when ask-continue
       (do-org-table-rows collection-filename collection-heading row
@@ -237,21 +332,6 @@ DATABASE-ROW."
   "Get the database row corresponding to gear item ITEM."
   (cic:org-table-lookup-row otdb-gear-database otdb-gear-database-headline item))
 
-;; XXXX: if above global flag is set, only calculate non-nil and non-invalid for select columns
-;; TODO: need key and/or menu item to toggle this variable
-(defvar otdb-gear-column-mark
-  nil
-  "Set to string \"X\" for check and string \"C\" for consumable.")
-
-(defvar otdb-gear-item-pattern
-  nil
-  ;; TODO: need a better interface
-  "Set to pattern needed for filtering results.")
-
-(defvar otdb-gear-need-warning-partial
-  t
-  "Monitor if a warning is needed about partial computations.")
-
 ;; add to post-command-hook
 (add-hook 'post-command-hook (lambda ()
                                (setq otdb-gear-need-warning-partial t)))
@@ -272,11 +352,7 @@ corresponding to a gear collection."
         (last-row (car (last lisp-table)))
         (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
         new-last-row
-        (ask-continue (if (and otdb-gear-need-warning-partial (or otdb-gear-column-mark otdb-gear-item-pattern))
-                          (let ((answer (y-or-n-p " Warning! Patterns or column marks activated!  Partial answer will be given!  Continue")))
-                            (setq otdb-gear-need-warning-partial nil)
-                            answer)
-                        t)))
+        (ask-continue (otdb-gear-ask-continue)))
     (when ask-continue
       (when char-column
           (setq char-column (- char-column 1)))
@@ -303,6 +379,7 @@ corresponding to a gear collection."
                                              (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
           (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3))))
         ;; insert into last row
+        ;; TODO: make uniform with ???
         (setq new-last-row (list
                             (nconc
                              (list

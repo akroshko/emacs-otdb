@@ -45,6 +45,9 @@
     (file-name-directory load-file-name))
   "The filename to use.")
 
+;; TODO use alists here
+
+;; TODO: make sure I can use lists
 (defvar otdb-gear-database
   (cic:join-paths otdb-root "gear/gear-database.org")
   "The main location of the gear database.")

@@ -6,48 +6,48 @@
   |----------+-----------------------------------+-----------+--------+------+---+---|
   | Quantity | Item                              | Weight    | Cost   | Note | X | C |
   |----------+-----------------------------------+-----------+--------+------+---+---|
-  |        1 | Full pack northern boundary trail | 28.3462lb | $0.000 |      |   |   |
+  |        1 | Full pack northern boundary trail | 32.3190lb | $0.000 |      |   |   |
   |        1 | Northern boundary trail worn      | 5.6945lb  | $0.000 |      |   |   |
   |----------+-----------------------------------+-----------+--------+------+---+---|
-  |        1 |                                   | 34.0407lb | $0.000 |      |   |   |
+  |        1 |                                   | 38.0135lb | $0.000 |      |   |   |
   |----------+-----------------------------------+-----------+--------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Full pack northern boundary trail :gear:
   |----------+------------------------------------------------+-----------+--------+------+---+---|
   | Quantity | Item                                           | Weight    | Cost   | Note | X | C |
   |----------+------------------------------------------------+-----------+--------+------+---+---|
-  |        1 | Pack northern boundary trail                   | 20.7720lb | $0.000 |      |   |   |
-  |        1 | Pack northern boundary trail extra             | 4.2924lb  | $0.000 |      |   |   |
-  |        1 | North boundary trail consumables               | 2.8373lb  | $0.000 |      | X |   |
-  |        1 | North boundary trail replaceable               | 74.0g     | $0.000 |      |   |   |
+  |        1 | Pack northern boundary trail                   | 22.2535lb | $0.000 |      |   |   |
+  |        1 | Pack northern boundary trail extra             | 6.2810lb  | $0.000 |      |   |   |
+  |        1 | North boundary trail consumables               | 3.2871lb  | $0.000 |      | X |   |
+  |        1 | North boundary trail replaceable               | 98.0g     | $0.000 |      |   |   |
   |        1 | North boundary trail replaceable kitchen       | 0.0g      | $0.000 |      |   |   |
   |        1 | North boundary trail replaceable emergency kit | 127.6g    | $0.000 |      |   |   |
   |----------+------------------------------------------------+-----------+--------+------+---+---|
-  |        1 |                                                | 28.3462lb | $0.000 |      |   |   |
+  |        1 |                                                | 32.3190lb | $0.000 |      |   |   |
   |----------+------------------------------------------------+-----------+--------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Pack northern boundary trail :gear:
   |----------+----------------------------------------+-----------+--------+------+---+---|
   | Quantity | Item                                   | Weight    | Cost   | Note | X | C |
   |----------+----------------------------------------+-----------+--------+------+---+---|
-  |        1 | Northern boundary trail backpacking    | 11.0099lb | $0.000 |      |   |   |
+  |        1 | Northern boundary trail backpacking    | 12.4914lb | $0.000 |      |   |   |
   |        1 | Northern boundary trail clothing       | 6.5103lb  | $0.000 |      |   |   |
   |        1 | Northern boundary trail toiletries kit | 135.0g    | $0.000 |      |   |   |
   |        1 | Northern boundary trail emergency kit  | 294.0g    | $0.000 |      |   |   |
   |        1 | Northern boundary trail kitchen        | 2.3060lb  | $0.000 |      |   |   |
   |----------+----------------------------------------+-----------+--------+------+---+---|
-  |        1 |                                        | 20.7720lb | $0.000 |      |   |   |
+  |        1 |                                        | 22.2535lb | $0.000 |      |   |   |
   |----------+----------------------------------------+-----------+--------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Pack northern boundary trail extra :gear:
   |----------+-------------------------------------+----------+--------+------+---+---|
   | Quantity | Item                                | Weight   | Cost   | Note | X | C |
   |----------+-------------------------------------+----------+--------+------+---+---|
-  |        1 | North boundary trail extra          | 2.1804lb | $0.000 |      |   |   |
-  |        1 | Northern boundary trail electronics | 727.0g   | $0.000 |      |   |   |
-  |        1 | Northern boundary trail travel      | 231.0g   | $0.000 |      |   |   |
+  |        1 | North boundary trail extra          | 4.1381lb | $0.000 |      |   |   |
+  |        1 | Northern boundary trail electronics | 731.0g   | $0.000 |      |   |   |
+  |        1 | Northern boundary trail travel      | 241.0g   | $0.000 |      |   |   |
   |----------+-------------------------------------+----------+--------+------+---+---|
-  |        1 |                                     | 4.2924lb | $0.000 |      |   |   |
+  |        1 |                                     | 6.2810lb | $0.000 |      |   |   |
   |----------+-------------------------------------+----------+--------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail backpacking :gear:
@@ -72,7 +72,7 @@
   |        1 | caribiner (silver)      | 35.0g     |        |                  | X |   |
   |        1 | caribiner locking       | 41.0g     |        |                  |   |   |
   |----------+-------------------------+-----------+--------+------------------+---+---|
-  |        1 |                         | 11.0099lb | $0.000 |                  |   |   |
+  |        1 |                         | 12.4914lb | $0.000 |                  |   |   |
   |----------+-------------------------+-----------+--------+------------------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail clothing :gear:
@@ -149,7 +149,7 @@
   |        1 | silver mini-tripod | 97.0g  |        |      | X |   |
   |        1 | SPOT locator       | 96.0g  |        |      | X |   |
   |----------+--------------------+--------+--------+------+---+---|
-  |        1 |                    | 727.0g | $0.000 |      |   |   |
+  |        1 |                    | 731.0g | $0.000 |      |   |   |
   |----------+--------------------+--------+--------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail kitchen :gear:
@@ -201,7 +201,7 @@
   |        1 | Samsung usb power adapter | 33.0g  |        |      |   |   |
   |        2 | credit card               | 10.0g  |        |      |   |   |
   |----------+---------------------------+--------+--------+------+---+---|
-  |        1 |                           | 231.0g | $0.000 |      |   |   |
+  |        1 |                           | 241.0g | $0.000 |      |   |   |
   |----------+---------------------------+--------+--------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable :gear:
@@ -211,7 +211,7 @@
   |        1 | 10 index cards + 2 short pencils + waterproof | 50.0g  |        |               | X |   |
   |        2 | large ziplock freezer bag                     | 24.0g  |        | for batteries | X |   |
   |----------+-----------------------------------------------+--------+--------+---------------+---+---|
-  |        1 |                                               | 74.0g  | $0.000 |               |   |   |
+  |        1 |                                               | 98.0g  | $0.000 |               |   |   |
   |----------+-----------------------------------------------+--------+--------+---------------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable emergency kit :gear:
@@ -257,7 +257,7 @@
   |        2 | toilet paper                              | 196.0g   |         |      | X |   |
   |        1 | 2 tbsp salt + 1 tbsp pepper               | 24.0g    |         |      | X |   |
   |----------+-------------------------------------------+----------+---------+------+---+---|
-  |        1 |                                           | 2.8373lb | $0.000  |      |   |   |
+  |        1 |                                           | 3.2871lb | $0.000  |      |   |   |
   |----------+-------------------------------------------+----------+---------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail extra :gear:
@@ -269,6 +269,6 @@
   |        3 | 10 sheets letter paper | 138.0g   |        |      |   |   |
   |        1 | bush knife             | 217.0g   |        |      |   |   |
   |----------+------------------------+----------+--------+------+---+---|
-  |        1 |                        | 2.1804lb | $0.000 |      |   |   |
+  |        1 |                        | 4.1381lb | $0.000 |      |   |   |
   |----------+------------------------+----------+--------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear

@@ -88,6 +88,15 @@
             (progn
               (setq otdb-gear-item-pattern otdb-gear-item-last-pattern))))))
 
+(defun otdb-gear-menu-column-mark ()
+  (list 'menu-item (concat "Current column mark (otdb-gear-column-mark): " (pp-to-string otdb-gear-column-mark))
+        (lambda ()
+          (interactive)
+          (if otdb-gear-column-mark
+              (setq otdb-gear-column-mark nil)
+            nil))
+        :enable nil))
+
 (defun otdb-gear-menu-files (map)
   (define-key map [menu-bar otdb-menu gear-collections]        (cons "Gear collections" (make-sparse-keymap "gear collections")))
   ;; TODO: does not update dynamically at the moment
@@ -110,25 +119,20 @@
     (define-key map [menu-bar otdb-menu item-patterns packaging] (cons "Packaging" (lambda () (interactive) nil)))
     (otdb-gear-menu-files map)
     (define-key map [menu-bar otdb-menu column-mark-cost]        '(menu-item "Toggle column mark consumable (C)" (lambda () (interactive) (setq otdb-gear-column-mark "C"))
-                                                                             :button (:radio
-                                                                                      . (equal otdb-gear-column-mark "C"))))
+                                                                             :button (:toggle . (equal otdb-gear-column-mark "C"))))
     (define-key map [menu-bar otdb-menu column-mark-check]       '(menu-item "Toggle column mark check (X)" (lambda () (interactive) (setq otdb-gear-column-mark "X"))
-                                                                             :button (:radio
-                                                                                      . (equal otdb-gear-column-mark "X"))))
+                                                                             :button (:toggle . (equal otdb-gear-column-mark "X"))))
     (define-key map [menu-bar otdb-menu column-mark-nil]         '(menu-item "Toggle column mark empty" (lambda () (interactive) (setq otdb-gear-column-mark nil))
-                                                                             :button (:radio
-                                                                                      . (equal otdb-gear-column-mark nil))))
+                                                                             :button (:toggle . (equal otdb-gear-column-mark nil))))
+    (define-key map [menu-bar otdb-menu column-mark]             (otdb-gear-menu-column-mark))
     (define-key map [menu-bar otdb-menu item-pattern]            (otdb-gear-menu-item-pattern))
-    (define-key map [menu-bar otdb-menu recalculate]             '("Recalculate table" . otdb-table-recalculate))
-    (define-key map [menu-bar otdb-menu recalculate-global]      '("Recalculate tables globally" . (lambda () (interactive) (otdb-table-recalculate '(64)))))
-    (define-key map [menu-bar otdb-menu tablet-mode]             '(menu-item "Tablet mode" otdb-toggle-tablet-mode
-                                                                             :button (:toggle
-                                                                                      . (and otdb-table-tablet-mode))))
+    (otdb-table-skeleton-menu-map map)
     map))
 (setq otdb-gear-mode-map (otdb-gear-mode-map))
 
 
 (defun otdb-gear-update-menu ()
+  (define-key otdb-gear-mode-map [menu-bar otdb-menu column-mark]  (otdb-gear-menu-column-mark))
   (define-key otdb-gear-mode-map [menu-bar otdb-menu item-pattern] (otdb-gear-menu-item-pattern)))
 
 (add-hook 'menu-bar-update-hook 'otdb-gear-update-menu)
@@ -350,52 +354,45 @@ corresponding to a gear collection."
         (cost 0)
         (new-lisp-table (butlast lisp-table))
         (last-row (car (last lisp-table)))
-        (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
+        ;; (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
+        (char-columns (otdb-table-parse-char-columns lisp-table))
         new-last-row
         (ask-continue (otdb-gear-ask-continue)))
     (when ask-continue
-      (when char-column
-          (setq char-column (- char-column 1)))
-        (dolist (lisp-row (butlast (cdr lisp-table)))
-          ;; TODO: how to deal with both?
-          ;;       make it easy to disable in menu
-          ;;       ask here but set a flag that is reset at beginning of command
-          ;;       buffer-local pre-command-hook?
-          (unless (or
-                   (and char-column
-                        (or (string= (strip-full (elt lisp-row char-column)) "")
-                            (string= (strip-full (elt lisp-row char-column)) "-")))
-                   ;; XXXX: allow continuing if thing is a collection of gear that does not match
-                   ;;       items only
-                   (and otdb-gear-item-pattern
-                        (not (otdb-gear-find-collection (elt lisp-row 1)))
-                        (not (string-match otdb-gear-item-pattern (elt lisp-row 1)))))
-            (cond ((or (eq otdb-gear-weight-units 'lb)
-                       (eq otdb-gear-weight-units 'kg))
-                   (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
-                  ((eq otdb-gear-weight-units 'lb-g)
-                   ;; otherwise make sure weight is in grams
-                   (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
-                                             (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
-          (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3))))
-        ;; insert into last row
-        ;; TODO: make uniform with ???
-        (setq new-last-row (list
-                            (nconc
-                             (list
-                              (elt last-row 0)
-                              (elt last-row 1)
-                              (otdb-gear-weight-string weight)
-                              (otdb-gear-cost-string cost))
-                             ;; TODO: not great, really want only do for single character headers
-                             (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
-        ;; add in char-column if necessary
-        (when char-column
-          (setcar (nthcdr char-column (car new-last-row)) otdb-gear-column-mark))
-        (setq new-lisp-table
-              (nconc
-               new-lisp-table
-               new-last-row))
-        new-lisp-table)))
+      (dolist (lisp-row (butlast (cdr lisp-table)))
+        (unless (or
+                 ;; TODO: this not is confusing
+                 (and otdb-gear-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
+                 ;; XXXX: allow continuing if thing is a collection of gear that does not match
+                 ;;       items only
+                 (and otdb-gear-item-pattern
+                      (not (otdb-gear-find-collection (elt lisp-row 1)))
+                      (not (string-match otdb-gear-item-pattern (elt lisp-row 1)))))
+          (cond ((or (eq otdb-gear-weight-units 'lb)
+                     (eq otdb-gear-weight-units 'kg))
+                 (setq weight (+ weight (* (string-to-number (elt lisp-row 0))  (otdb-table-lisp-row-float lisp-row 2)))))
+                ((eq otdb-gear-weight-units 'lb-g)
+                 ;; otherwise make sure weight is in grams
+                 (setq weight (+ weight (* (string-to-number (elt lisp-row 0))
+                                           (* (otdb-table-lisp-row-float lisp-row 2)
+                                            (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
+          (setq cost (+ cost (* (string-to-number (elt lisp-row 0)) (otdb-table-lisp-row-float lisp-row 3))))))
+      ;; insert into last row
+      ;; TODO: make uniform with ???
+      (setq new-last-row (list
+                          (nconc
+                           (list
+                            (elt last-row 0)
+                            (elt last-row 1)
+                            (otdb-gear-weight-string weight)
+                            (otdb-gear-cost-string cost))
+                           ;; TODO: not great, really want only do for single character headers
+                           (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
+      ;; TODO: add in text indicating char-column if necessary
+      (setq new-lisp-table
+            (nconc
+             new-lisp-table
+             new-last-row))
+      new-lisp-table)))
 
 (provide 'otdb-gear)

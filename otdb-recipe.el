@@ -97,6 +97,15 @@ now."
             (progn
               (setq otdb-recipe-item-pattern otdb-recipe-item-last-pattern))))))
 
+(defun otdb-recipe-menu-column-mark ()
+  (list 'menu-item (concat "Current column mark (otdb-recipe-column-mark): " (pp-to-string otdb-recipe-column-mark))
+        (lambda ()
+          (interactive)
+          (if otdb-recipe-column-mark
+              (setq otdb-recipe-column-mark nil)
+            nil))
+        :enable nil))
+
 (defun otdb-recipe-menu-files (map &optional force)
   (define-key map [menu-bar otdb-menu recipe-collections]              (cons "Recipe collections" (make-sparse-keymap "recipe collections")))
   ;; TODO: does not update dynamically at the moment and may cause issues, will cause issues switching between different kinds of recipes (normal/backpacking)
@@ -124,21 +133,15 @@ now."
     (define-key map [menu-bar otdb-menu item-patterns packaging]         (cons "Packaging" (lambda () (interactive) nil)))
     (otdb-recipe-menu-files map force)
     (define-key map [menu-bar otdb-menu column-mark-cost]                '(menu-item "Toggle column mark cost (C)" (lambda () (interactive) (setq otdb-recipe-column-mark "C"))
-                                                                                     :button (:radio
-                                                                                              . (equal otdb-recipe-column-mark "C"))))
+                                                                                     :button (:toggle . (equal otdb-recipe-column-mark "C"))))
     (define-key map [menu-bar otdb-menu column-mark-check]               '(menu-item "Toggle column mark check (X)" (lambda () (interactive) (setq otdb-recipe-column-mark "X"))
-                                                                                     :button (:radio
-                                                                                              . (equal otdb-recipe-column-mark "X"))))
+                                                                                     :button (:toggle . (equal otdb-recipe-column-mark "X"))))
     (define-key map [menu-bar otdb-menu column-mark-nil]                 '(menu-item "Toggle column mark empty" (lambda () (interactive) (setq otdb-recipe-column-mark nil))
-                                                                                     :button (:radio
-                                                                                              . (equal otdb-recipe-column-mark nil))))
+                                                                                     :button (:toggle . (equal otdb-recipe-column-mark nil))))
+    (define-key map [menu-bar otdb-menu column-mark]                     (otdb-recipe-menu-column-mark))
     ;; TODO: put into appropriate function
     (define-key map [menu-bar otdb-menu item-pattern] (otdb-recipe-menu-item-pattern))
-    (define-key map [menu-bar otdb-menu recalculate]                     '("Recalculate table" . otdb-table-recalculate))
-    (define-key map [menu-bar otdb-menu recalculate-global]              '("Recalculate tables globally" . (lambda () (interactive) (otdb-table-recalculate '(64)))))
-    (define-key map [menu-bar otdb-menu tablet-mode]                     '(menu-item "Tablet mode" otdb-toggle-tablet-mode
-                                                                                     :button (:toggle
-                                                                                              . (and otdb-table-tablet-mode))))
+    (otdb-table-skeleton-menu-map map)
     map))
 ;; doubled up for now
 (setq otdb-recipe-mode-map (otdb-recipe-mode-map))
@@ -147,6 +150,7 @@ now."
 ;; TODO: make this work properly
 (defun otdb-recipe-update-menu ()
   ;; TODO: put into appropriate function
+  (define-key otdb-recipe-mode-map [menu-bar otdb-menu column-mark]  (otdb-recipe-menu-column-mark))
   (define-key otdb-recipe-mode-map [menu-bar otdb-menu item-pattern] (otdb-recipe-menu-item-pattern))
   ;; TODO: add backpacking food too, figure out how to update properly
   ;; (otdb-recipe-menu-files otdb-recipe-mode-map)
@@ -906,19 +910,16 @@ corresponding to a recipe."
         (percent-fat 0)
         (weight 0)
         (volume 0)
-        (char-column (otdb-table-lisp-char-find-column lisp-table otdb-recipe-column-mark))
+        (char-columns (otdb-table-parse-char-columns lisp-table))
         (ask-continue (otdb-recipe-ask-continue))
         (new-lisp-table (list (car lisp-table))))
     (when ask-continue
-      (when char-column
-        (setq char-column (- char-column 1)))
       ;; add up the directly summable columns
       (dolist (lisp-row (butlast (cdr lisp-table)))
         ;; only skip non-intermediate calculations
         (unless (or
-                 (and char-column
-                      (or (string= (strip-full (elt lisp-row char-column)) "")
-                          (string= (strip-full (elt lisp-row char-column)) "-")))
+                 ;; TODO: this not is confusing
+                 (and otdb-recipe-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-recipe-column-mark char-columns)))
                  ;; XXXX: allow continuing if thing is a collection of recipe that does not match
                  ;;       items only
                  (and otdb-recipe-item-pattern

@@ -58,6 +58,7 @@
 ;; modes, macros, and utility commands
 
 ;; http://ergoemacs.org/emacs/elisp_menu_for_major_mode.html
+;; http://ergoemacs.org/emacs/elisp_menu.html
 ;; see particular files for minor modes for menus
 (defun otdb-table-skeleton-map (map)
   (define-key map (kbd "s-d !") 'otdb-table-agenda-attention)
@@ -93,6 +94,20 @@
   (define-key map (kbd "H-m") 'otdb-toggle-tablet-mode)
   ;; menu keys
   (define-key map [menu-bar] (make-sparse-keymap "otdb")))
+
+(defun otdb-table-skeleton-menu-map (map)
+  (define-key map [menu-bar otdb-menu separator] '("--"))
+  (define-key map [menu-bar otdb-menu put-key]                 '("Put key in database" . otdb-table-put-key-in-database))
+  (define-key map [menu-bar otdb-menu insert-key]              '("Insert key" . otdb-table-insert-key))
+  (define-key map [menu-bar otdb-menu goto-database-key]       '("Goto database key" . otdb-table-goto-key-in-database))
+  (define-key map [menu-bar otdb-menu toggle-check-invalid]    '("Toggle (X) invalid" . otdb-table-invalid-toggle-check-line))
+  (define-key map [menu-bar otdb-menu toggle-check]            '("Toggle (X)" . otdb-table-set-toggle-check-line))
+  (define-key map [menu-bar otdb-menu recalculate]             '("Recalculate table" . otdb-table-recalculate))
+  (define-key map [menu-bar otdb-menu recalculate-global]      '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(64)))
+                                                                           :keys "C-u C-u C-u s-d *"))
+  (define-key map [menu-bar otdb-menu tablet-mode]             '(menu-item "Tablet mode" otdb-toggle-tablet-mode
+                                                                           :button (:toggle
+                                                                                    . (and otdb-table-tablet-mode)))))
 
 ;; TODO: resurect this mode for better extensibility, derive other modes
 ;; (define-minor-mode otdb-table-mode
@@ -903,7 +918,6 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
 ;; TODO: convert collections into proper database table
 (defun otdb-table-data-sanity (database table-name)
   ""
-  nil
   ;; check for sanity of database
   ;; check that heading exists, number of columns of each database table, that there is a header
   (let ((table-detect (otdb-table-detect))
@@ -953,9 +967,34 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (setq all-keys (append key-list collection-keys))
     (setq dups (cic:get-list-duplicates all-keys))
     (when (> (length dups) 0)
-      (error (concat "Duplicate keys between collections and database:" (pp-to-string dups)) message-buffer))
+      (error (concat "Duplicate keys between collections and database: " (pp-to-string dups)) message-buffer))
     ;; TODO: check for possibly conflicting keys in collections by checking case
     ;;       take list of keys from all collections and database, check for duplicates, downcase, duplicates should be the same
     ))
+
+;; (otdb-table-parse-char-columns (cic:org-table-to-lisp-no-separators))
+(defun otdb-table-parse-char-columns (lisp-table)
+  (let ((top-row (car lisp-table))
+        (bottom-rows (cdr lisp-table))
+        (single-columns nil)
+        (count 0))
+    ;; get list of single-char column
+    (dolist (lisp-element top-row)
+      (when (and (equal (length lisp-element) 1) (string-match "[[:alpha:]]" lisp-element))
+        (mpp (type-of lisp-element))
+        (setq single-columns (append single-columns  (list (list count lisp-element)))))
+      (setq count (+ count 1)))
+    single-columns))
+
+;; TODO: faked for now, need to deal with numbers
+;; (otdb-table-check-current-row-lisp (elt (cic:org-table-to-lisp-no-separators) 4) "(or C X)" (otdb-table-parse-char-columns lisp-table))
+;; (otdb-table-check-current-row-lisp (elt (cic:org-table-to-lisp-no-separators) 4) "X"        (otdb-table-parse-char-columns (cic:org-table-to-lisp-no-separators)))
+(defun otdb-table-check-current-row-lisp (lisp-row eval-expression char-columns)
+  (let ((let-form))
+    (dolist (char-column char-columns)
+      (setq let-form (append let-form (list (list (intern (cadr char-column)) (and (not (equal ""  (strip-full (elt lisp-row (car char-column)))))))))))
+    (setq form (list 'let let-form (car (read-from-string eval-expression))))
+    (mpp form)
+    (eval form)))
 
 (provide 'otdb-table)

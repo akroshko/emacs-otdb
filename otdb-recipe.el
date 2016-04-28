@@ -84,6 +84,17 @@ now."
            (let ((normal-recipe-files otdb-recipe-normal-alist))
              (cdr (assoc lookup-variable normal-recipe-files)))))))
 
+(defvar otdb-recipe-read-column-mark-history
+  nil
+  "The history column mark inputs.")
+
+(defun otdb-recipe-read-column-mark ()
+  (interactive)
+  (let ((thestring (read-string (concat "Column mark expression " (pp-to-string otdb-recipe-column-mark) ": ") nil otdb-recipe-read-column-mark-history otdb-recipe-column-mark)))
+    (if (cic:is-not-empty-string-nil thestring)
+        (setq otdb-recipe-column-mark thestring)
+      nil)))
+
 (defun otdb-recipe-menu-item-pattern ()
   (cons (if otdb-recipe-item-pattern
             (concat "Disable recipe pattern: " (pp-to-string otdb-recipe-item-pattern))
@@ -98,32 +109,21 @@ now."
               (setq otdb-recipe-item-pattern otdb-recipe-item-last-pattern))))))
 
 (defun otdb-recipe-menu-column-mark ()
-  (list 'menu-item (concat "Current column mark (otdb-recipe-column-mark): " (pp-to-string otdb-recipe-column-mark))
-        (lambda ()
-          (interactive)
-          (if otdb-recipe-column-mark
-              (setq otdb-recipe-column-mark nil)
-            nil))
-        :enable nil))
+  (cons (concat "Change column mark: " (pp-to-string otdb-recipe-column-mark)) 'otdb-recipe-read-column-mark))
 
 (defun otdb-recipe-menu-files (map &optional force)
   (define-key map [menu-bar otdb-menu recipe-collections]              (cons "Recipe collections" (make-sparse-keymap "recipe collections")))
   ;; TODO: does not update dynamically at the moment and may cause issues, will cause issues switching between different kinds of recipes (normal/backpacking)
   (dolist (collection (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-files force)))
-    (define-key map (vector 'menu-bar 'otdb-menu 'recipe-collections collection) (cons collection (lambda () (interactive) nil))))
+    (define-key map (vector 'menu-bar 'otdb-menu 'recipe-collections collection) (cons collection (cic:make-file-finder collection))))
   (define-key map [menu-bar otdb-menu recipe-databases]                (cons "Recipe databases" (make-sparse-keymap "recipe databases")))
-  ;; TODO: hope this always works out properly, might have issue if databases change
   ;; https://stackoverflow.com/questions/9966279/how-to-dynamically-define-a-menu-item-what-is-the-thing-in-square-braces
-  ;; TODO: does not update dynamically at the moment
+  ;; TODO: hope this always works out properly, might have issue if databases change
+  ;;       does not update dynamically at the moment
   (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database force)))
-    (define-key map (vector 'menu-bar 'otdb-menu 'recipe-databases database) (cons database (lambda () (interactive) nil)))))
+    (define-key map (vector 'menu-bar 'otdb-menu 'recipe-databases database) (cons database (cic:make-file-finder database)))))
 
-;; TODO: doesn't handle backpacking-recipes well
-;;       need to zero out keys before adding new dynamic menu
-;; TODO: only one keymap for minor mode, need keymap specific to specific buffers
 (defun otdb-recipe-mode-map (&optional force)
-  ;; (setq otdb-recipe-mode-map )
-  ;; (otdb-table-skeleton-map otdb-recipe-mode-map)
   (let ((map (make-sparse-keymap)))
     (otdb-table-skeleton-map map)
     (define-key map [menu-bar otdb-menu] (cons "otdb-recipe"             (make-sparse-keymap "otdb-recipe")))
@@ -151,10 +151,7 @@ now."
 (defun otdb-recipe-update-menu ()
   ;; TODO: put into appropriate function
   (define-key otdb-recipe-mode-map [menu-bar otdb-menu column-mark]  (otdb-recipe-menu-column-mark))
-  (define-key otdb-recipe-mode-map [menu-bar otdb-menu item-pattern] (otdb-recipe-menu-item-pattern))
-  ;; TODO: add backpacking food too, figure out how to update properly
-  ;; (otdb-recipe-menu-files otdb-recipe-mode-map)
-  )
+  (define-key otdb-recipe-mode-map [menu-bar otdb-menu item-pattern] (otdb-recipe-menu-item-pattern)))
 
 (add-hook 'menu-bar-update-hook 'otdb-recipe-update-menu)
 

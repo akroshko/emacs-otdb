@@ -97,17 +97,21 @@
 
 (defun otdb-table-skeleton-menu-map (map)
   (define-key map [menu-bar otdb-menu separator] '("--"))
-  (define-key map [menu-bar otdb-menu put-key]                 '("Put key in database" . otdb-table-put-key-in-database))
-  (define-key map [menu-bar otdb-menu insert-key]              '("Insert key" . otdb-table-insert-key))
-  (define-key map [menu-bar otdb-menu goto-database-key]       '("Goto database key" . otdb-table-goto-key-in-database))
-  (define-key map [menu-bar otdb-menu toggle-check-invalid]    '("Toggle (X) invalid" . otdb-table-invalid-toggle-check-line))
-  (define-key map [menu-bar otdb-menu toggle-check]            '("Toggle (X)" . otdb-table-set-toggle-check-line))
-  (define-key map [menu-bar otdb-menu recalculate]             '("Recalculate table" . otdb-table-recalculate))
-  (define-key map [menu-bar otdb-menu recalculate-global]      '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(64)))
-                                                                           :keys "C-u C-u C-u s-d *"))
-  (define-key map [menu-bar otdb-menu tablet-mode]             '(menu-item "Tablet mode" otdb-toggle-tablet-mode
-                                                                           :button (:toggle
-                                                                                    . (and otdb-table-tablet-mode)))))
+  (define-key map [menu-bar otdb-menu put-key]              '("Put key in database" . otdb-table-put-key-in-database))
+  (define-key map [menu-bar otdb-menu insert-key]           '("Insert key" . otdb-table-insert-key))
+  (define-key map [menu-bar otdb-menu goto-database-key]    '("Goto database key" . otdb-table-goto-key-in-database))
+  (define-key map [menu-bar otdb-menu toggle-check-invalid] '("Toggle (X) invalid" . otdb-table-invalid-toggle-check-line))
+  (define-key map [menu-bar otdb-menu toggle-check]         '("Toggle (X)" . otdb-table-set-toggle-check-line))
+  (define-key map [menu-bar otdb-menu recalculate]          '("Recalculate table" . otdb-table-recalculate))
+  (define-key map [menu-bar otdb-menu recalculate-locally]  '(menu-item "Recalculate tables in file" (lambda () (interactive) (otdb-table-recalculate '(4)))
+                                                                        :keys "C-u s-d *"))
+  (define-key map [menu-bar otdb-menu recalculate-global]   '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(16)))
+                                                                        :keys "C-u C-u s-d *"))
+  (define-key map [menu-bar otdb-menu recalculate-global-3x]'(menu-item "Recalculate tables globally 3x" (lambda () (interactive) (otdb-table-recalculate '(64)))
+                                                                        :keys "C-u C-u C-u s-d *"))
+  (define-key map [menu-bar otdb-menu tablet-mode]          '(menu-item "Tablet mode" otdb-toggle-tablet-mode
+                                                                        :button (:toggle
+                                                                                 . (and otdb-table-tablet-mode)))))
 
 ;; TODO: resurect this mode for better extensibility, derive other modes
 ;; (define-minor-mode otdb-table-mode

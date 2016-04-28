@@ -88,23 +88,28 @@
             (progn
               (setq otdb-gear-item-pattern otdb-gear-item-last-pattern))))))
 
+(defvar otdb-gear-read-column-mark-history
+  nil
+  "The history of column mark inputs.")
+
+(defun otdb-gear-read-column-mark ()
+  (interactive)
+  (let ((thestring (read-string (concat "Column mark expression " (pp-to-string otdb-gear-column-mark) ": ") nil otdb-gear-read-column-mark-history otdb-gear-column-mark)))
+    (if (cic:is-not-empty-string-nil thestring)
+        (setq otdb-gear-column-mark thestring)
+      nil)))
+
 (defun otdb-gear-menu-column-mark ()
-  (list 'menu-item (concat "Current column mark (otdb-gear-column-mark): " (pp-to-string otdb-gear-column-mark))
-        (lambda ()
-          (interactive)
-          (if otdb-gear-column-mark
-              (setq otdb-gear-column-mark nil)
-            nil))
-        :enable nil))
+  (cons (concat "Change column mark: " (pp-to-string otdb-gear-column-mark)) 'otdb-gear-read-column-mark))
 
 (defun otdb-gear-menu-files (map)
   (define-key map [menu-bar otdb-menu gear-collections]        (cons "Gear collections" (make-sparse-keymap "gear collections")))
   ;; TODO: does not update dynamically at the moment
   (dolist (collection (cic:ensure-list otdb-gear-collection-files))
-    (define-key map (vector 'menu-bar 'otdb-menu 'gear-collections collection) (cons collection (lambda () (interactive) nil))))
+    (define-key map (vector 'menu-bar 'otdb-menu 'gear-collections collection) (cons collection (cic:make-file-finder collection))))
   (define-key map [menu-bar otdb-menu gear-databases]          (cons "Gear databases" (make-sparse-keymap "gear databases")))
   (dolist (database (cic:ensure-list otdb-gear-database))
-    (define-key map (vector 'menu-bar 'otdb-menu 'gear-databases database) (cons database (lambda () (interactive) nil)))))
+    (define-key map (vector 'menu-bar 'otdb-menu 'gear-databases database) (cons database (cic:make-file-finder database)))))
 
 (defun otdb-gear-mode-map ()
   ;; XXXX: are there any problems to doing this?
@@ -129,7 +134,6 @@
     (otdb-table-skeleton-menu-map map)
     map))
 (setq otdb-gear-mode-map (otdb-gear-mode-map))
-
 
 (defun otdb-gear-update-menu ()
   (define-key otdb-gear-mode-map [menu-bar otdb-menu column-mark]  (otdb-gear-menu-column-mark))

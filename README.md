@@ -157,16 +157,13 @@ package provides a very unique and useful option.
 New development that needs to be documented
 ===========================================
 
-- regex filters to find totals for particular matching items
-
+- generating temporary buffers with list of items matching tags,
+  regex, or that have been checked (uses the "s-d c" keybinding)
 
 Planned development
 ===================
 
 - templates/keys to create a recipe/collection and to insert a line
-
-- create complete lists of ingredients/items and complete lists of
-  missing ingredients/items
 
 - export to nicely formatted .html
 
@@ -178,9 +175,6 @@ Planned development
   working or travelling
 
 - more complete agenda integration with better testing
-
-- ability to generate a complete list of ingredients/items from nested
-  recipes/gear collections (including optional, consumable, and checked)
 
 - give a range of values when optional ingredients are included or
   excluded

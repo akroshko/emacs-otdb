@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20160130
+;; Version: 20160511
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -76,6 +76,7 @@
   ;; (define-key map (kbd "s-d o") 'otdb-table-occurences-key)
   ;; put key into main database, ask for key, update key at point if necessary
   (define-key map (kbd "s-d p") 'otdb-table-put-key-in-database)
+  (define-key map (kbd "s-d s") 'otdb-table-calculate-special)
   ;; update key from main database
   ;; TODO want to be able to go and pop back
   ;; update the "agenda" with the key
@@ -83,7 +84,7 @@
   ;; TODO: figure out better key scheme, do I actually want these (or like them) with the menu
   (define-key map (kbd "H-t") 'otdb-table-set-toggle-check-line)
   (define-key map (kbd "H-T") 'otdb-table-invalid-toggle-check-line)
-  (define-key map (kbd "M-H-t") 'otdb-table-set-toggle-consumable-line)
+  (define-key map (kbd "M-H-t") 'otdb-table-set-toggle-cost-line)
   (define-key map (kbd "M-H-T") 'otdb-table-invalid-toggle-consumable-line)
   ;; TODO: I use these for other things now.... but good on laptops
   ;;       change somewhere?
@@ -97,21 +98,18 @@
 
 (defun otdb-table-skeleton-menu-map (map)
   (define-key map [menu-bar otdb-menu separator] '("--"))
-  (define-key map [menu-bar otdb-menu put-key]              '("Put key in database" . otdb-table-put-key-in-database))
-  (define-key map [menu-bar otdb-menu insert-key]           '("Insert key" . otdb-table-insert-key))
-  (define-key map [menu-bar otdb-menu goto-database-key]    '("Goto database key" . otdb-table-goto-key-in-database))
-  (define-key map [menu-bar otdb-menu toggle-check-invalid] '("Toggle (X) invalid" . otdb-table-invalid-toggle-check-line))
-  (define-key map [menu-bar otdb-menu toggle-check]         '("Toggle (X)" . otdb-table-set-toggle-check-line))
-  (define-key map [menu-bar otdb-menu recalculate]          '("Recalculate table" . otdb-table-recalculate))
-  (define-key map [menu-bar otdb-menu recalculate-locally]  '(menu-item "Recalculate tables in file" (lambda () (interactive) (otdb-table-recalculate '(4)))
-                                                                        :keys "C-u s-d *"))
-  (define-key map [menu-bar otdb-menu recalculate-global]   '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(16)))
-                                                                        :keys "C-u C-u s-d *"))
-  (define-key map [menu-bar otdb-menu recalculate-global-3x]'(menu-item "Recalculate tables globally 3x" (lambda () (interactive) (otdb-table-recalculate '(64)))
-                                                                        :keys "C-u C-u C-u s-d *"))
-  (define-key map [menu-bar otdb-menu tablet-mode]          '(menu-item "Tablet mode" otdb-toggle-tablet-mode
-                                                                        :button (:toggle
-                                                                                 . (and otdb-table-tablet-mode)))))
+  (define-key map [menu-bar otdb-menu put-key]               '("Put key in database" . otdb-table-put-key-in-database))
+  (define-key map [menu-bar otdb-menu insert-key]            '("Insert key" . otdb-table-insert-key))
+  (define-key map [menu-bar otdb-menu goto-database-key]     '("Goto database key" . otdb-table-goto-key-in-database))
+  (define-key map [menu-bar otdb-menu recalculate]           '("Recalculate table" . otdb-table-recalculate))
+  (define-key map [menu-bar otdb-menu recalculate-locally]   '(menu-item "Recalculate tables in file" (lambda () (interactive) (otdb-table-recalculate '(4)))
+                                                                         :keys "C-u s-d *"))
+  (define-key map [menu-bar otdb-menu recalculate-global]    '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(16)))
+                                                                         :keys "C-u C-u s-d *"))
+  (define-key map [menu-bar otdb-menu recalculate-global-3x] '(menu-item "Recalculate tables globally 3x" (lambda () (interactive) (otdb-table-recalculate '(64)))
+                                                                         :keys "C-u C-u C-u s-d *"))
+  (define-key map [menu-bar otdb-menu tablet-mode]           '(menu-item "Tablet mode" otdb-toggle-tablet-mode
+                                                                         :button (:toggle . (and otdb-table-tablet-mode)))))
 
 ;; TODO: resurect this mode for better extensibility, derive other modes
 ;; (define-minor-mode otdb-table-mode
@@ -140,6 +138,13 @@ May eventually be generalized a little better."
            'backpacking)
           (t
            nil))))
+
+(defun otdb-table-calculate-special ()
+  (interactive)
+  (cond ((eq (otdb-table-detect) 'backpacking)
+         (otdb-gear-calc-special-command))
+        ((eq (otdb-table-detect) 'recipe)
+         (otdb-recipe-calc-special-command))))
 
 (defun otdb-toggle-tablet-mode ()
   "A tablet mode where the otdb-table-mode buffer is read-only except for certain
@@ -354,7 +359,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
   (interactive)
   (otdb-table-set-toggle-line "X"))
 
-(defun otdb-table-set-toggle-consumable-line ()
+(defun otdb-table-set-toggle-cost-line ()
   (interactive)
   (otdb-table-set-toggle-line "C"))
 
@@ -879,7 +884,7 @@ non-zero float"
 
 (defun otdb-table-lisp-row-float (lisp-row index)
   "From LISP-ROW get the float from INDEX."
-  (cic:string-to-float-empty-zero (elt lisp-row index)))
+  (cic:string-to-float-empty-zero (replace-regexp-in-string "\\$" "" (elt lisp-row index))))
 
 (defun otdb-table-format-number-nil (num format)
   "Format a number NUM with FORMAT decimal places or return an
@@ -1000,5 +1005,14 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (setq form (list 'let let-form (car (read-from-string eval-expression))))
     (mpp form)
     (eval form)))
+
+(defun otdb-table-check-invalid-current-row-lisp (lisp-row eval-expression char-columns)
+  (let ((invalid nil))
+    (dolist (char-column char-columns)
+      (mpp char-column)
+      (when (and (equal (strip-full (cadr char-column)) "X")
+                 (equal (strip-full (elt  lisp-row (car char-column))) "-"))
+        (setq invalid t)))
+    invalid))
 
 (provide 'otdb-table)

@@ -5,7 +5,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20160130
+;; Version: 20160511
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -38,6 +38,8 @@
 ;;
 ;;; Code:
 
+;; TODO: document better on next round
+
 (defconst otdb-gear-types
   '("gear"))
 
@@ -59,7 +61,7 @@
 ;; TODO: need key and/or menu item to toggle this variable
 (defvar otdb-gear-column-mark
   nil
-  "Set to string \"X\" for check and string \"C\" for consumable.")
+  "Set to string \"X\" for check and string \"C\" for cost.")
 
 (defvar otdb-gear-item-pattern
   nil
@@ -71,14 +73,19 @@
   ;; TODO: need a better interface
   "Holds the last pattern needed for filtering results.")
 
-(defvar otdb-gear-need-warning-partial
-  t
-  "Monitor if a warning is needed about partial computations.")
+(defvar otdb-gear-item-tags
+  nil
+  "Hold set of tags")
+
+(defvar otdb-gear-item-last-tags
+  nil
+  "Hold the last set of tags")
 
 (defun otdb-gear-menu-item-pattern ()
+  "Set menu item to reflect current value of otdb-gear-item-pattern."
   (cons (if otdb-gear-item-pattern
-            (concat "Disable gear pattern: " (pp-to-string otdb-gear-item-pattern))
-          (concat "Re-enable gear pattern: " (pp-to-string otdb-gear-item-pattern)))
+            (concat "Disable (otdb-gear-item-pattern): " (pp-to-string otdb-gear-item-pattern))
+          (concat "Re-enable (otdb-gear-item-pattern): " (pp-to-string otdb-gear-item-last-pattern)))
         (lambda ()
           (interactive)
           (if otdb-gear-item-pattern
@@ -88,11 +95,37 @@
             (progn
               (setq otdb-gear-item-pattern otdb-gear-item-last-pattern))))))
 
+(defun otdb-gear-menu-tags ()
+  "Set menu item to reflect current value of otdb-gear-item-tags."
+  (cons (if otdb-gear-item-tags
+            (concat "Disable (otdb-gear-item-tags): " (pp-to-string otdb-gear-item-tags))
+          (concat "Re-enable (otdb-gear-item-tags): " (pp-to-string otdb-gear-item-last-tags)))
+        (lambda ()
+          (interactive)
+          (if otdb-gear-item-tags
+              (progn
+                (setq otdb-gear-item-last-tags otdb-gear-item-tags)
+                (setq otdb-gear-item-tags nil))
+            (progn
+              (setq otdb-gear-item-tags otdb-gear-item-last-tags))))))
+
+(defun otdb-gear-reset-filters ()
+  (interactive)
+  (when otdb-gear-item-pattern
+    (setq otdb-gear-item-last-pattern otdb-gear-item-pattern)
+    (setq otdb-gear-item-pattern nil))
+  (when otdb-gear-item-tags
+    (setq otdb-gear-item-last-tags otdb-gear-item-tags)
+    (setq otdb-gear-item-tags nil))
+  ;; TODO: last column mark maybe?
+  (setq otdb-gear-column-mark nil))
+
 (defvar otdb-gear-read-column-mark-history
   nil
   "The history of column mark inputs.")
 
 (defun otdb-gear-read-column-mark ()
+  "Read and change the column mark."
   (interactive)
   (let ((thestring (read-string (concat "Column mark expression " (pp-to-string otdb-gear-column-mark) ": ") nil otdb-gear-read-column-mark-history otdb-gear-column-mark)))
     (if (cic:is-not-empty-string-nil thestring)
@@ -103,41 +136,55 @@
   (cons (concat "Change column mark: " (pp-to-string otdb-gear-column-mark)) 'otdb-gear-read-column-mark))
 
 (defun otdb-gear-menu-files (map)
-  (define-key map [menu-bar otdb-menu gear-collections]        (cons "Gear collections" (make-sparse-keymap "gear collections")))
+  (define-key map [menu-bar otdb-menu gear-collections]        (cons "Gear collection files" (make-sparse-keymap "gear collection files")))
   ;; TODO: does not update dynamically at the moment
   (dolist (collection (cic:ensure-list otdb-gear-collection-files))
     (define-key map (vector 'menu-bar 'otdb-menu 'gear-collections collection) (cons collection (cic:make-file-finder collection))))
-  (define-key map [menu-bar otdb-menu gear-databases]          (cons "Gear databases" (make-sparse-keymap "gear databases")))
+  (define-key map [menu-bar otdb-menu gear-databases]          (cons "Gear database files" (make-sparse-keymap "gear database files")))
   (dolist (database (cic:ensure-list otdb-gear-database))
     (define-key map (vector 'menu-bar 'otdb-menu 'gear-databases database) (cons database (cic:make-file-finder database)))))
 
 (defun otdb-gear-mode-map ()
-  ;; XXXX: are there any problems to doing this?
   (let ((map (make-sparse-keymap)))
     (otdb-table-skeleton-map map)
     (define-key map [menu-bar otdb-menu]                         (cons "otdb-gear" (make-sparse-keymap "otdb-gear")))
+    (define-key map [menu-bar otdb-menu reset-filters]           (cons "Reset gear filters" 'otdb-gear-reset-filters))
+    (otdb-gear-menu-files map)
+    (define-key map [menu-bar otdb-menu separator2] '("--"))
+    (define-key map [menu-bar otdb-menu item-tags]               (cons "Gear tags" (make-sparse-keymap "gear tags patterns")))
+    (define-key map [menu-bar otdb-menu item-tags clothing]      (cons "Clothing"  (lambda () (interactive) (setq otdb-gear-item-tags "clothing"))))
+    (define-key map [menu-bar otdb-menu item-tags consumable]    (cons "Consumable" (lambda () (interactive) (setq otdb-gear-item-tags "consumable"))))
+    (define-key map [menu-bar otdb-menu item-tags container]     (cons "Container" (lambda () (interactive) (setq otdb-gear-item-tags "container"))))
     ;; put these in reverse order they are displayed
     ;; TODO: menu to jump to database(s)
     (define-key map [menu-bar otdb-menu item-patterns]           (cons "Gear item patterns" (make-sparse-keymap "gear item patterns")))
-    ;; TODO: generate these
+    ;; TODO: make these actually work
     (define-key map [menu-bar otdb-menu item-patterns clothing]  (cons "Clothing" (lambda () (interactive) nil)))
     (define-key map [menu-bar otdb-menu item-patterns packaging] (cons "Packaging" (lambda () (interactive) nil)))
-    (otdb-gear-menu-files map)
-    (define-key map [menu-bar otdb-menu column-mark-cost]        '(menu-item "Toggle column mark consumable (C)" (lambda () (interactive) (setq otdb-gear-column-mark "C"))
+
+    (define-key map [menu-bar otdb-menu item-tag]                (otdb-gear-menu-tags))
+    (define-key map [menu-bar otdb-menu item-pattern]            (otdb-gear-menu-item-pattern))
+    (define-key map [menu-bar otdb-menu calc-special-command]    (cons "Use special buffer for calculation" 'otdb-gear-calc-special-command))
+    (define-key map [menu-bar otdb-menu separator3] '("--"))
+    (define-key map [menu-bar otdb-menu column-mark-cost]        '(menu-item "Toggle column mark cost (C)" (lambda () (interactive) (setq otdb-gear-column-mark "C"))
                                                                              :button (:toggle . (equal otdb-gear-column-mark "C"))))
+    (define-key map [menu-bar otdb-menu column-mark-not-check]   '(menu-item "Toggle column mark check (not X)" (lambda () (interactive) (setq otdb-gear-column-mark "(not X)"))
+                                                                             :button (:toggle . (equal otdb-gear-column-mark "(not X)"))))
     (define-key map [menu-bar otdb-menu column-mark-check]       '(menu-item "Toggle column mark check (X)" (lambda () (interactive) (setq otdb-gear-column-mark "X"))
                                                                              :button (:toggle . (equal otdb-gear-column-mark "X"))))
     (define-key map [menu-bar otdb-menu column-mark-nil]         '(menu-item "Toggle column mark empty" (lambda () (interactive) (setq otdb-gear-column-mark nil))
                                                                              :button (:toggle . (equal otdb-gear-column-mark nil))))
     (define-key map [menu-bar otdb-menu column-mark]             (otdb-gear-menu-column-mark))
-    (define-key map [menu-bar otdb-menu item-pattern]            (otdb-gear-menu-item-pattern))
+    (define-key map [menu-bar otdb-menu toggle-check-invalid]    '("Toggle (X) invalid" . otdb-table-invalid-toggle-check-line))
+    (define-key map [menu-bar otdb-menu toggle-check]            '("Toggle (X)" . otdb-table-set-toggle-check-line))
     (otdb-table-skeleton-menu-map map)
     map))
 (setq otdb-gear-mode-map (otdb-gear-mode-map))
 
 (defun otdb-gear-update-menu ()
   (define-key otdb-gear-mode-map [menu-bar otdb-menu column-mark]  (otdb-gear-menu-column-mark))
-  (define-key otdb-gear-mode-map [menu-bar otdb-menu item-pattern] (otdb-gear-menu-item-pattern)))
+  (define-key otdb-gear-mode-map [menu-bar otdb-menu item-pattern] (otdb-gear-menu-item-pattern))
+  (define-key otdb-gear-mode-map [menu-bar otdb-menu item-tag]     (otdb-gear-menu-tags)))
 
 (add-hook 'menu-bar-update-hook 'otdb-gear-update-menu)
 
@@ -150,7 +197,6 @@
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
 
-;; TODO: menu items specifly for gear
 (defun otdb-gear-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular collection."
@@ -178,19 +224,14 @@ for ROW-LIST from a particular collection."
         (let ((weight (ignore-errors
                         (otdb-gear-get-weight-database-row row quantity)))
               (cost (ignore-errors
-                      (otdb-gear-get-cost-database-row row quantity))))
+                      (otdb-gear-get-cost-database-row row quantity)))
+              (tags (ignore-errors (elt row 3))))
           (setq weight-cost-list (cons (list (car row-alist)
                                              weight
-                                             cost)
+                                             cost
+                                             tags)
                                        weight-cost-list)))))
     (append collection-weight-cost-list weight-cost-list)))
-
-(defun otdb-gear-ask-continue ()
-  (if (and otdb-gear-need-warning-partial (or otdb-gear-column-mark otdb-gear-item-pattern))
-      (let ((answer (y-or-n-p " Warning! Patterns or column marks activated!  Partial answer will be given!  Continue")))
-        (setq otdb-gear-need-warning-partial nil)
-        answer)
-    t))
 
 (defun otdb-gear-insert-function (collection-filename collection-heading weight-cost-list)
   "Helper function for otdb-table-update to insert information
@@ -200,23 +241,28 @@ WEIGHT-COST-LIST."
   (let (new-item
         new-weight
         new-cost
-        (count 1)
-        (ask-continue (otdb-gear-ask-continue)))
-    ;; TODO: also asking here to avoid killing table, need general function
-    (when ask-continue
-      (do-org-table-rows collection-filename collection-heading row
-                         (setq new-item (strip-full-no-properties (elt row 1)))
-                         (when (not (equal count 1))
-                           (setq new-weight (elt (assoc new-item weight-cost-list) 1))
-                           (setq new-cost (elt (assoc new-item weight-cost-list) 2))
-                           (if (not new-weight)
-                               (org-table-put count 3 "")
-                             (org-table-put count 3 (otdb-gear-weight-string new-weight)))
-                           (if (not new-cost)
-                               (org-table-put count 4 "")
-                             (org-table-put count 4 (otdb-gear-cost-string new-cost))))
-                         (setq count (1+ count)))
-      (cic:org-table-eval-tblel))))
+        new-tags
+        (count 1))
+    ;; TODO: this could be generalized a bit better
+    ;;       headings are good, but so are standards
+    (do-org-table-rows collection-filename collection-heading row
+                       (setq new-item (strip-full-no-properties (elt row 1)))
+                       (when (not (equal count 1))
+                         (setq new-weight (elt (assoc new-item weight-cost-list) 1))
+                         (setq new-cost (elt (assoc new-item weight-cost-list) 2))
+                         (setq new-tags (elt (assoc new-item weight-cost-list) 3))
+                         (mpp new-tags)
+                         (if (not new-weight)
+                             (org-table-put count 3 "")
+                           (org-table-put count 3 (otdb-gear-weight-string new-weight)))
+                         (if (not new-cost)
+                             (org-table-put count 4 "")
+                           (org-table-put count 4 (otdb-gear-cost-string new-cost)))
+                         (if (not new-tags)
+                             (org-table-put count 5 "")
+                           (org-table-put count 5 new-tags)))
+                       (setq count (1+ count)))
+    (cic:org-table-eval-tblel)))
 
 (defun otdb-gear-weight-string (weight)
   "Convert the WEIGHT into a proper string."
@@ -295,7 +341,7 @@ DATABASE-ROW."
                (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "lb"))
               ((eq otdb-gear-weight-units 'lb-g)
                (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "g"))))
-       (string-to-number (org-table-get nil 4))))))
+       (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil 4)))))))
 
 (defun otdb-gear-find-item (item)
   "Find the location of the ITEM."
@@ -329,8 +375,6 @@ DATABASE-ROW."
           collection-list)
       (dolist (gear-file otdb-gear-collection-files)
         (do-org-tables gear-file table-name table
-                       (mpp table-name)
-                       (mpp table)
                        (when (string-match "\\(.*\\) :gear:" table-name)
                          (setq collection-list (cons (match-string 1 table-name) collection-list)))))
       (setq otdb-table-collections-cache collection-list)
@@ -339,17 +383,6 @@ DATABASE-ROW."
 (defun otdb-gear-database-row (item)
   "Get the database row corresponding to gear item ITEM."
   (cic:org-table-lookup-row otdb-gear-database otdb-gear-database-headline item))
-
-;; add to post-command-hook
-(add-hook 'post-command-hook (lambda ()
-                               (setq otdb-gear-need-warning-partial t)))
-
-;; common patterns
-;; reset
-;; (setq otdb-gear-item-pattern nil)
-;; for checking amount of stuff sacks and packaging
-;; (setq otdb-gear-item-pattern "ziplock\\|sack\\|drybag\\|ditty\\|mesh")
-;; TODO: for checking amount of clothing
 
 (defun otdb-gear-calc-gear (lisp-table)
   "Calculated an updated lisp table from the LISP-TABLE
@@ -360,43 +393,118 @@ corresponding to a gear collection."
         (last-row (car (last lisp-table)))
         ;; (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
         (char-columns (otdb-table-parse-char-columns lisp-table))
-        new-last-row
-        (ask-continue (otdb-gear-ask-continue)))
-    (when ask-continue
-      (dolist (lisp-row (butlast (cdr lisp-table)))
+        new-last-row)
+    (dolist (lisp-row (butlast (cdr lisp-table)))
+      ;; TODO: no marks here for now, maybe only do "X" mark
+      ;; (and otdb-gear-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
+      (unless (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)
+        (cond ((or (eq otdb-gear-weight-units 'lb)
+                   (eq otdb-gear-weight-units 'kg))
+               (setq weight (+ weight (* (string-to-number (elt lisp-row 0))  (otdb-table-lisp-row-float lisp-row 2)))))
+              ((eq otdb-gear-weight-units 'lb-g)
+               ;; otherwise make sure weight is in grams
+               (setq weight (+ weight (* (string-to-number (elt lisp-row 0))
+                                         (* (otdb-table-lisp-row-float lisp-row 2)
+                                            (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
+        (setq cost (+ cost (* (string-to-number (elt lisp-row 0)) (otdb-table-lisp-row-float lisp-row 3))))))
+    ;; insert into last row
+    ;; TODO: make uniform with ???
+    (setq new-last-row (list
+                        (nconc
+                         (list
+                          (elt last-row 0)
+                          (elt last-row 1)
+                          (otdb-gear-weight-string weight)
+                          (otdb-gear-cost-string cost))
+                         ;; TODO: not great, really want only do for single character headers
+                         (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
+    ;; TODO: add in text indicating char-column if necessary
+    (setq new-lisp-table
+          (nconc
+           new-lisp-table
+           new-last-row))
+    new-lisp-table))
+
+(defun otdb-gear-tag-pattern-match (tags-pattern tags)
+  "Match a set of TAGS to a TAGS-PATTERN (list of tags).
+
+Match if all tags in TAGS-PATTERN are present or do not match if
+one or more tags in TAGS-PATTERN indicated by !<<tag>> is
+present."
+  (let* ((tag-pattern-list (split-string (strip-full tags-pattern) ","))
+         (tag-pattern-list-false (delq nil (mapcar (lambda (e) (and (string-match "^!" e) e)) tag-pattern-list)))
+         (tag-pattern-list-false-strip (mapcar (lambda (e) (substring e 1)) tag-pattern-list-false))
+         (tag-pattern-list-true (cl-set-difference tag-pattern-list tag-pattern-list-false))
+         (tag-list (split-string (strip-full tags) ",")))
+    (and (cl-intersection tag-list tag-pattern-list-true :test 'equal)
+         (not (cl-intersection tag-list tag-pattern-list-false-strip :test 'equal)))))
+
+(defun otdb-gear-create-temporary-buffer ()
+  ;; TODO: create type of buffer too
+  (let (the-new-buffer)
+    (when (eq (otdb-table-detect) 'backpacking)
+      (cond (otdb-gear-item-pattern
+             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear-pattern--" otdb-gear-item-pattern "--" (format-time-string "%Y%m%dT%H%M%S" (current-time)) "*"))))
+            (otdb-gear-item-tags
+             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear-tags--" otdb-gear-item-tags "--" (format-time-string "%Y%m%dT%H%M%S" (current-time)) "*"))))
+            (t
+             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear--" (format-time-string "%Y%m%dT%H%M%S" (current-time)) "*")))))
+      (with-current-buffer the-new-buffer
+        (org-mode)
+        (otdb-gear-mode)
+        (insert "  |----------+------+--------+------+------+------+---+---|\n")
+        (insert "  | Quantity | Item | Weight | Cost | Tags | Note | X | C |\n")
+        (insert "  |----------+------+--------+------+------+------+---+---|\n"))
+      the-new-buffer)))
+
+(defun otdb-gear-calc-special-command ()
+  (interactive)
+  (let ((the-new-buffer (otdb-gear-create-temporary-buffer)))
+    (otdb-gear-calc-special (cic:org-table-to-lisp-no-separators) the-new-buffer)
+    (with-current-buffer the-new-buffer
+      (insert "  |----------+------+--------+------+------+------+---+---|\n")
+      (insert "  | 1        |      |        |      |      |      |   |   |\n")
+      (insert "  |----------+------+--------+------+------+------+---+---|\n")
+      (insert "  #+TBLEL: otdb-gear-calc-gear\n")
+      (forward-line -2)
+      (org-table-align)
+      (beginning-of-line)
+      (cic:org-table-eval-tblel)
+      (goto-char (point-min))
+)    (switch-to-buffer the-new-buffer)))
+
+(defun otdb-gear-calc-special (lisp-table current-temporary-buffer)
+  (let ((current-collection-name)
+        (char-columns (otdb-table-parse-char-columns lisp-table)))
+    ;; find all the current rows
+    (dolist (lisp-row (butlast (cdr lisp-table)))
+      ;; raise error if invalid
+      (let ((collection-location (otdb-gear-find-collection (elt lisp-row 1))))
+        ;; make sure I excludee invalid too
         (unless (or
+                 (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)
                  ;; TODO: this not is confusing
                  (and otdb-gear-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
                  ;; XXXX: allow continuing if thing is a collection of gear that does not match
                  ;;       items only
                  (and otdb-gear-item-pattern
                       (not (otdb-gear-find-collection (elt lisp-row 1)))
-                      (not (string-match otdb-gear-item-pattern (elt lisp-row 1)))))
-          (cond ((or (eq otdb-gear-weight-units 'lb)
-                     (eq otdb-gear-weight-units 'kg))
-                 (setq weight (+ weight (* (string-to-number (elt lisp-row 0))  (otdb-table-lisp-row-float lisp-row 2)))))
-                ((eq otdb-gear-weight-units 'lb-g)
-                 ;; otherwise make sure weight is in grams
-                 (setq weight (+ weight (* (string-to-number (elt lisp-row 0))
-                                           (* (otdb-table-lisp-row-float lisp-row 2)
-                                            (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
-          (setq cost (+ cost (* (string-to-number (elt lisp-row 0)) (otdb-table-lisp-row-float lisp-row 3))))))
-      ;; insert into last row
-      ;; TODO: make uniform with ???
-      (setq new-last-row (list
-                          (nconc
-                           (list
-                            (elt last-row 0)
-                            (elt last-row 1)
-                            (otdb-gear-weight-string weight)
-                            (otdb-gear-cost-string cost))
-                           ;; TODO: not great, really want only do for single character headers
-                           (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
-      ;; TODO: add in text indicating char-column if necessary
-      (setq new-lisp-table
-            (nconc
-             new-lisp-table
-             new-last-row))
-      new-lisp-table)))
+                      (not (string-match otdb-gear-item-pattern (elt lisp-row 1))))
+                 ;; TODO: tag pattern match here
+                 (and otdb-gear-item-tags
+                      (not (otdb-gear-find-collection (elt lisp-row 1)))
+                      (not (otdb-gear-tag-pattern-match otdb-gear-item-tags (elt lisp-row 4)))))
+          (unless collection-location
+            (with-current-buffer current-temporary-buffer
+              (insert (concat "  | " (mapconcat 'identity lisp-row " | ") "\n")))))
+        (when (and collection-location (not (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
+          (save-excursion
+            ;; find the collection
+            (with-current-file-min (car collection-location)
+              ;; TODO: open everything up?
+              (goto-char (cadr collection-location))
+              (cic:org-find-table)
+              ;; advance to table
+              (otdb-gear-calc-special (cic:org-table-to-lisp-no-separators) current-temporary-buffer))))))))
 
 (provide 'otdb-gear)

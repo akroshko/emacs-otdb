@@ -96,20 +96,20 @@
   ;; menu keys
   (define-key map [menu-bar] (make-sparse-keymap "otdb")))
 
-(defun otdb-table-skeleton-menu-map (map)
-  (define-key map [menu-bar otdb-menu separator] '("--"))
-  (define-key map [menu-bar otdb-menu put-key]               '("Put key in database" . otdb-table-put-key-in-database))
-  (define-key map [menu-bar otdb-menu insert-key]            '("Insert key" . otdb-table-insert-key))
-  (define-key map [menu-bar otdb-menu goto-database-key]     '("Goto database key" . otdb-table-goto-key-in-database))
-  (define-key map [menu-bar otdb-menu recalculate]           '("Recalculate table" . otdb-table-recalculate))
-  (define-key map [menu-bar otdb-menu recalculate-locally]   '(menu-item "Recalculate tables in file" (lambda () (interactive) (otdb-table-recalculate '(4)))
-                                                                         :keys "C-u s-d *"))
-  (define-key map [menu-bar otdb-menu recalculate-global]    '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(16)))
-                                                                         :keys "C-u C-u s-d *"))
-  (define-key map [menu-bar otdb-menu recalculate-global-3x] '(menu-item "Recalculate tables globally 3x" (lambda () (interactive) (otdb-table-recalculate '(64)))
-                                                                         :keys "C-u C-u C-u s-d *"))
-  (define-key map [menu-bar otdb-menu tablet-mode]           '(menu-item "Tablet mode" otdb-toggle-tablet-mode
-                                                                         :button (:toggle . (and otdb-table-tablet-mode)))))
+(defun otdb-table-skeleton-menu-map (map menu-name)
+  (define-key map (vector 'menu-bar menu-name 'separator) '("--"))
+  (define-key map (vector 'menu-bar menu-name 'put-key)               '("Put key in database" . otdb-table-put-key-in-database))
+  (define-key map (vector 'menu-bar menu-name 'insert-key)            '("Insert key" . otdb-table-insert-key))
+  (define-key map (vector 'menu-bar menu-name 'goto-database-key)     '("Goto database key" . otdb-table-goto-key-in-database))
+  (define-key map (vector 'menu-bar menu-name 'recalculate)           '("Recalculate table" . otdb-table-recalculate))
+  (define-key map (vector 'menu-bar menu-name 'recalculate-locally)   '(menu-item "Recalculate tables in file" (lambda () (interactive) (otdb-table-recalculate '(4)))
+                                                                                  :keys "C-u s-d *"))
+  (define-key map (vector 'menu-bar menu-name 'recalculate-global)    '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(16)))
+                                                                                  :keys "C-u C-u s-d *"))
+  (define-key map (vector 'menu-bar menu-name 'recalculate-global-3x) '(menu-item "Recalculate tables globally 3x" (lambda () (interactive) (otdb-table-recalculate '(64)))
+                                                                                  :keys "C-u C-u C-u s-d *"))
+  (define-key map (vector 'menu-bar menu-name 'tablet-mode)           '(menu-item "Tablet mode" otdb-toggle-tablet-mode
+                                                                                  :button (:toggle . (and otdb-table-tablet-mode)))))
 
 ;; TODO: resurect this mode for better extensibility, derive other modes
 ;; (define-minor-mode otdb-table-mode
@@ -990,7 +990,6 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     ;; get list of single-char column
     (dolist (lisp-element top-row)
       (when (and (equal (length lisp-element) 1) (string-match "[[:alpha:]]" lisp-element))
-        (mpp (type-of lisp-element))
         (setq single-columns (append single-columns  (list (list count lisp-element)))))
       (setq count (+ count 1)))
     single-columns))
@@ -1003,16 +1002,28 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (dolist (char-column char-columns)
       (setq let-form (append let-form (list (list (intern (cadr char-column)) (and (not (equal ""  (strip-full (elt lisp-row (car char-column)))))))))))
     (setq form (list 'let let-form (car (read-from-string eval-expression))))
-    (mpp form)
     (eval form)))
 
 (defun otdb-table-check-invalid-current-row-lisp (lisp-row eval-expression char-columns)
   (let ((invalid nil))
     (dolist (char-column char-columns)
-      (mpp char-column)
       (when (and (equal (strip-full (cadr char-column)) "X")
                  (equal (strip-full (elt  lisp-row (car char-column))) "-"))
         (setq invalid t)))
     invalid))
+
+(defun otdb-table-tag-pattern-match (tags-pattern tags)
+  "Match a set of TAGS to a TAGS-PATTERN (list of tags).
+
+Match if all tags in TAGS-PATTERN are present or do not match if
+one or more tags in TAGS-PATTERN indicated by !<<tag>> is
+present."
+  (let* ((tag-pattern-list (split-string (strip-full tags-pattern) ","))
+         (tag-pattern-list-false (delq nil (mapcar (lambda (e) (and (string-match "^!" e) e)) tag-pattern-list)))
+         (tag-pattern-list-false-strip (mapcar (lambda (e) (substring e 1)) tag-pattern-list-false))
+         (tag-pattern-list-true (cl-set-difference tag-pattern-list tag-pattern-list-false))
+         (tag-list (split-string (strip-full tags) ",")))
+    (and (cl-intersection tag-list tag-pattern-list-true :test 'equal)
+         (not (cl-intersection tag-list tag-pattern-list-false-strip :test 'equal)))))
 
 (provide 'otdb-table)

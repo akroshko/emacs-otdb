@@ -208,6 +208,11 @@
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
 
+;; (add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-init)
+;; (defun otdb-gear-mode-init ()
+;;   (when (functionp 'hl-line-mode)
+;;     (hl-line-mode 1)))
+
 (defun otdb-gear-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular collection."

@@ -234,6 +234,11 @@ now."
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
 
+(add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-init)
+(defun otdb-recipe-mode-init ()
+  (when (and (or otdb-recipe-mode otdb-recipe-backpacking-mode) (functionp 'hl-line-mode))
+    (hl-line-mode 1)))
+
 (define-minor-mode otdb-recipe-backpacking-mode
   :global nil
   :lighter " otdb-recipe-backpacking"
@@ -242,6 +247,8 @@ now."
   (make-local-variable 'otdb-old-modeline-color)
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
+
+(add-hook 'otdb-recipe-backpacking-mode-hook 'otdb-recipe-mode-init)
 
 ;; check and add to shopping list
 (defun otdb-recipe-add-check ()

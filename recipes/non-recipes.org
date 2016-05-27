@@ -128,7 +128,8 @@
   5) Bake for 20 to 25 minutes, or until the brownie begins to pull
      away from edges of pan. Let cool on a wire rack before cutting
      into squares.
+  #+BEGIN_COMMENT
   [[http://www.browneyedbaker.com/2011/06/20/top-10-list-favorite-brownie-recipes/]]
   [[http://smittenkitchen.com/blog/2010/01/best-cocoa-brownies/]]
-  #+BEGIN_COMMENT
+  From family recipe.
   #+END_COMMENT

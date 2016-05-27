@@ -7,7 +7,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20160130
+;; Version: 20160525
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -138,18 +138,6 @@ now."
 (defun otdb-recipe-menu-column-mark ()
   (cons (concat "Change column mark: " (pp-to-string otdb-recipe-column-mark)) 'otdb-recipe-read-column-mark))
 
-(defun otdb-recipe-menu-files (map &optional force)
-  (define-key map [menu-bar otdb-recipe-menu recipe-collections]              (cons "Recipe collections" (make-sparse-keymap "recipe collections")))
-  ;; TODO: does not update dynamically at the moment and may cause issues, will cause issues switching between different kinds of recipes (normal/backpacking)
-  (dolist (collection (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-files force)))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'recipe-collections collection) (cons collection (cic:make-file-finder collection))))
-  (define-key map [menu-bar otdb-recipe-menu recipe-databases]                (cons "Recipe databases" (make-sparse-keymap "recipe databases")))
-  ;; https://stackoverflow.com/questions/9966279/how-to-dynamically-define-a-menu-item-what-is-the-thing-in-square-braces
-  ;; TODO: hope this always works out properly, might have issue if databases change
-  ;;       does not update dynamically at the moment
-  (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database force)))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'recipe-databases database) (cons database (cic:make-file-finder database)))))
-
 (defun otdb-recipe-reset-filters ()
   (interactive)
   ;; XXXX: resetting clears all
@@ -160,6 +148,18 @@ now."
   ;; TODO: last column mark maybe?
   (setq otdb-recipe-column-mark nil))
 
+(defun otdb-recipe-menu-files (map otdb-recipe-menu &optional force)
+  (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections)              (cons "Recipe files" (make-sparse-keymap "recipe files")))
+  ;; TODO: does not update dynamically at the moment and may cause issues, will cause issues switching between different kinds of recipes (normal/backpacking)
+  (dolist (collection (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-files force)))
+    (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections collection) (cons collection (cic:make-file-finder collection))))
+  ;; https://stackoverflow.com/questions/9966279/how-to-dynamically-define-a-menu-item-what-is-the-thing-in-square-braces
+  ;; TODO: hope this always works out properly, might have issue if databases change
+  ;;       does not update dynamically at the moment
+  (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases)                (cons "Recipe databases" (make-sparse-keymap "recipe databases")))
+  (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database force)))
+    (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases 'database)    (cons database (cic:make-file-finder database)))))
+
 (defun otdb-recipe-mode-map (&optional force)
   (let ((map (make-sparse-keymap))
         (otdb-recipe-menu (if (eq force 'backpacking)
@@ -169,7 +169,7 @@ now."
     (define-key map (vector 'menu-bar otdb-recipe-menu)                           (cons "otdb-recipe" (make-sparse-keymap "otdb-recipe")))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'reset-filters)            (cons "Reset recipe filters" 'otdb-recipe-reset-filters))
     ;; TODO: generate these from alist
-    (otdb-recipe-menu-files map force)
+    (otdb-recipe-menu-files map otdb-recipe-menu force)
     (define-key map (vector 'menu-bar otdb-recipe-menu 'separator3) '("--"))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags)                (cons "Ingredient tags" (make-sparse-keymap "ingredient tags patterns")))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags 'spice)         (cons "Spice" (lambda () (interactive)
@@ -779,8 +779,12 @@ recipe)."
 (defun otdb-recipe-get-ingredients ()
   "Get list of all ingredients from the database."
   ;; TODO: will need to be modified for multiple files
-  (let* ((ingredients (cic:org-table-get-keys (otdb-recipe-get-variable 'otdb-recipe-database) (otdb-recipe-get-variable 'otdb-recipe-database-headline)))
-         (dups (cic:get-list-duplicates ingredients)))
+  (let ((ingredients)
+        (dups))
+    (dolist (database (otdb-recipe-get-variable 'otdb-recipe-database))
+      (setq ingredients (append ingredients (cic:org-table-get-keys database (otdb-recipe-get-variable 'otdb-recipe-database-headline))))
+      )
+    (setq dups (cic:get-list-duplicates ingredients))
     (when (> (length dups) 0)
       (mpp-echo (concat "Duplicate ingredients: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
     ingredients))

@@ -5,7 +5,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20160511
+;; Version: 20160525
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -365,7 +365,9 @@ DATABASE-ROW."
 (defun otdb-gear-get-items ()
   "Get list of all gear items from the database."
   ;; TODO: where is this used???
-  (let ((items (cic:org-table-get-keys otdb-gear-database otdb-gear-database-headline)))
+  (let (items)
+    (dolist (database otdb-gear-database)
+      (setq items (append items (cic:org-table-get-keys database otdb-gear-database-headline))))
     items))
 
 (defun otdb-gear-find-collection (collection)

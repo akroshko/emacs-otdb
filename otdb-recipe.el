@@ -761,7 +761,7 @@ CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST."
                              (org-table-put count 15 "")
                            (org-table-put count 15 new-tags)))
                        (setq count (1+ count)))
-    (cic:org-table-eval-tblel)))
+    (tblel-eval)))
 
 ;; TODO: appears broken
 (defun otdb-recipe-find-ingredient (ingredient)
@@ -1103,7 +1103,7 @@ corresponding to a recipe."
       (forward-line -2)
       (org-table-align)
       (beginning-of-line)
-      (cic:org-table-eval-tblel)
+      (tblel-eval)
       (goto-char (point-min)))
     (switch-to-buffer the-new-buffer)))
 

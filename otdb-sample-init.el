@@ -53,6 +53,7 @@
 (requiring-package (emacs-stdlib-commands))
 (requiring-package (emacs-stdlib-keys))
 (requiring-package (emacs-stdlib-super-hyper-keys))
+(requiring-package (tblel))
 ;; XXXX: uncomment to use my other keys
 ;; (emacs-stdlib-keys-mode t)
 ;; (emacs-stdlib-keys-non-term-mode t)

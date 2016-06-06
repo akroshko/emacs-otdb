@@ -277,7 +277,7 @@ WEIGHT-COST-LIST."
                              (org-table-put count 5 "")
                            (org-table-put count 5 new-tags)))
                        (setq count (1+ count)))
-    (cic:org-table-eval-tblel)))
+    (tblel-eval)))
 
 (defun otdb-gear-weight-string (weight)
   "Convert the WEIGHT into a proper string."
@@ -472,7 +472,7 @@ corresponding to a gear collection."
       (forward-line -2)
       (org-table-align)
       (beginning-of-line)
-      (cic:org-table-eval-tblel)
+      (tblel-eval)
       (goto-char (point-min))
 )    (switch-to-buffer the-new-buffer)))
 

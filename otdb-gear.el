@@ -156,13 +156,6 @@
     ;; TODO: generate these from alist
     (otdb-gear-menu-files map)
     (define-key map [menu-bar otdb-gear-menu separator2] '("--"))
-    (define-key map [menu-bar otdb-gear-menu item-tags]               (cons "Gear tags" (make-sparse-keymap "gear tags patterns")))
-    (define-key map [menu-bar otdb-gear-menu item-tags clothing]      (cons "Clothing"  (lambda () (interactive)
-                                                                                          (setq otdb-gear-item-tags "clothing"))))
-    (define-key map [menu-bar otdb-gear-menu item-tags consumable]    (cons "Consumable" (lambda () (interactive)
-                                                                                           (setq otdb-gear-item-tags "consumable"))))
-    (define-key map [menu-bar otdb-gear-menu item-tags container]     (cons "Container" (lambda () (interactive)
-                                                                                          (setq otdb-gear-item-tags "container"))))
     ;; put these in reverse order they are displayed
     ;; TODO: menu to jump to database(s)
     (define-key map [menu-bar otdb-gear-menu item-patterns]           (cons "Gear item patterns" (make-sparse-keymap "gear item patterns")))
@@ -171,22 +164,31 @@
                                                                                          nil)))
     (define-key map [menu-bar otdb-gear-menu item-patterns packaging] (cons "Packaging" (lambda () (interactive)
                                                                                           nil)))
-    (define-key map [menu-bar otdb-gear-menu item-tag]                (otdb-gear-menu-tags))
     (define-key map [menu-bar otdb-gear-menu item-pattern]            (otdb-gear-menu-item-pattern))
-    (define-key map [menu-bar otdb-gear-menu calc-special-command]    '(menu-item "Use special buffer for calculation" (lambda () (interactive) (otdb-gear-calc-special-command))
-                                                                                  :keys "s-d s"))
+    (define-key map [menu-bar otdb-gear-menu item-tags]               (cons "Gear tags" (make-sparse-keymap "gear tags patterns")))
+    (define-key map [menu-bar otdb-gear-menu item-tags clothing]      (cons "Clothing"  (lambda () (interactive)
+                                                                                          (setq otdb-gear-item-tags "clothing"))))
+    (define-key map [menu-bar otdb-gear-menu item-tags consumable]    (cons "Consumable" (lambda () (interactive)
+                                                                                           (setq otdb-gear-item-tags "consumable"))))
+    (define-key map [menu-bar otdb-gear-menu item-tags consumable]    (cons "Electronics" (lambda () (interactive)
+                                                                                            (setq otdb-gear-item-tags "electronics"))))
+    (define-key map [menu-bar otdb-gear-menu item-tags container]     (cons "Container" (lambda () (interactive)
+                                                                                          (setq otdb-gear-item-tags "container"))))
+    (define-key map [menu-bar otdb-gear-menu item-tag]                (otdb-gear-menu-tags))
     (define-key map [menu-bar otdb-gear-menu separator3] '("--"))
     (define-key map [menu-bar otdb-gear-menu column-mark-cost]        '(menu-item "Toggle column mark cost (C)" (lambda () (interactive) (setq otdb-gear-column-mark "C"))
-                                                                             :button (:toggle . (equal otdb-gear-column-mark "C"))))
+                                                                                  :button (:toggle . (equal otdb-gear-column-mark "C"))))
     (define-key map [menu-bar otdb-gear-menu column-mark-not-check]   '(menu-item "Toggle column mark check (not X)" (lambda () (interactive) (setq otdb-gear-column-mark "(not X)"))
-                                                                             :button (:toggle . (equal otdb-gear-column-mark "(not X)"))))
+                                                                                  :button (:toggle . (equal otdb-gear-column-mark "(not X)"))))
     (define-key map [menu-bar otdb-gear-menu column-mark-check]       '(menu-item "Toggle column mark check (X)" (lambda () (interactive) (setq otdb-gear-column-mark "X"))
-                                                                             :button (:toggle . (equal otdb-gear-column-mark "X"))))
+                                                                                  :button (:toggle . (equal otdb-gear-column-mark "X"))))
     (define-key map [menu-bar otdb-gear-menu column-mark-nil]         '(menu-item "Toggle column mark empty" (lambda () (interactive) (setq otdb-gear-column-mark nil))
-                                                                             :button (:toggle . (equal otdb-gear-column-mark nil))))
+                                                                                  :button (:toggle . (equal otdb-gear-column-mark nil))))
     (define-key map [menu-bar otdb-gear-menu column-mark]             (otdb-gear-menu-column-mark))
     (define-key map [menu-bar otdb-gear-menu toggle-check-invalid]    '("Toggle (X) invalid" . otdb-table-invalid-toggle-check-line))
     (define-key map [menu-bar otdb-gear-menu toggle-check]            '("Toggle (X)" . otdb-table-set-toggle-check-line))
+    (define-key map [menu-bar otdb-gear-menu calc-special-command]    '(menu-item "Use special buffer for calculation" (lambda () (interactive) (otdb-gear-calc-special-command))
+                                                                                  :keys "s-d s"))
     (otdb-table-skeleton-menu-map map 'otdb-gear-menu)
     map))
 (setq otdb-gear-mode-map (otdb-gear-mode-map))
@@ -208,10 +210,10 @@
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
 
-;; (add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-init)
-;; (defun otdb-gear-mode-init ()
-;;   (when (functionp 'hl-line-mode)
-;;     (hl-line-mode 1)))
+(add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-init)
+(defun otdb-gear-mode-init ()
+  (when (and otdb-gear-mode (functionp 'hl-line-mode))
+    (hl-line-mode 1)))
 
 (defun otdb-gear-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
@@ -225,7 +227,7 @@ for ROW-LIST from a particular collection."
     (dolist (row (cdr row-list))
       (if (member (strip-full-no-properties (elt row 1)) collection-list)
           (progn
-            (let ((wcl (otdb-gear-get-collection-weight-cost (elt row 1))))
+            (let ((wcl (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))))
               (setq collection-weight-cost-list (cons (list (strip-full-no-properties (elt row 1)) (car wcl) (cadr wcl)) collection-weight-cost-list))))
         (progn
           (setq quantity-alist (cons (list (strip-full-no-properties (elt row 1))
@@ -304,7 +306,7 @@ WEIGHT-COST-LIST."
   "Get the weight of key in the ROW."
   (let* ((collection-list (otdb-gear-get-collections)))
     (if (member (strip-full (elt row 1)) collection-list)
-        (/ (car (otdb-gear-get-collection-weight-cost (elt row 1))) (otdb-table-number (elt row 0)))
+        (/ (car (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))) (otdb-table-number (elt row 0)))
       (otdb-gear-get-weight-database (elt row 1) (elt row 0)))))
 
 (defun otdb-gear-get-weight-database (item quantity)
@@ -327,7 +329,7 @@ WEIGHT-COST-LIST."
   "Get the cost of the item.  No idea if this is actually a valid thing."
   (let* ((collection-list (otdb-gear-get-collections)))
     (if (member (strip-full (elt row 1)) collection-list)
-        (/ (cadr (otdb-gear-get-collection-weight-cost (elt row 1))) (otdb-table-number (elt row 0)))
+        (/ (cadr (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))) (otdb-table-number (elt row 0)))
       (otdb-gear-get-cost-database (elt row 1) (elt row 0)))))
 
 (defun otdb-gear-get-cost-database (item quantity)
@@ -340,7 +342,7 @@ WEIGHT-COST-LIST."
 DATABASE-ROW."
   (* (otdb-table-number quantity) (otdb-table-number (elt database-row 2))))
 
-(defun otdb-gear-get-collection-weight-cost (collection)
+(defun otdb-gear-get-collection-weight-cost (collection quantity)
   "Get the weight and cost from gear collection COLLECTION."
   (let ((collection-location (otdb-gear-find-collection collection)))
     (with-current-file (car collection-location)
@@ -349,6 +351,7 @@ DATABASE-ROW."
       (cic:org-table-last-row)
       (list
        (*
+        quantity
         (string-to-number (org-table-get nil 3))
         (cond ((eq otdb-gear-weight-units 'kg)
                (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "kg"))
@@ -356,7 +359,7 @@ DATABASE-ROW."
                (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "lb"))
               ((eq otdb-gear-weight-units 'lb-g)
                (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "g"))))
-       (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil 4)))))))
+       (* quantity (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil 4))))))))
 
 (defun otdb-gear-find-item (item)
   "Find the location of the ITEM."
@@ -411,19 +414,20 @@ corresponding to a gear collection."
         ;; (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
         (char-columns (otdb-table-parse-char-columns lisp-table))
         new-last-row)
+    (mpp weight)
     (dolist (lisp-row (butlast (cdr lisp-table)))
       ;; TODO: no marks here for now, maybe only do "X" mark
       ;; (and otdb-gear-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
+      ;; XXXX: do not need to include quantities because they are calculated on insertion
       (unless (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)
         (cond ((or (eq otdb-gear-weight-units 'lb)
                    (eq otdb-gear-weight-units 'kg))
-               (setq weight (+ weight (* (string-to-number (elt lisp-row 0))  (otdb-table-lisp-row-float lisp-row 2)))))
+               (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
               ((eq otdb-gear-weight-units 'lb-g)
                ;; otherwise make sure weight is in grams
-               (setq weight (+ weight (* (string-to-number (elt lisp-row 0))
-                                         (* (otdb-table-lisp-row-float lisp-row 2)
-                                            (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g")))))))
-        (setq cost (+ cost (* (string-to-number (elt lisp-row 0)) (otdb-table-lisp-row-float lisp-row 3))))))
+               (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
+                                         (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g"))))))
+        (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3)))))
     ;; insert into last row
     ;; TODO: make uniform with ???
     (setq new-last-row (list

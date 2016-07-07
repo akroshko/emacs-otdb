@@ -171,21 +171,19 @@ now."
     ;; TODO: generate these from alist
     (otdb-recipe-menu-files map otdb-recipe-menu force)
     (define-key map (vector 'menu-bar otdb-recipe-menu 'separator3) '("--"))
-    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags)                (cons "Ingredient tags" (make-sparse-keymap "ingredient tags patterns")))
-    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags 'spice)         (cons "Spice" (lambda () (interactive)
-                                                                                                  (setq otdb-recipe-item-tags "spice"))))
-    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags 'packaging)     (cons "Packaging" (lambda () (interactive)
-                                                                                                      (setq otdb-recipe-item-tags "packaging"))))
     ;; TODO: change for tags more like
     (define-key map (vector 'menu-bar otdb-recipe-menu 'item-patterns)            (cons "Recipe ingredient patterns" (make-sparse-keymap "recipe ingredient patterns")))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'item-patterns 'spice)     (cons "Spice" (lambda () (interactive)
                                                                                                   nil)))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'item-patterns 'packaging) (cons "Packaging" (lambda () (interactive)
                                                                                                       nil)))
-    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tag)                 (otdb-recipe-menu-tags))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'item-pattern)             (otdb-recipe-menu-item-pattern))
-    (define-key map (vector 'menu-bar otdb-recipe-menu 'calc-special-command)     '(menu-item "Use special buffer for calculation" (lambda () (interactive) (otdb-recipe-calc-special-command))
-                                                                                              :keys "s-d s"))
+    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags)                (cons "Ingredient tags" (make-sparse-keymap "ingredient tags patterns")))
+    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags 'spice)         (cons "Spice" (lambda () (interactive)
+                                                                                                  (setq otdb-recipe-item-tags "spice"))))
+    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tags 'packaging)     (cons "Packaging" (lambda () (interactive)
+                                                                                                      (setq otdb-recipe-item-tags "packaging"))))
+    (define-key map (vector 'menu-bar otdb-recipe-menu 'item-tag)                 (otdb-recipe-menu-tags))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'separator2) '("--"))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'column-mark-cost)         '(menu-item "Toggle column mark cost (C)" (lambda () (interactive) (setq otdb-recipe-column-mark "C"))
                                                                                               :button (:toggle . (equal otdb-recipe-column-mark "C"))))
@@ -198,6 +196,8 @@ now."
     (define-key map (vector 'menu-bar otdb-recipe-menu 'column-mark)              (otdb-recipe-menu-column-mark))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'toggle-check-invalid)     '("Toggle (X) invalid" . otdb-table-invalid-toggle-check-line))
     (define-key map (vector 'menu-bar otdb-recipe-menu 'toggle-check)             '("Toggle (X)" . otdb-table-set-toggle-check-line))
+    (define-key map (vector 'menu-bar otdb-recipe-menu 'calc-special-command)     '(menu-item "Use special buffer for calculation" (lambda () (interactive) (otdb-recipe-calc-special-command))
+                                                                                              :keys "s-d s"))
     (otdb-table-skeleton-menu-map map otdb-recipe-menu)
     map))
 ;; doubled up for now
@@ -234,11 +234,6 @@ now."
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
 
-(add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-init)
-(defun otdb-recipe-mode-init ()
-  (when (and (or otdb-recipe-mode otdb-recipe-backpacking-mode) (functionp 'hl-line-mode))
-    (hl-line-mode 1)))
-
 (define-minor-mode otdb-recipe-backpacking-mode
   :global nil
   :lighter " otdb-recipe-backpacking"
@@ -247,8 +242,6 @@ now."
   (make-local-variable 'otdb-old-modeline-color)
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
-
-(add-hook 'otdb-recipe-backpacking-mode-hook 'otdb-recipe-mode-init)
 
 ;; check and add to shopping list
 (defun otdb-recipe-add-check ()
@@ -317,6 +310,11 @@ point or entered item."
                  ((equal unmatched-item (string-to-char "q"))
                   ;; just finish
                   ))))))
+
+(add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-init)
+(defun otdb-recipe-mode-init ()
+  (when (and (or otdb-recipe-mode otdb-recipe-backpacking-mode) (functionp 'hl-line-mode))
+    (hl-line-mode 1)))
 
 (defun otdb-recipe-uncheck ()
   "Uncheck a box in the shopping list based on current item near

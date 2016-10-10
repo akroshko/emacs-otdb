@@ -771,7 +771,6 @@ recipe)."
   ;; TODO this will probably become a pretty general table lookup function for databases
   (if (member ingredient (otdb-recipe-get-recipes))
       (otdb-recipe-find ingredient)
-    ;; TODO: this will need to be modified for multiple files
     (cic:org-table-lookup-location (otdb-recipe-get-variable 'otdb-recipe-database)
                                    (otdb-recipe-get-variable 'otdb-recipe-database-headline)
                                    ingredient 1)))

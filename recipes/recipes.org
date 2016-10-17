@@ -829,7 +829,7 @@
   2) Sift together the dry ingredients.
   3) Add the yeast mixture, remaining water, and the oil to the dry ingredients.
   4) Knead for 8 minutes.
-  5) Allow first rise.
+  5) Allow first rise for an hour and a half.
   6) Stretch dough out to 12-14"
   7) Allow to rise before baking
   #+BEGIN_COMMENT
@@ -893,9 +893,9 @@
   2) Add mushrooms, Worcestershire sauce, and red pepper together and
      continue to sauté until the mushrooms have lost their liquid,
      about 5 minutes.  Let cool for 10 minutes.
-  3) Spread the pizza sauce evenly and thinly being careful not to use
+  3) Put the olive oil and cornmeal on the pizza crust.
+  4) Spread the pizza sauce evenly and thinly being careful not to use
      too much.
-  4) Put the olive oil and cornmeal on the pizza crust.
   5) Spread mozzarella evenly on the pizza.
   6) Spread the mushroom mixture evenly.
   7) Spread olives and basil evenly on the crust.

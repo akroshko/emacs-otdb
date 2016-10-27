@@ -142,11 +142,13 @@
 (defun otdb-gear-menu-files (map)
   (define-key map [menu-bar otdb-gear-menu gear-collections]        (cons "Gear collection files" (make-sparse-keymap "gear collection files")))
   ;; TODO: does not update dynamically at the moment
-  (dolist (collection (cic:ensure-list otdb-gear-collection-files))
-    (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections collection) (cons collection (cic:make-file-finder collection))))
+  (when (boundp 'otdb-gear-collection-files)
+    (dolist (collection (cic:ensure-list otdb-gear-collection-files))
+      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections collection) (cons collection (cic:make-file-finder collection)))))
   (define-key map [menu-bar otdb-gear-menu gear-databases]          (cons "Gear database files" (make-sparse-keymap "gear database files")))
-  (dolist (database (cic:ensure-list otdb-gear-database))
-    (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases database) (cons database (cic:make-file-finder database)))))
+  (when (boundp 'otdb-gear-database)
+    (dolist (database (cic:ensure-list otdb-gear-database))
+      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases database) (cons database (cic:make-file-finder database))))))
 
 (defun otdb-gear-mode-map ()
   (let ((map (make-sparse-keymap)))

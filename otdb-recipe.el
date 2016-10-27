@@ -151,14 +151,16 @@ now."
 (defun otdb-recipe-menu-files (map otdb-recipe-menu &optional force)
   (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections)              (cons "Recipe files" (make-sparse-keymap "recipe files")))
   ;; TODO: does not update dynamically at the moment and may cause issues, will cause issues switching between different kinds of recipes (normal/backpacking)
-  (dolist (collection (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-files force)))
-    (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections collection) (cons collection (cic:make-file-finder collection))))
+  (when (and (boundp 'otdb-recipe-backpacking-alist) (boundp 'otdb-recipe-normal-alist))
+    (dolist (collection (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-files force)))
+      (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections collection) (cons collection (cic:make-file-finder collection)))))
   ;; https://stackoverflow.com/questions/9966279/how-to-dynamically-define-a-menu-item-what-is-the-thing-in-square-braces
   ;; TODO: hope this always works out properly, might have issue if databases change
   ;;       does not update dynamically at the moment
   (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases)                (cons "Recipe databases" (make-sparse-keymap "recipe databases")))
-  (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database force)))
-    (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases 'database)    (cons database (cic:make-file-finder database)))))
+  (when (and (boundp 'otdb-recipe-backpacking-alist) (boundp 'otdb-recipe-normal-alist))
+    (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database force)))
+      (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases 'database)    (cons database (cic:make-file-finder database))))))
 
 (defun otdb-recipe-mode-map (&optional force)
   (let ((map (make-sparse-keymap))

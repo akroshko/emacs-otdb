@@ -406,18 +406,18 @@ DATABASE-ROW."
   "Get the database row corresponding to gear item ITEM."
   (cic:org-table-lookup-row otdb-gear-database otdb-gear-database-headline item))
 
-(defun otdb-gear-calc-gear (lisp-table)
-  "Calculated an updated lisp table from the LISP-TABLE
+(defun otdb-gear-calc-gear (lisp-table lisp-table-no-seperators)
+  "Calculated an updated lisp table from the LISP-TABLE-NO-SEPERATORS
 corresponding to a gear collection."
   (let ((weight 0)
         (cost 0)
-        (new-lisp-table (butlast lisp-table))
-        (last-row (car (last lisp-table)))
-        ;; (char-column (otdb-table-lisp-char-find-column lisp-table otdb-gear-column-mark))
-        (char-columns (otdb-table-parse-char-columns lisp-table))
+        (new-lisp-table (butlast lisp-table-no-seperators))
+        (last-row (car (last lisp-table-no-seperators)))
+        ;; (char-column (otdb-table-lisp-char-find-column lisp-table-no-seperators otdb-gear-column-mark))
+        (char-columns (otdb-table-parse-char-columns lisp-table-no-seperators))
         new-last-row)
     (mpp weight)
-    (dolist (lisp-row (butlast (cdr lisp-table)))
+    (dolist (lisp-row (butlast (cdr lisp-table-no-seperators)))
       ;; TODO: no marks here for now, maybe only do "X" mark
       ;; (and otdb-gear-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
       ;; XXXX: do not need to include quantities because they are calculated on insertion

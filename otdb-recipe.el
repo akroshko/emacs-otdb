@@ -973,8 +973,8 @@ deletes volume, weights, and any comments."
 ;; (add-hook 'post-command-hook (lambda ()
 ;;                                (setq otdb-recipe-need-warning-partial t)))
 
-(defun otdb-recipe-calc-recipe (lisp-table)
-  "Calculated an updated lisp table from the LISP-TABLE
+(defun otdb-recipe-calc-recipe (lisp-table lisp-table-no-seperators)
+  "Calculated an updated lisp table from the LISP-TABLE-NO-SEPERATORS
 corresponding to a recipe."
   (let ((calories 0)
         (protein 0)
@@ -992,13 +992,13 @@ corresponding to a recipe."
         (percent-fat 0)
         (weight 0)
         (volume 0)
-        (char-columns (otdb-table-parse-char-columns lisp-table))
+        (char-columns (otdb-table-parse-char-columns lisp-table-no-seperators))
         (ask-continue t ;; (otdb-recipe-ask-continue)
                       )
-        (new-lisp-table (list (car lisp-table))))
+        (new-lisp-table (list (car lisp-table-no-seperators))))
     (when ask-continue
       ;; add up the directly summable columns
-      (dolist (lisp-row (butlast (cdr lisp-table)))
+      (dolist (lisp-row (butlast (cdr lisp-table-no-seperators)))
         ;; only skip non-intermediate calculations
         (unless (otdb-table-check-invalid-current-row-lisp lisp-row otdb-recipe-column-mark char-columns)
           (setq calories (+ calories (otdb-table-lisp-row-float lisp-row 3)))
@@ -1040,7 +1040,7 @@ corresponding to a recipe."
       (when (/= protein 0.0)
         (setq cost-protein (/ cost (/ protein 100.0))))
       ;; insert into last row
-      (dolist (current-lisp-row (cdr (butlast lisp-table)))
+      (dolist (current-lisp-row (cdr (butlast lisp-table-no-seperators)))
         (setq new-lisp-table
               (nconc
                new-lisp-table
@@ -1057,7 +1057,7 @@ corresponding to a recipe."
                             new-lisp-table
                             (list
                              (list
-                              (caar (last lisp-table))
+                              (caar (last lisp-table-no-seperators))
                               ""
                               ""
                               (otdb-table-format-number-zero calories 1)
@@ -1071,7 +1071,7 @@ corresponding to a recipe."
                               (otdb-table-format-number-zero percent-fat 3)
                               (otdb-table-format-number-zero weight 2)
                               (otdb-table-format-number-zero volume 2)))
-                            (nthcdr 13 (last lisp-table))))
+                            (nthcdr 13 (last lisp-table-no-seperators))))
       new-lisp-table)))
 
 (defun otdb-recipe-create-temporary-buffer ()

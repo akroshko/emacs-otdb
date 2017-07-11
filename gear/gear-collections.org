@@ -6,37 +6,37 @@
   |----------+-----------------------------------+-----------+---------+------+------+---+---|
   | Quantity | Item                              | Weight    | Cost    | Tags | Note | X | C |
   |----------+-----------------------------------+-----------+---------+------+------+---+---|
-  |        1 | Full pack northern boundary trail | 28.3462lb | $78.430 |      |      |   |   |
+  |        1 | Full pack northern boundary trail | 28.2954lb | $78.430 |      |      |   |   |
   |        1 | Northern boundary trail worn      | 5.6945lb  | $0.000  |      |      |   |   |
   |----------+-----------------------------------+-----------+---------+------+------+---+---|
-  |        1 |                                   | 34.0407lb | $78.430 |      |      |   |   |
+  |        1 |                                   | 33.9899lb | $78.430 |      |      |   |   |
   |----------+-----------------------------------+-----------+---------+------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Full pack northern boundary trail :gear:
   |----------+------------------------------------------------+-----------+---------+------+------+---+---|
   | Quantity | Item                                           | Weight    | Cost    | Tags | Note | X | C |
   |----------+------------------------------------------------+-----------+---------+------+------+---+---|
-  |        1 | Pack northern boundary trail                   | 20.7720lb | $0.000  |      |      |   |   |
+  |        1 | Pack northern boundary trail                   | 20.8006lb | $0.000  |      |      |   |   |
   |        1 | Pack northern boundary trail extra             | 4.2924lb  | $0.000  |      |      |   |   |
   |        1 | North boundary trail consumables               | 2.8373lb  | $33.970 |      |      | X |   |
-  |        1 | North boundary trail replaceable               | 74.0g     | $0.000  |      |      |   |   |
+  |        1 | North boundary trail replaceable               | 50.0g     | $0.000  |      |      |   |   |
   |        1 | North boundary trail replaceable kitchen       | 0.0g      | $0.000  |      |      |   |   |
-  |        1 | North boundary trail replaceable emergency kit | 127.6g    | $44.460 |      |      |   |   |
+  |        1 | North boundary trail replaceable emergency kit | 115.6g    | $44.460 |      |      |   |   |
   |----------+------------------------------------------------+-----------+---------+------+------+---+---|
-  |        1 |                                                | 28.3462lb | $78.430 |      |      |   |   |
+  |        1 |                                                | 28.2954lb | $78.430 |      |      |   |   |
   |----------+------------------------------------------------+-----------+---------+------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Pack northern boundary trail :gear:
   |----------+----------------------------------------+-----------+--------+------+------+---+---|
   | Quantity | Item                                   | Weight    | Cost   | Tags | Note | X | C |
   |----------+----------------------------------------+-----------+--------+------+------+---+---|
-  |        1 | Northern boundary trail backpacking    | 11.0099lb | $0.000 |      |      |   |   |
+  |        1 | Northern boundary trail backpacking    | 11.0385lb | $0.000 |      |      |   |   |
   |        1 | Northern boundary trail clothing       | 6.5103lb  | $0.000 |      |      |   |   |
   |        1 | Northern boundary trail toiletries kit | 135.0g    | $0.000 |      |      |   |   |
   |        1 | Northern boundary trail emergency kit  | 294.0g    | $0.000 |      |      |   |   |
   |        1 | Northern boundary trail kitchen        | 2.3060lb  | $0.000 |      |      |   |   |
   |----------+----------------------------------------+-----------+--------+------+------+---+---|
-  |        1 |                                        | 20.7720lb | $0.000 |      |      |   |   |
+  |        1 |                                        | 20.8006lb | $0.000 |      |      |   |   |
   |----------+----------------------------------------+-----------+--------+------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Pack northern boundary trail extra :gear:
@@ -60,9 +60,9 @@
   |        1 | Z-rest sleeping pad     | 277.0g    |        |           |                  | X |   |
   |        1 | Cactus creek ditty bag  | 20.0g     |        | container |                  | X |   |
   |        1 | silnylon tarp           | 204.0g    |        |           |                  | X |   |
-  |        1 | 6m 3mm cord             | 30.0g     |        |           |                  | X |   |
-  |        2 | 2m 3mm cord             | 20.0g     |        |           |                  | X |   |
-  |        2 | 1m 3mm cord             | 10.0g     |        |           |                  | X |   |
+  |        1 | 6m 3mm cord             | 37.0g     |        |           |                  | X |   |
+  |        2 | 2m 3mm cord             | 24.0g     |        |           |                  | X |   |
+  |        2 | 1m 3mm cord             | 12.0g     |        |           |                  | X |   |
   |        8 | tent peg                | 80.0g     |        |           |                  | X |   |
   |        1 | Large map case          | 128.0g    |        | container |                  | X |   |
   |        2 | 1L pop bottle           | 82.0g     |        | container |                  | X |   |
@@ -72,7 +72,7 @@
   |        1 | caribiner (silver)      | 35.0g     |        | climbing  |                  | X |   |
   |        1 | caribiner locking       | 41.0g     |        | climbing  |                  |   |   |
   |----------+-------------------------+-----------+--------+-----------+------------------+---+---|
-  |        1 |                         | 11.0099lb | $0.000 |           |                  |   |   |
+  |        1 |                         | 11.0385lb | $0.000 |           |                  |   |   |
   |----------+-------------------------+-----------+--------+-----------+------------------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail clothing :gear:
@@ -205,14 +205,14 @@
   |----------+---------------------------+--------+--------+-------------+------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable :gear:
-  |----------+-----------------------------------------------+--------+--------+----------------------+---------------+---+---|
-  | Quantity | Item                                          | Weight | Cost   | Tags                 | Note          | X | C |
-  |----------+-----------------------------------------------+--------+--------+----------------------+---------------+---+---|
-  |        1 | 10 index cards + 2 short pencils + waterproof | 50.0g  |        |                      |               | X |   |
-  |        2 | large ziplock freezer bag                     | 24.0g  |        | container,consumable | for batteries | X |   |
-  |----------+-----------------------------------------------+--------+--------+----------------------+---------------+---+---|
-  |        1 |                                               | 74.0g  | $0.000 |                      |               |   |   |
-  |----------+-----------------------------------------------+--------+--------+----------------------+---------------+---+---|
+  |----------+-----------------------------------------------+--------+--------+------+---------------+---+---|
+  | Quantity | Item                                          | Weight | Cost   | Tags | Note          | X | C |
+  |----------+-----------------------------------------------+--------+--------+------+---------------+---+---|
+  |        1 | 10 index cards + 2 short pencils + waterproof | 50.0g  |        |      |               | X |   |
+  |        2 | large ziplock freezer bag                     |        |        |      | for batteries | X |   |
+  |----------+-----------------------------------------------+--------+--------+------+---------------+---+---|
+  |        1 |                                               | 50.0g  | $0.000 |      |               |   |   |
+  |----------+-----------------------------------------------+--------+--------+------+---------------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable emergency kit :gear:
   |----------+-------------------------------------------------+--------+---------+------------------------+---------------------------+---+---|
@@ -228,10 +228,10 @@
   |        1 | medium Ziplock freezer bag                      | 6.8g   |         | container,consumable   | for medicines             | X |   |
   |        1 | medium Ziplock freezer bag                      | 6.8g   |         | container,consumable   | for other emergency stuff | X |   |
   |        1 | snack ziplock bag                               | 2.0g   |         | container,consumable   | scrub pad                 | X |   |
-  |        1 | large ziplock freezer bag                       | 12.0g  |         | container,consumable   | pot                       | X |   |
+  |        1 | large ziplock freezer bag                       |        |         |                        | pot                       | X |   |
   |        1 | prepackaged gause 4"x4.5 yards                  | 11.0g  |         |                        |                           | X |   |
   |----------+-------------------------------------------------+--------+---------+------------------------+---------------------------+---+---|
-  |        1 |                                                 | 127.6g | $44.460 |                        |                           |   |   |
+  |        1 |                                                 | 115.6g | $44.460 |                        |                           |   |   |
   |----------+-------------------------------------------------+--------+---------+------------------------+---------------------------+---+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable kitchen :gear:
@@ -249,7 +249,7 @@
   |----------+-------------------------------------------+----------+---------+------------------------+------+---+---|
   |        1 | 3 lithium AAA batteries                   | 23.0g    | $19.490 | electronics,consumable |      | X |   |
   |        1 | 20 AA battery                             | 460.0g   | $12.990 | electronics,consumable |      | X |   |
-  |        2 | 23 match case matches                     | 8.0g     |         |                        |      |   |   |
+  |        2 | 23 match case matches                     | 8.0g     |         | consumable             |      |   |   |
   |        1 | 50 Red bird matches + strikers from 1 box | 14.0g    |         |                        |      |   |   |
   |        1 | matches for 4 ounce container             | 40.0g    |         |                        |      |   |   |
   |        1 | 22oz fuel bottle fuel                     | 491.0g   |         | consumable             |      | X |   |

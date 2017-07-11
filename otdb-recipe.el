@@ -480,15 +480,17 @@ TODO return location at beginning of line"
 ;; recipes
 (defun otdb-recipe-calories-protein-fat-weight (ingredient-row quantity column to-unit)
   "Return the nutritional values of QUANTITY from database row
-INGREDIENT-ROW from COLUMN converting to units TO-UNIT.
-TODO combine with very similar cost function"
+INGREDIENT-ROW from COLUMN converting to units TO-UNIT.  Does the
+right thing based on information available."
+  ;; TODO: combine with very similar cost function
   (let* ((unit-type (otdb-table-unit-type (otdb-table-unit quantity)))
          ;; used to convert within servings
+         ;; TODO: should to-quantity be called to-servings
          (to-quantity (cond ((eq unit-type 'weight)
                              (elt ingredient-row 4))
                             ((eq unit-type 'volume)
                              (elt ingredient-row 5))
-                            ;; TODO want to know what to do when quantity is dimensionless
+                            ;; TODO want to know what to do when quantity is dimensionless, e.g., KD has no volume serving
                             (t
                              (elt ingredient-row 5)))))
     (cond
@@ -539,7 +541,8 @@ TODO combine with very similar cost function"
        (string-to-float (elt ingredient-row column)))))))
 
 (defun otdb-recipe-cost-row (ingredient-row quantity)
-  "Return the cost based on quantity."
+  "Return the cost based on quantity.  Tries to do the right
+thing."
   (let ((unit-type (otdb-table-unit-type (otdb-table-unit quantity))))
     ;; figure out if we have both weight units for cost or not
     (cond ((eq unit-type 'weight)
@@ -626,11 +629,13 @@ TODO combine with very similar cost function"
                     (otdb-table-number (elt ingredient-row 1)))))))
           (t
            (cond ((not (full-string-p (otdb-table-unit (elt ingredient-row 2))))
-                  (*
-                   (/
-                    (otdb-table-number quantity)
-                    (otdb-table-number (elt ingredient-row 2)))
-                   (otdb-table-number (elt ingredient-row 3))))
+                  (if (and (not unit-type) (not (full-string-p (elt ingredient-row 2))))
+                      (otdb-table-number (elt ingredient-row 3))
+                    (*
+                     (/
+                      (otdb-table-number quantity)
+                      (otdb-table-number (elt ingredient-row 2)))
+                     (otdb-table-number (elt ingredient-row 3)))))
                  (t
                   (*
                    (otdb-table-number quantity)
@@ -639,6 +644,7 @@ TODO combine with very similar cost function"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tables
 
+;; (mpp (otdb-recipe-lookup-function (cdr (cic:org-table-to-lisp-no-separators))))
 (defun otdb-recipe-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular recipe.
@@ -832,32 +838,6 @@ recipe)."
                       (with-current-file (otdb-recipe-get-variable 'otdb-recipe-shopping)
                         (insert headline-subtree)
                         (insert "\n")))))
-
-(defun otdb-recipe-database-calorie-costs (package-weight package-volume package-cost serving-weight serving-volume serving-calories)
-  "Helper function for TBLFM to calculate cost per 1000 calories
-in the database."
-  ;; check for nils and empty strings
-  (cond ((and (full-string-p package-weight) (full-string-p serving-weight))
-         (let ((factor (otdb-table-unit-conversion 'weight (otdb-table-unit package-weight) (otdb-table-unit serving-weight))))
-           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-weight) (otdb-table-number serving-weight)) (otdb-table-number serving-calories))) 1000)))
-        ((and (full-string-p package-volume) (full-string-p serving-volume))
-         (let ((factor (otdb-table-unit-conversion 'volume (otdb-table-unit package-volume) (otdb-table-unit serving-volume))))
-           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-volume) (otdb-table-number serving-volume)) (otdb-table-number serving-calories))) 1000)))
-        (t
-         error)))
-
-(defun otdb-recipe-database-protein-costs (package-weight package-volume package-cost serving-weight serving-volume serving-protein)
-  "Helper function for TBLFM to calculate cost per 100g protein
-in the database."
-  ;; check for nils and empty strings
-  (cond ((and (full-string-p package-weight) (full-string-p serving-weight))
-         (let ((factor (otdb-table-unit-conversion 'weight (otdb-table-unit package-weight) (otdb-table-unit serving-weight))))
-           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-weight) (otdb-table-number serving-weight)) (otdb-table-number serving-protein))) 100)))
-        ((and (full-string-p package-volume) (full-string-p serving-volume))
-         (let ((factor (otdb-table-unit-conversion 'volume (otdb-table-unit package-volume) (otdb-table-unit serving-volume))))
-           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-volume) (otdb-table-number serving-volume)) (otdb-table-number serving-protein))) 100)))
-        (t
-         error)))
 
 (defun otdb-recipe-export-multiple ()
   "Export each component recipe in a table containing recipes to a pdf file in ~/tmp."
@@ -1160,5 +1140,41 @@ corresponding to a recipe."
              (theunit (otdb-table-unit thestring)))
         (concat (number-to-string (* quantity thequantity)) theunit))
     thestring))
+
+;; TODO: make sure these are always calculating the right thing
+;; TODO: get rid of ignore-errors, makes impossible to debug
+(defun otdb-table-tblel-calorie-protein-cost-table (lisp-table lisp-table-no-seperators)
+  "Table tblel function for TBLFM to calculate cost per 1000
+calories in the database and cost per 100g protein."
+  (dolist (therow (nthcdr 1 lisp-table-no-seperators))
+    (let* ((package-weight   (elt therow 1))
+           (package-volume   (elt therow 2))
+           (package-cost     (elt therow 3))
+           (serving-weight   (elt therow 4))
+           (serving-volume   (elt therow 5))
+           (serving-calories (elt therow 6))
+           (serving-protein  (elt therow 7))
+           ;; see comments in otdb-recipe-database-calorie-costs
+           (calorie-cost (nts-nan (ignore-errors (cond ((and (full-string-p package-weight) (full-string-p serving-weight))
+                                                        (let ((factor (otdb-table-unit-conversion 'weight (otdb-table-unit package-weight) (otdb-table-unit serving-weight))))
+                                                          (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-weight) (otdb-table-number serving-weight)) (otdb-table-number serving-calories))) 1000)))
+                                                       ((and (full-string-p package-volume) (full-string-p serving-volume))
+                                                        (let ((factor (otdb-table-unit-conversion 'volume (otdb-table-unit package-volume) (otdb-table-unit serving-volume))))
+                                                          (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-volume) (otdb-table-number serving-volume)) (otdb-table-number serving-calories))) 1000)))
+                                                       (t
+                                                        nil)))))
+           ;; see comments in otdb-recipe-database-protein-costs
+           (protein-cost (nts-nan (ignore-errors (cond ((and (full-string-p package-weight) (full-string-p serving-weight))
+                                                        (let ((factor (otdb-table-unit-conversion 'weight (otdb-table-unit package-weight) (otdb-table-unit serving-weight))))
+                                                          (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-weight) (otdb-table-number serving-weight)) (otdb-table-number serving-protein))) 100)))
+                                                       ((and (full-string-p package-volume) (full-string-p serving-volume))
+                                                        (let ((factor (otdb-table-unit-conversion 'volume (otdb-table-unit package-volume) (otdb-table-unit serving-volume))))
+                                                          (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-volume) (otdb-table-number serving-volume)) (otdb-table-number serving-protein))) 100)))
+                                                       (t
+                                                        nil))))))
+      ;; add to row
+      (setcar (nthcdr 11 therow) calorie-cost)
+      (setcar (nthcdr 12 therow) protein-cost)))
+  lisp-table-no-seperators)
 
 (provide 'otdb-recipe)

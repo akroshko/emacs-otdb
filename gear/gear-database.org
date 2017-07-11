@@ -1,177 +1,220 @@
 * Gear
- |-------------------------------------------------+--------+-------+------------------------+---------------------------------|
- | Item                                            | Weight |  Cost | Tags                   | Note                            |
- |-------------------------------------------------+--------+-------+------------------------+---------------------------------|
- | 0.9L titanium pot                               | 119g   |       |                        |                                 |
- | 10 Advil liquigels                              | 20g    |  6.99 |                        |                                 |
- | 10 elastics                                     | 5g     |       |                        | 2 large, 4 medium, 4 small      |
- | 10 index cards + 2 short pencils + waterproof   | 50g    |       |                        |                                 |
- | 10 safety pins                                  | 5g     |       |                        | 2 large, 4 medium, 4 small      |
- | 10 sheets letter paper                          | 46g    |       |                        |                                 |
- | 11oz MSR fuel bottle                            | 87g    |       | container              |                                 |
- | 12 Advil                                        | 6g     |       |                        |                                 |
- | 125ml Nalgene bottle                            | 40g    |       | container              |                                 |
- | 125ml margarine                                 | 127g   |       | container              |                                 |
- | 125ml oil                                       | 127g   |       | consumable             |                                 |
- | 13L Sea to summit silnylon stuff sack           | 44g    |       | container              |                                 |
- | 15ml Nalgene bottle                             | 15g    |       | container              |                                 |
- | 15ml pepper                                     | 41g    |       | consumable             |                                 |
- | 15ml salt                                       | 19g    |       | consumable             |                                 |
- | 1L pop bottle                                   | 41g    |       | container              |                                 |
- | 1m 3mm cord                                     | 5g     |       |                        |                                 |
- | 2 tbsp salt + 1 tbsp pepper                     | 24g    |       | consumable             |                                 |
- | 20 AA battery                                   | 460g   | 12.99 | electronics,consumable |                                 |
- | 20ml toothpaste                                 | 31g    |  1.49 | consumable             |                                 |
- | 22oz MSR fuel bottle                            | 146g   |       | container              |                                 |
- | 22oz fuel bottle fuel                           | 491g   |       | consumable             |                                 |
- | 23 match case matches                           | 4g     |       |                        |                                 |
- | 250 red bird matches in box                     | 69g    |       |                        |                                 |
- | 250ml Nalgene tall                              | 54g    |       | container              |                                 |
- | 2L Sea to summit silnylon stuff sack            | 22g    |       | container              |                                 |
- | 2L pop bottle                                   | 52g    |       | container              |                                 |
- | 2m 3mm cord                                     | 10g    |       |                        |                                 |
- | 2mm cord emergency                              | 6g     |       |                        |                                 |
- | 2w solar cell                                   | 101g   |       | electronics            |                                 |
- | 3 lithium AAA batteries                         | 23g    | 19.49 | electronics,consumable |                                 |
- | 3 review articles                               | 428g   |       |                        |                                 |
- | 33oz MSR fuel bottle                            | 208g   |       | container              |                                 |
- | 3x5 index cards                                 | 1.8g   |       |                        |                                 |
- | 4 Benadryl blister pack                         | 3g     |  8.99 |                        |                                 |
- | 4m 3mm cord                                     | 20g    |       |                        |                                 |
- | 5 Benadryl blister pack                         | 5g     |       |                        |                                 |
- | 50 Red bird matches + strikers from 1 box       | 14g    |       |                        |                                 |
- | 500ml Nalgene Lexan bottle                      | 89g    |       | container              |                                 |
- | 500ml Nalgene short                             | 113g   |       | container              |                                 |
- | 6 Imodium liqui-gel blister pack + instructions | 4g     |  8.99 |                        |                                 |
- | 60ml Nalgene short                              | 23g    |       | container              |                                 |
- | 60ml oil                                        | 42g    |       | container              |                                 |
- | 60ml soap                                       | 48g    |       | container              |                                 |
- | 6m 3mm cord                                     | 30g    |       |                        |                                 |
- | 8 Benadryl blister pack                         | 5g     |       |                        |                                 |
- | 8L Sea to summit silnylon stuff sack            | 35g    |       | container              |                                 |
- | AA battery                                      | 23g    |       | electronics,consumable |                                 |
- | AA usb charger                                  | 25g    |       | electronics            |                                 |
- | Bear spray                                      | 306g   |       | safety                 |                                 |
- | Cactus Creek medium stuff sack                  | 39g    |       | container              |                                 |
- | Cactus creek ditty bag                          | 20g    |       | container              |                                 |
- | Dudley lock                                     | 149g   |       |                        |                                 |
- | Fenix headlamp                                  | 59g    |       | electronics            |                                 |
- | Freesole                                        |        |       |                        |                                 |
- | GUM travel toothbrush                           | 21g    |       |                        |                                 |
- | Grivel climbing helmet                          | 379g   |       | climbing               |                                 |
- | Lake Louise map                                 | 65g    |       | info                   |                                 |
- | Large map case                                  | 128g   |       | container              |                                 |
- | Leatherman Squirt PS4                           | 57g    |       |                        |                                 |
- | Lexan spoon                                     | 11g    |       |                        |                                 |
- | MEC filled jacket                               | 335g   |       | clothing               |                                 |
- | MEC lightweight fleece pants                    | 227g   |       | clothing               |                                 |
- | MEC lightweight longsleeve shirt                | 275g   |       | clothing               |                                 |
- | MEC medium sweater                              | 405g   |       | clothing               |                                 |
- | MEC medium-weight rain jacket                   | 417g   |       | clothing               |                                 |
- | MEC medium-weight rain pants                    | 296g   |       | clothing               |                                 |
- | MEC outdoor pants                               | 297g   |       | clothing               |                                 |
- | MEC red windbreaker                             | 175g   |       | clothing               |                                 |
- | MEC river pants                                 | 251g   |       | clothing               |                                 |
- | MEC stretch shorts                              | 122g   |       | clothing               |                                 |
- | MEC superlight gloves                           | 52g    |       | clothing               |                                 |
- | MSR XGK                                         | 331g   |       |                        |                                 |
- | MSR spare parts/parts in sandwich bag           | 29g    |       |                        |                                 |
- | MSR whisperlite                                 | 276g   |       |                        |                                 |
- | MSR wind screen (bottom)                        | 15g    |       |                        |                                 |
- | MSR wind screen (top)                           | 45g    |       |                        |                                 |
- | Mizuno superlight hat                           | 56g    |       | clothing               |                                 |
- | Nalgene LPDE bottle                             | 109g   |       | container              |                                 |
- | Nalgene Lexan bottle                            | 174g   |       | container              |                                 |
- | Nikon L610 camera                               | 193g   |       | electronics            |                                 |
- | North Face sleeping bag                         | 1193g  |       |                        |                                 |
- | Optimus folding titanium spork                  | 18g    |       |                        |                                 |
- | Osprey Xenith 88 pack                           | 2510g  |       |                        |                                 |
- | Papermate retractable pen                       | 10g    |       |                        |                                 |
- | Polartec micro sweater                          | 209g   |       | clothing               |                                 |
- | Redhead heavy socks                             | 149g   |       | clothing               |                                 |
- | SD card                                         | 2g     |       | electronics            |                                 |
- | SPOT locator                                    | 96g    |       | electronics            | empty                           |
- | Samsung earbuds                                 | 13g    |       | electronics            |                                 |
- | Samsung galaxy SIII                             | 175g   |       | electronics            | in case                         |
- | Samsung usb power adapter                       | 33g    |       | electronics            |                                 |
- | Saskatchewan marathon shirt                     | 142g   |       | clothing               |                                 |
- | Scarpa boots                                    | 1708g  |       |                        |                                 |
- | Seam Grip                                       | 34g    |       |                        | TODO: add freesole              |
- | Travel pack daypack                             | 821g   |       |                        |                                 |
- | Travel pack main                                | 2084g  |       |                        |                                 |
- | Wigwam gobi liner                               | 24g    |       | clothing               |                                 |
- | Wigwam ultimate liner pro                       | 53g    |       | clothing               |                                 |
- | Z-rest sleeping pad                             | 277g   |       |                        |                                 |
- | b/w usb block                                   | 57g    |       |                        |                                 |
- | bandage pack                                    | 5g     |       |                        | 1 large, 1 butterfly, 4 regular |
- | bear rope                                       | 86g    |       |                        |                                 |
- | big banff map                                   | 105g   |       | info                   |                                 |
- | black running shirt                             | 141g   |       | clothing               |                                 |
- | black running shorts                            | 83g    |       | clothing               |                                 |
- | blue ball cap                                   | 60g    |       | clothing               |                                 |
- | blue running shorts                             | 119g   |       | clothing               |                                 |
- | brass wire emergency                            | 17g    |       |                        |                                 |
- | bush knife                                      | 217g   |       |                        |                                 |
- | cactus creek #3 drybag                          | 124g   |       | container              |                                 |
- | caribiner (brown)                               | 30g    |       | climbing               |                                 |
- | caribiner (silver)                              | 35g    |       | climbing               |                                 |
- | caribiner locking                               | 41g    |       | climbing               |                                 |
- | carry clean toothbrush                          | 26g    |       |                        |                                 |
- | cheap watch                                     | 31g    |       | electronics            |                                 |
- | compass                                         | 81g    |       |                        |                                 |
- | compression socks                               | 66g    |       | clothing               |                                 |
- | credit card                                     | 5g     |       |                        |                                 |
- | daypack                                         |        |       |                        |                                 |
- | dish rag                                        | 31g    |       |                        |                                 |
- | duct tape pencil                                | 8g     |       |                        |                                 |
- | ear plugs in case                               | 6g     |       |                        |                                 |
- | film container                                  | 5g     |       | container              |                                 |
- | fleece glasses case                             | 12g    |       | clothing               |                                 |
- | fleece slippers                                 | 200g   |       | clothing               |                                 |
- | floss                                           | 14g    |       |                        |                                 |
- | food stuff sack (black)                         | 100g   |       | container              |                                 |
- | food stuff sack (green)                         | 75g    |       | container              |                                 |
- | glasses case                                    | 72g    |       | container              |                                 |
- | glasses cloth                                   | 8g     |       |                        |                                 |
- | glasses spray                                   | 131g   |       |                        |                                 |
- | gorilla tripod                                  | 62g    |       |                        |                                 |
- | green measuring cup                             | 51g    |       |                        |                                 |
- | green mesh bag                                  | 42g    |       | container              |                                 |
- | half green scrub                                | 4g     |       |                        |                                 |
- | handsaw                                         | 111g   |       |                        |                                 |
- | knife sharpener                                 | 29g    |       |                        |                                 |
- | large ziplock freezer bag                       | 12g    |       | container,consumable   |                                 |
- | light nail clippers                             | 17g    |       |                        |                                 |
- | match case                                      | 19g    |       | container              |                                 |
- | matches for 4 ounce container                   | 40g    |       |                        | no matches yet                  |
- | measuring spoon                                 | 2g     |       |                        |                                 |
- | medium Ziplock freezer bag                      | 6.8g   |       | container,consumable   |                                 |
- | micro-usb cord                                  | 27g    |       | electronics            | (nearly 6 feet)                 |
- | moleskin                                        | 13g    |       |                        |                                 |
- | mosquito net                                    | 38g    |       | clothing               |                                 |
- | nail clippers                                   | 20g    |       |                        |                                 |
- | nalgene holder                                  | 36g    |       |                        |                                 |
- | notepad                                         | 44g    |       |                        |                                 |
- | orange storm whistle                            | 21g    |       |                        |                                 |
- | padlock                                         |        |       |                        |                                 |
- | peg bag                                         | 17g    |       | container              |                                 |
- | pelican 1020 case                               | 247g   |       |                        |                                 |
- | pen                                             | 10g    |       |                        |                                 |
- | pillow                                          | 205g   |       |                        |                                 |
- | plants western forest book                      | 542g   |       |                        |                                 |
- | polysporin                                      | 19g    |  8.99 |                        |                                 |
- | prepackaged gause 4"x4.5 yards                  | 11g    |       |                        |                                 |
- | running shoes                                   |        |       |                        |                                 |
- | scrub brush                                     | 21g    |       |                        |                                 |
- | silnylon tarp                                   | 204g   |       |                        |                                 |
- | silver mini-tripod                              | 97g    |       |                        |                                 |
- | small Ziplock freezer bag                       | 5.5g   |       | container,consumable   |                                 |
- | small cactus creek mesh bag                     | 20g    |       | container              |                                 |
- | snack ziplock bag                               | 2g     |       | container,consumable   |                                 |
- | spot manual                                     | 22g    |       |                        |                                 |
- | tent peg                                        | 10g    |       |                        |                                 |
- | titanium pot                                    | 116g   |       |                        |                                 |
- | toilet paper                                    | 98g    |       | consumable             |                                 |
- | tweezers                                        | 8g     |       |                        |                                 |
- | white USB cord                                  | 61g    |       | electronics            |                                 |
- |-------------------------------------------------+--------+-------+------------------------+---------------------------------|
+ |---------------------------------------------------+--------+-------+------------------------+---------------------------------------------------|
+ | Item                                              | Weight |  Cost | Tags                   | Note                                              |
+ |---------------------------------------------------+--------+-------+------------------------+---------------------------------------------------|
+ | 0.9L titanium pot                                 | 119g   |       |                        |                                                   |
+ | 10 Advil liquigels                                | 20g    |  6.99 |                        |                                                   |
+ | 10 elastics                                       | 5g     |       |                        | 2 large, 4 medium, 4 small                        |
+ | 10 index cards + 2 short pencils + waterproof     | 50g    |       |                        |                                                   |
+ | 10 safety pins                                    | 5g     |       |                        | 2 large, 4 medium, 4 small                        |
+ | 10 sheets letter paper                            | 46g    |       |                        |                                                   |
+ | 11oz MSR fuel bottle                              | 87g    |       | container              |                                                   |
+ | 12 Advil                                          | 6g     |       |                        |                                                   |
+ | 125ml Nalgene bottle                              | 40g    |       | container              |                                                   |
+ | 125ml margarine                                   | 127g   |       | container              |                                                   |
+ | 125ml oil                                         | 127g   |       | consumable             |                                                   |
+ | 13L Sea to summit silnylon stuff sack             | 44g    |       | container              |                                                   |
+ | 15ml Nalgene bottle                               | 15g    |       | container              |                                                   |
+ | 15ml pepper                                       | 41g    |       | consumable             |                                                   |
+ | 15ml salt                                         | 19g    |       | consumable             |                                                   |
+ | 1L pop bottle                                     | 41g    |       | container              |                                                   |
+ | 1m 3mm cord                                       | 6g     |       |                        |                                                   |
+ | 2 tbsp salt + 1 tbsp pepper                       | 24g    |       | consumable             |                                                   |
+ | 20 AA battery                                     | 460g   | 12.99 | electronics,consumable |                                                   |
+ | 20ml toothpaste                                   | 31g    |  1.49 | consumable             |                                                   |
+ | 22oz MSR fuel bottle                              | 146g   |       | container              |                                                   |
+ | 22oz fuel bottle fuel                             | 491g   |       | consumable             |                                                   |
+ | 22oz MSR new fuel bottle                          | 165g   |       | container              |                                                   |
+ | 22oz MSR new fuel bottle fuel                     | 365g   |       | consumable             | up to fill line                                   |
+ | yellow fuel funnel                                | 11g    |       |                        |                                                   |
+ | 23 match case matches                             | 4g     |       | consumable             |                                                   |
+ | 250 red bird matches in box                       | 69g    |       |                        |                                                   |
+ | 250ml Nalgene tall                                | 54g    |       | container              |                                                   |
+ | 2L Sea to summit silnylon stuff sack              | 22g    |       | container              |                                                   |
+ | 2L pop bottle                                     | 52g    |       | container              |                                                   |
+ | 2m 3mm cord                                       | 12g    |       |                        |                                                   |
+ | 2mm cord emergency                                | 6g     |       |                        |                                                   |
+ | 2w solar cell                                     | 101g   |       | electronics            |                                                   |
+ | 3 lithium AAA batteries                           | 23g    | 19.49 | electronics,consumable |                                                   |
+ | 3 review articles                                 | 428g   |       |                        |                                                   |
+ | 33oz MSR fuel bottle                              | 208g   |       | container              |                                                   |
+ | 3x5 index cards                                   | 1.8g   |       |                        |                                                   |
+ | 4 Benadryl blister pack                           | 3g     |  8.99 |                        |                                                   |
+ | 4m 3mm cord                                       | 20g    |       |                        |                                                   |
+ | 5 Benadryl blister pack                           | 5g     |       |                        |                                                   |
+ | 50 Red bird matches + strikers from 1 box         | 14g    |       |                        |                                                   |
+ | 500ml Nalgene Lexan bottle                        | 89g    |       | container              |                                                   |
+ | 500ml Nalgene short                               | 113g   |       | container              |                                                   |
+ | 6 Imodium liqui-gel blister pack + instructions   | 4g     |  8.99 |                        |                                                   |
+ | 60ml Nalgene short                                | 23g    |       | container              |                                                   |
+ | 60ml oil                                          | 42g    |       | container              |                                                   |
+ | 60ml soap                                         | 48g    |       | container              |                                                   |
+ | 6m 3mm cord                                       | 37g    |       |                        |                                                   |
+ | 8 Benadryl blister pack                           | 5g     |       |                        |                                                   |
+ | 8L Sea to summit silnylon stuff sack              | 35g    |       | container              |                                                   |
+ | AA battery                                        | 23g    |       | electronics,consumable |                                                   |
+ | AA usb charger                                    | 25g    |       | electronics            |                                                   |
+ | Bear spray                                        | 306g   |       | safety                 |                                                   |
+ | Cactus Creek medium stuff sack                    | 39g    |       | container              |                                                   |
+ | Cactus creek ditty bag                            | 20g    |       | container              |                                                   |
+ | Dudley lock                                       | 149g   |       |                        |                                                   |
+ | Fenix headlamp                                    | 59g    |       | electronics            |                                                   |
+ | Freesole                                          |        |       |                        |                                                   |
+ | GUM travel toothbrush                             | 21g    |       |                        |                                                   |
+ | Grivel climbing helmet                            | 379g   |       | climbing               |                                                   |
+ | Lake Louise map                                   | 65g    |       | info                   |                                                   |
+ | Large map case                                    | 128g   |       | container              |                                                   |
+ | Leatherman Squirt PS4                             | 57g    |       |                        |                                                   |
+ | Lexan spoon                                       | 11g    |       |                        |                                                   |
+ | MEC filled jacket                                 | 335g   |       | clothing               |                                                   |
+ | MEC lightweight fleece pants                      | 227g   |       | clothing               |                                                   |
+ | MEC lightweight longsleeve shirt                  | 275g   |       | clothing               |                                                   |
+ | MEC medium sweater                                | 405g   |       | clothing               |                                                   |
+ | MEC medium-weight rain jacket                     | 417g   |       | clothing               |                                                   |
+ | MEC medium-weight rain pants                      | 296g   |       | clothing               |                                                   |
+ | MEC outdoor pants                                 | 297g   |       | clothing               |                                                   |
+ | MEC red windbreaker                               | 175g   |       | clothing               |                                                   |
+ | MEC river pants                                   | 251g   |       | clothing               |                                                   |
+ | MEC stretch shorts                                | 122g   |       | clothing               |                                                   |
+ | MEC superlight gloves                             | 52g    |       | clothing               |                                                   |
+ | MSR XGK                                           | 331g   |       |                        |                                                   |
+ | MSR spare parts/parts in sandwich bag             | 29g    |       |                        |                                                   |
+ | MSR whisperlite                                   | 276g   |       |                        |                                                   |
+ | MSR wind screen (bottom)                          | 15g    |       |                        |                                                   |
+ | MSR wind screen (top)                             | 45g    |       |                        |                                                   |
+ | Mizuno superlight hat                             | 56g    |       | clothing               |                                                   |
+ | Nalgene LPDE bottle                               | 109g   |       | container              | 1L?                                               |
+ | Nalgene Lexan bottle                              | 174g   |       | container              | 1L?                                               |
+ | Nikon L610 camera                                 | 193g   |       | electronics            |                                                   |
+ | North Face sleeping bag                           | 1193g  |       |                        |                                                   |
+ | Optimus folding titanium spork                    | 18g    |       |                        |                                                   |
+ | Osprey Xenith 88 pack                             | 2510g  |       |                        |                                                   |
+ | Papermate retractable pen                         | 10g    |       |                        |                                                   |
+ | Polartec micro sweater                            | 209g   |       | clothing               |                                                   |
+ | Redhead heavy socks                               | 149g   |       | clothing               |                                                   |
+ | SD card                                           | 2g     |       | electronics            |                                                   |
+ | SPOT locator                                      | 96g    |       | electronics            | empty                                             |
+ | Samsung earbuds                                   | 13g    |       | electronics            |                                                   |
+ | Samsung galaxy SIII                               | 175g   |       | electronics            | in case                                           |
+ | Samsung usb power adapter                         | 33g    |       | electronics            |                                                   |
+ | Saskatchewan marathon shirt                       | 142g   |       | clothing               |                                                   |
+ | Scarpa boots                                      | 1708g  |       |                        |                                                   |
+ | Seam Grip                                         | 34g    |       |                        | TODO: add freesole                                |
+ | Travel pack daypack                               | 821g   |       |                        |                                                   |
+ | Travel pack main                                  | 2084g  |       |                        |                                                   |
+ | Wigwam gobi liner                                 | 24g    |       | clothing               |                                                   |
+ | Wigwam ultimate liner pro                         | 53g    |       | clothing               |                                                   |
+ | Z-rest sleeping pad                               | 277g   |       |                        |                                                   |
+ | b/w usb block                                     | 57g    |       |                        |                                                   |
+ | bandage pack                                      | 5g     |       |                        | 1 large, 1 butterfly, 4 regular                   |
+ | bear rope                                         | 86g    |       |                        |                                                   |
+ | big banff map                                     | 105g   |       | info                   |                                                   |
+ | black running shirt                               | 141g   |       | clothing               |                                                   |
+ | black running shorts                              | 83g    |       | clothing               |                                                   |
+ | blue ball cap                                     | 60g    |       | clothing               |                                                   |
+ | blue running shorts                               | 119g   |       | clothing               |                                                   |
+ | brass wire emergency                              | 17g    |       |                        |                                                   |
+ | bush knife                                        | 217g   |       |                        |                                                   |
+ | cactus creek #3 drybag                            | 124g   |       | container              |                                                   |
+ | caribiner (brown)                                 | 30g    |       | climbing               |                                                   |
+ | caribiner (silver)                                | 35g    |       | climbing               |                                                   |
+ | caribiner locking                                 | 41g    |       | climbing               |                                                   |
+ | carry clean toothbrush                            | 26g    |       |                        |                                                   |
+ | cheap watch                                       | 31g    |       | electronics            |                                                   |
+ | compass                                           | 81g    |       |                        |                                                   |
+ | compression socks                                 | 66g    |       | clothing               |                                                   |
+ | credit card                                       | 5g     |       |                        |                                                   |
+ | daypack                                           |        |       |                        |                                                   |
+ | dish rag                                          | 31g    |       |                        |                                                   |
+ | duct tape pencil                                  | 8g     |       |                        |                                                   |
+ | ear plugs in case                                 | 6g     |       |                        |                                                   |
+ | film container                                    | 5g     |       | container              |                                                   |
+ | fleece glasses case                               | 12g    |       | clothing               |                                                   |
+ | fleece slippers                                   | 200g   |       | clothing               |                                                   |
+ | floss                                             | 14g    |       |                        |                                                   |
+ | food stuff sack (black)                           | 100g   |       | container              |                                                   |
+ | food stuff sack (green)                           | 75g    |       | container              |                                                   |
+ | glasses case                                      | 72g    |       | container              |                                                   |
+ | glasses cloth                                     | 8g     |       |                        |                                                   |
+ | glasses spray                                     | 131g   |       |                        |                                                   |
+ | gorilla tripod                                    | 62g    |       |                        |                                                   |
+ | green measuring cup                               | 51g    |       |                        |                                                   |
+ | green mesh bag                                    | 42g    |       | container              |                                                   |
+ | half green scrub                                  | 4g     |       |                        |                                                   |
+ | handsaw                                           | 111g   |       |                        |                                                   |
+ | knife sharpener                                   | 29g    |       |                        |                                                   |
+ | large Ziplock freezer bag                         | 12g    |       | container,consumable   |                                                   |
+ | light nail clippers                               | 17g    |       |                        |                                                   |
+ | match case                                        | 19g    |       | container              |                                                   |
+ | matches for 4 ounce container                     | 40g    |       |                        | no matches yet                                    |
+ | measuring spoon                                   | 2g     |       |                        |                                                   |
+ | medium Ziplock freezer bag                        | 6.8g   |       | container,consumable   |                                                   |
+ | micro-usb cord                                    | 27g    |       | electronics            | (nearly 6 feet)                                   |
+ | moleskin                                          | 13g    |       |                        |                                                   |
+ | mosquito net                                      | 38g    |       | clothing               |                                                   |
+ | nail clippers                                     | 20g    |       |                        |                                                   |
+ | nalgene holder                                    | 36g    |       |                        |                                                   |
+ | notepad                                           | 44g    |       |                        |                                                   |
+ | orange storm whistle                              | 21g    |       |                        |                                                   |
+ | padlock                                           |        |       |                        |                                                   |
+ | peg bag                                           | 17g    |       | container              |                                                   |
+ | pelican 1020 case                                 | 247g   |       |                        |                                                   |
+ | pen                                               | 10g    |       |                        |                                                   |
+ | pillow                                            | 205g   |       |                        |                                                   |
+ | plants western forest book                        | 542g   |       |                        |                                                   |
+ | polysporin                                        | 19g    |  8.99 |                        |                                                   |
+ | prepackaged gause 4"x4.5 yards                    | 11g    |       |                        |                                                   |
+ | running shoes                                     |        |       |                        |                                                   |
+ | scrub brush                                       | 21g    |       |                        |                                                   |
+ | silnylon tarp                                     | 204g   |       |                        |                                                   |
+ | silver mini-tripod                                | 97g    |       |                        |                                                   |
+ | small Ziplock freezer bag                         | 5.5g   |       | container,consumable   |                                                   |
+ | small cactus creek mesh bag                       | 20g    |       | container              |                                                   |
+ | snack ziplock bag                                 | 2g     |       | container,consumable   |                                                   |
+ | spot manual                                       | 22g    |       |                        |                                                   |
+ | tent peg                                          | 10g    |       |                        |                                                   |
+ | titanium pot                                      | 116g   |       |                        |                                                   |
+ | toilet paper                                      | 98g    |       | consumable             |                                                   |
+ | tweezers                                          | 8g     |       |                        |                                                   |
+ | fine-point tweezers                               | 12g    |       |                        |                                                   |
+ | fine-point tweezers cardboard protection          | 3g     |       | container              | made from cardboard frozen food box and duct tape |
+ | white USB cord                                    | 61g    |       | electronics            |                                                   |
+ | PNY 7800 mAh power pack                           | 219g   |       | electronics            |                                                   |
+ | PNY power pack uUSB cord                          | 10g    |       | electronics            |                                                   |
+ | GSI glacier stainless bottle cup                  | 143g   |       |                        |                                                   |
+ | Smartwool large hike socks                        | 92g    |       | clothing               |                                                   |
+ | Fenix HL23 headlamp                               | 75g    |       | electronics            |                                                   |
+ | short startech OTG cable                          | 7g     |       | electronics            |                                                   |
+ | Transcend sd to sub  adaptor                      | 16g    |       | electronics            |                                                   |
+ | large safety pins                                 |        |       |                        |                                                   |
+ | 20 Tough strips bandages                          | 18g    |       |                        |                                                   |
+ | new MSR fuel bottle                               |        |       | container              |                                                   |
+ | seirus hyper-lite all-weather gloves              | 50g    |       | clothing               |                                                   |
+ | Ghost 680ml bike bottle                           | 75g    |       |                        |                                                   |
+ | cantech 48mm x 9.14m duct tape                    | 88g    |       |                        |                                                   |
+ | moleskin 51cm x 18cm roll                         | 51g    |       |                        |                                                   |
+ | ambler trucker hat with moose                     | 66g    |       | clothing               |                                                   |
+ | ridgerest classic 51 x 183cm                      | 378g   |       |                        |                                                   |
+ | generic tensor bandage                            | 46g    |       |                        |                                                   |
+ | Seattle Sports bear spray holster                 | 38g    |       |                        |                                                   |
+ | printed Benadryl-Imodium-Advil instructions       | 2g     |       |                        |                                                   |
+ | 12 Advil day liquigels from day/night blister     | 15g    |  8.99 |                        |                                                   |
+ | 4 large and 10 small safety pins                  | 5g     |       |                        |                                                   |
+ | Seam grip in package                              | 53g    |       |                        |                                                   |
+ | 72" spare shoelace pairs                          | 16g    |       |                        |                                                   |
+ | smith lens mist and cloth                         | 63g    |       |                        |                                                   |
+ | standard chapstick                                | 8g     |       | consumable             |                                                   |
+ | Columbia glasses case                             | 123g   |       |                        |                                                   |
+ | FITOVERS glacier glasses                          | 68g    |       |                        |                                                   |
+ | 37ml squeeze bottle                               | 33g    |       |                        |                                                   |
+ | Ombrelle sport endurance sunscreen in 37ml bottle | 41g    |       | consumable             |                                                   |
+ | Canadian tire outbound river shoes                | 373g   |       |                        |                                                   |
+ | 50g convenience vasiline tube                     | 63g    |       |                        |                                                   |
+ | retractable ball point pen                        | 10g    |       |                        |                                                   |
+ | spiral mini-notebook 5x3"                         | 40g    |       |                        |                                                   |
+ | green e-case                                      | 39g    |       |                        |                                                   |
+ | 2 stubby pencils                                  | 8g     |       |                        |                                                   |
+ | 4 AAA Energizer ultimate Lithium                  | 42g    |       |                        | 2 original packages as spares for SPOT            |
+ | SPOT armband                                      | 35g    |       |                        |                                                   |
+ | electrolyte package                               | 63g    |       |                        | container and spoon with 20ml NaCl and 10ml KCl   |
+ |---------------------------------------------------+--------+-------+------------------------+---------------------------------------------------|

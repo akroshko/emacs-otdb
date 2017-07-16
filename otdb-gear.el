@@ -253,6 +253,15 @@ for ROW-LIST from a particular collection."
                                        weight-cost-list)))))
     (append collection-weight-cost-list weight-cost-list)))
 
+(defconst otdb-gear-weight-column
+  4)
+
+(defconst otdb-gear-cost-column
+  5)
+
+(defconst otdb-gear-tags-column
+  6)
+
 (defun otdb-gear-insert-function (collection-filename collection-heading weight-cost-list)
   "Helper function for otdb-table-update to insert information
 into a recipe.  The recipe is COLLECTION-HEADING in
@@ -263,6 +272,7 @@ WEIGHT-COST-LIST."
         new-cost
         new-tags
         (count 1))
+    (mpp weight-cost-list)
     ;; TODO: this could be generalized a bit better
     ;;       headings are good, but so are standards
     (do-org-table-rows collection-filename collection-heading row
@@ -272,14 +282,14 @@ WEIGHT-COST-LIST."
                          (setq new-cost (elt (assoc new-item weight-cost-list) 2))
                          (setq new-tags (elt (assoc new-item weight-cost-list) 3))
                          (if (not new-weight)
-                             (org-table-put count 3 "")
-                           (org-table-put count 3 (otdb-gear-weight-string new-weight)))
+                             (org-table-put count otdb-gear-weight-column "")
+                           (org-table-put count otdb-gear-weight-column (otdb-gear-weight-string new-weight)))
                          (if (not new-cost)
-                             (org-table-put count 4 "")
-                           (org-table-put count 4 (otdb-gear-cost-string new-cost)))
+                             (org-table-put count otdb-gear-cost-column "")
+                           (org-table-put count otdb-gear-cost-column (otdb-gear-cost-string new-cost)))
                          (if (not new-tags)
-                             (org-table-put count 5 "")
-                           (org-table-put count 5 new-tags)))
+                             (org-table-put count otdb-gear-tags-column "")
+                           (org-table-put count otdb-gear-tags-column new-tags)))
                        (setq count (1+ count)))
     (tblel-eval)))
 
@@ -354,14 +364,14 @@ DATABASE-ROW."
       (list
        (*
         quantity
-        (string-to-number (org-table-get nil 3))
+        (string-to-number (org-table-get nil otdb-gear-weight-column))
         (cond ((eq otdb-gear-weight-units 'kg)
-               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "kg"))
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil otdb-gear-weight-column)) "kg"))
               ((eq otdb-gear-weight-units 'lb)
-               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "lb"))
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil otdb-gear-weight-column)) "lb"))
               ((eq otdb-gear-weight-units 'lb-g)
-               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil 3)) "g"))))
-       (* quantity (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil 4))))))))
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil otdb-gear-weight-column)) "g"))))
+       (* quantity (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil otdb-gear-cost-column))))))))
 
 (defun otdb-gear-find-item (item)
   "Find the location of the ITEM."
@@ -424,12 +434,12 @@ corresponding to a gear collection."
       (unless (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)
         (cond ((or (eq otdb-gear-weight-units 'lb)
                    (eq otdb-gear-weight-units 'kg))
-               (setq weight (+ weight (otdb-table-lisp-row-float lisp-row 2))))
+               (setq weight (+ weight (otdb-table-lisp-row-float lisp-row (- otdb-gear-weight-column 1)))))
               ((eq otdb-gear-weight-units 'lb-g)
                ;; otherwise make sure weight is in grams
-               (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row 2)
-                                         (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row 2)) "g"))))))
-        (setq cost (+ cost (otdb-table-lisp-row-float lisp-row 3)))))
+               (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row (- otdb-gear-weight-column 1))
+                                         (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row (- otdb-gear-weight-column 1))) "g"))))))
+        (setq cost (+ cost (otdb-table-lisp-row-float lisp-row (- otdb-gear-cost-column 1))))))
     ;; insert into last row
     ;; TODO: make uniform with ???
     (setq new-last-row (list
@@ -437,10 +447,11 @@ corresponding to a gear collection."
                          (list
                           (elt last-row 0)
                           (elt last-row 1)
+                          ""
                           (otdb-gear-weight-string weight)
                           (otdb-gear-cost-string cost))
                          ;; TODO: not great, really want only do for single character headers
-                         (mapcar (lambda (e) "") (nthcdr 4 last-row)))))
+                         (mapcar (lambda (e) "") (nthcdr 5 last-row)))))
     ;; TODO: add in text indicating char-column if necessary
     (setq new-lisp-table
           (nconc
@@ -461,9 +472,9 @@ corresponding to a gear collection."
       (with-current-buffer the-new-buffer
         (org-mode)
         (otdb-gear-mode)
-        (insert "  |----------+------+--------+------+------+------+---+---|\n")
-        (insert "  | Quantity | Item | Weight | Cost | Tags | Note | X | C |\n")
-        (insert "  |----------+------+--------+------+------+------+---+---|\n"))
+        (insert "  |----------+------+---+--------+------+------+------|---|\n")
+        (insert "  | Quantity | Item | X | Weight | Cost | Tags | Note | C |\n")
+        (insert "  |----------+------+---+--------+------+------+------|---|\n"))
       the-new-buffer)))
 
 (defun otdb-gear-calc-special-command ()

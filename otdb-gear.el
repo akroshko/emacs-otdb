@@ -423,6 +423,8 @@ corresponding to a gear collection."
         (cost 0)
         (cummulative-weight 0.0)
         cummulative-weight-list
+        cummulative-ignore
+        (last-cummulative t)
         (new-lisp-table (list (elt lisp-table 1)))
         ;; (new-lisp-table (butlast lisp-table-no-seperators))
         (last-row (car (last lisp-table-no-seperators)))
@@ -457,7 +459,11 @@ corresponding to a gear collection."
                         (setq cummulative-weight-list (append cummulative-weight-list (list nil))))))
                (setq cost (+ cost (otdb-table-lisp-row-float lisp-row (- otdb-gear-cost-column 1))))))))
     (pop cummulative-weight-list)
+
+    (when (<= (length (remove-if 'null cummulative-weight-list)) 1)
+      (setq cummulative-ignore t))
     (dolist (lisp-row (cddr (butlast lisp-table 2)))
+      ;; TODO:   if there are adjacent, then ignore, in loop though
       (cond ((eq lisp-row 'hline)
              t)
             (t
@@ -467,13 +473,19 @@ corresponding to a gear collection."
                                      new-lisp-table
                                      (list (nconc
                                             (subseq lisp-row 0 3)
-                                            (list (if the-cummulative
-                                                      (concat
-                                                       (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3)))
-                                                       " ("
-                                                       (otdb-gear-weight-string the-cummulative)
-                                                       ")")
-                                                    (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3)))))
+                                            (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
+                                                         (setq last-cummulative t)
+                                                         (concat
+                                                          (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3)))
+                                                          " ("
+                                                          (otdb-gear-weight-string the-cummulative)
+                                                          ")"))
+                                                        ((and (not cummulative-ignore) last-cummulative the-cummulative)
+                                                         (setq last-cummulative t)
+                                                         (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3))))
+                                                        (t
+                                                         (setq last-cummulative nil)
+                                                         (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3))))))
                                             (subseq lisp-row 4 8)))))))))
     ;; TODO: go through and make new version of table, but with cummulative...
     ;; insert into last row

@@ -3,272 +3,272 @@
   - need gloves, matches, photocopies, printing
   #+END_COMMENT
 * Total northern boundary trail :gear:
-  |----------+-----------------------------------+---+-----------+---------+------+------+---|
-  | Quantity | Item                              | X | Weight    | Cost    | Tags | Note | C |
-  |----------+-----------------------------------+---+-----------+---------+------+------+---|
-  |        1 | Full pack northern boundary trail |   | 28.2954lb | $78.430 |      |      |   |
-  |        1 | Northern boundary trail worn      |   | 5.6945lb  | $0.000  |      |      |   |
-  |----------+-----------------------------------+---+-----------+---------+------+------+---|
-  |        1 |                                   |   | 33.9899lb | $78.430 |      |      |   |
-  |----------+-----------------------------------+---+-----------+---------+------+------+---|
+  |----------+-----------------------------------+---+----------------------+---------+------+------+---|
+  | Quantity | Item                              | X | Weight               | Cost    | Tags | Note | C |
+  |----------+-----------------------------------+---+----------------------+---------+------+------+---|
+  |        1 | Full pack northern boundary trail |   | 28.2954lb            | $78.430 |      |      |   |
+  |        1 | Northern boundary trail worn      |   | 5.6945lb (33.9899lb) | $0.000  |      |      |   |
+  |----------+-----------------------------------+---+----------------------+---------+------+------+---|
+  |        1 |                                   |   | 33.9899lb            | $78.430 |      |      |   |
+  |----------+-----------------------------------+---+----------------------+---------+------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Full pack northern boundary trail :gear:
-  |----------+------------------------------------------------+---+-----------+---------+------+------+---|
-  | Quantity | Item                                           | X | Weight    | Cost    | Tags | Note | C |
-  |----------+------------------------------------------------+---+-----------+---------+------+------+---|
-  |        1 | Pack northern boundary trail                   |   | 20.8006lb | $0.000  |      |      |   |
-  |        1 | Pack northern boundary trail extra             |   | 4.2924lb  | $0.000  |      |      |   |
-  |        1 | North boundary trail consumables               | X | 2.8373lb  | $33.970 |      |      |   |
-  |        1 | North boundary trail replaceable               |   | 50.0g     | $0.000  |      |      |   |
-  |        1 | North boundary trail replaceable kitchen       |   | 0.0g      | $0.000  |      |      |   |
-  |        1 | North boundary trail replaceable emergency kit |   | 115.6g    | $44.460 |      |      |   |
-  |----------+------------------------------------------------+---+-----------+---------+------+------+---|
-  |        1 |                                                |   | 28.2954lb | $78.430 |      |      |   |
-  |----------+------------------------------------------------+---+-----------+---------+------+------+---|
+  |----------+------------------------------------------------+---+--------------------+---------+------+------+---|
+  | Quantity | Item                                           | X | Weight             | Cost    | Tags | Note | C |
+  |----------+------------------------------------------------+---+--------------------+---------+------+------+---|
+  |        1 | Pack northern boundary trail                   |   | 20.8006lb          | $0.000  |      |      |   |
+  |        1 | Pack northern boundary trail extra             |   | 4.2924lb           | $0.000  |      |      |   |
+  |        1 | North boundary trail consumables               | X | 2.8373lb           | $33.970 |      |      |   |
+  |        1 | North boundary trail replaceable               |   | 50.0g              | $0.000  |      |      |   |
+  |        1 | North boundary trail replaceable kitchen       |   | 0.0g               | $0.000  |      |      |   |
+  |        1 | North boundary trail replaceable emergency kit |   | 115.6g (28.2954lb) | $44.460 |      |      |   |
+  |----------+------------------------------------------------+---+--------------------+---------+------+------+---|
+  |        1 |                                                |   | 28.2954lb          | $78.430 |      |      |   |
+  |----------+------------------------------------------------+---+--------------------+---------+------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Pack northern boundary trail :gear:
-  |----------+----------------------------------------+---+-----------+--------+------+------+---|
-  | Quantity | Item                                   | X | Weight    | Cost   | Tags | Note | C |
-  |----------+----------------------------------------+---+-----------+--------+------+------+---|
-  |        1 | Northern boundary trail backpacking    |   | 11.0385lb | $0.000 |      |      |   |
-  |        1 | Northern boundary trail clothing       |   | 6.5103lb  | $0.000 |      |      |   |
-  |        1 | Northern boundary trail toiletries kit |   | 135.0g    | $0.000 |      |      |   |
-  |        1 | Northern boundary trail emergency kit  |   | 294.0g    | $0.000 |      |      |   |
-  |        1 | Northern boundary trail kitchen        |   | 2.3060lb  | $0.000 |      |      |   |
-  |----------+----------------------------------------+---+-----------+--------+------+------+---|
-  |        1 |                                        |   | 20.8006lb | $0.000 |      |      |   |
-  |----------+----------------------------------------+---+-----------+--------+------+------+---|
+  |----------+----------------------------------------+---+----------------------+--------+------+------+---|
+  | Quantity | Item                                   | X | Weight               | Cost   | Tags | Note | C |
+  |----------+----------------------------------------+---+----------------------+--------+------+------+---|
+  |        1 | Northern boundary trail backpacking    |   | 11.0385lb            | $0.000 |      |      |   |
+  |        1 | Northern boundary trail clothing       |   | 6.5103lb             | $0.000 |      |      |   |
+  |        1 | Northern boundary trail toiletries kit |   | 135.0g               | $0.000 |      |      |   |
+  |        1 | Northern boundary trail emergency kit  |   | 294.0g               | $0.000 |      |      |   |
+  |        1 | Northern boundary trail kitchen        |   | 2.3060lb (20.8006lb) | $0.000 |      |      |   |
+  |----------+----------------------------------------+---+----------------------+--------+------+------+---|
+  |        1 |                                        |   | 20.8006lb            | $0.000 |      |      |   |
+  |----------+----------------------------------------+---+----------------------+--------+------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Pack northern boundary trail extra :gear:
-  |----------+-------------------------------------+---+----------+--------+------+------+---|
-  | Quantity | Item                                | X | Weight   | Cost   | Tags | Note | C |
-  |----------+-------------------------------------+---+----------+--------+------+------+---|
-  |        1 | North boundary trail extra          |   | 2.1804lb | $0.000 |      |      |   |
-  |        1 | Northern boundary trail electronics |   | 727.0g   | $0.000 |      |      |   |
-  |        1 | Northern boundary trail travel      |   | 231.0g   | $0.000 |      |      |   |
-  |----------+-------------------------------------+---+----------+--------+------+------+---|
-  |        1 |                                     |   | 4.2924lb | $0.000 |      |      |   |
-  |----------+-------------------------------------+---+----------+--------+------+------+---|
+  |----------+-------------------------------------+---+-------------------+--------+------+------+---|
+  | Quantity | Item                                | X | Weight            | Cost   | Tags | Note | C |
+  |----------+-------------------------------------+---+-------------------+--------+------+------+---|
+  |        1 | North boundary trail extra          |   | 2.1804lb          | $0.000 |      |      |   |
+  |        1 | Northern boundary trail electronics |   | 727.0g            | $0.000 |      |      |   |
+  |        1 | Northern boundary trail travel      |   | 231.0g (4.2924lb) | $0.000 |      |      |   |
+  |----------+-------------------------------------+---+-------------------+--------+------+------+---|
+  |        1 |                                     |   | 4.2924lb          | $0.000 |      |      |   |
+  |----------+-------------------------------------+---+-------------------+--------+------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail backpacking :gear:
-  |----------+-------------------------+---+-----------+--------+-----------+------------------+---|
-  | Quantity | Item                    | X | Weight    | Cost   | Tags      | Note             | C |
-  |----------+-------------------------+---+-----------+--------+-----------+------------------+---|
-  |        1 | Osprey Xenith 88 pack   |   | 5.5336lb  |        |           |                  |   |
-  |        1 | North Face sleeping bag | X | 2.6301lb  |        |           |                  |   |
-  |        1 | cactus creek #3 drybag  | X | 124.0g    |        | container | for sleeping bag |   |
-  |        1 | Z-rest sleeping pad     | X | 277.0g    |        |           |                  |   |
-  |        1 | Cactus creek ditty bag  | X | 20.0g     |        | container |                  |   |
-  |        1 | silnylon tarp           | X | 204.0g    |        |           |                  |   |
-  |        1 | 6m 3mm cord             | X | 37.0g     |        |           |                  |   |
-  |        2 | 2m 3mm cord             | X | 24.0g     |        |           |                  |   |
-  |        2 | 1m 3mm cord             | X | 12.0g     |        |           |                  |   |
-  |        8 | tent peg                | X | 80.0g     |        |           |                  |   |
-  |        1 | Large map case          | X | 128.0g    |        | container |                  |   |
-  |        2 | 1L pop bottle           | X | 82.0g     |        | container |                  |   |
-  |        1 | Nalgene Lexan bottle    | X | 174.0g    |        | container |                  |   |
-  |        1 | nalgene holder          |   | 36.0g     |        |           |                  |   |
-  |        1 | caribiner (brown)       | X | 30.0g     |        | climbing  |                  |   |
-  |        1 | caribiner (silver)      | X | 35.0g     |        | climbing  |                  |   |
-  |        1 | caribiner locking       |   | 41.0g     |        | climbing  |                  |   |
-  |----------+-------------------------+---+-----------+--------+-----------+------------------+---|
-  |        1 |                         |   | 11.0385lb | $0.000 |           |                  |   |
-  |----------+-------------------------+---+-----------+--------+-----------+------------------+---|
+  |----------+-------------------------+---+-------------------+--------+-----------+------------------+---|
+  | Quantity | Item                    | X | Weight            | Cost   | Tags      | Note             | C |
+  |----------+-------------------------+---+-------------------+--------+-----------+------------------+---|
+  |        1 | Osprey Xenith 88 pack   |   | 5.5336lb          |        |           |                  |   |
+  |        1 | North Face sleeping bag | X | 2.6301lb          |        |           |                  |   |
+  |        1 | cactus creek #3 drybag  | X | 124.0g            |        | container | for sleeping bag |   |
+  |        1 | Z-rest sleeping pad     | X | 277.0g            |        |           |                  |   |
+  |        1 | Cactus creek ditty bag  | X | 20.0g             |        | container |                  |   |
+  |        1 | silnylon tarp           | X | 204.0g            |        |           |                  |   |
+  |        1 | 6m 3mm cord             | X | 37.0g             |        |           |                  |   |
+  |        2 | 2m 3mm cord             | X | 24.0g             |        |           |                  |   |
+  |        2 | 1m 3mm cord             | X | 12.0g             |        |           |                  |   |
+  |        8 | tent peg                | X | 80.0g             |        |           |                  |   |
+  |        1 | Large map case          | X | 128.0g            |        | container |                  |   |
+  |        2 | 1L pop bottle           | X | 82.0g             |        | container |                  |   |
+  |        1 | Nalgene Lexan bottle    | X | 174.0g            |        | container |                  |   |
+  |        1 | nalgene holder          |   | 36.0g             |        |           |                  |   |
+  |        1 | caribiner (brown)       | X | 30.0g             |        | climbing  |                  |   |
+  |        1 | caribiner (silver)      | X | 35.0g             |        | climbing  |                  |   |
+  |        1 | caribiner locking       |   | 41.0g (11.0385lb) |        | climbing  |                  |   |
+  |----------+-------------------------+---+-------------------+--------+-----------+------------------+---|
+  |        1 |                         |   | 11.0385lb         | $0.000 |           |                  |   |
+  |----------+-------------------------+---+-------------------+--------+-----------+------------------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail clothing :gear:
-  |----------+----------------------------------+---+----------+--------+-----------+--------------------+---|
-  | Quantity | Item                             | X | Weight   | Cost   | Tags      | Note               | C |
-  |----------+----------------------------------+---+----------+--------+-----------+--------------------+---|
-  |        1 | MEC lightweight longsleeve shirt | X | 275.0g   |        | clothing  |                    |   |
-  |        1 | Polartec micro sweater           | X | 209.0g   |        | clothing  |                    |   |
-  |        1 | MEC filled jacket                | X | 335.0g   |        | clothing  |                    |   |
-  |        1 | Mizuno superlight hat            | X | 56.0g    |        | clothing  |                    |   |
-  |        1 | MEC superlight gloves            |   | 52.0g    |        | clothing  |                    |   |
-  |        1 | green mesh bag                   |   | 42.0g    |        | container |                    |   |
-  |        1 | MEC medium-weight rain pants     |   | 296.0g   |        | clothing  |                    |   |
-  |        1 | MEC medium-weight rain jacket    |   | 417.0g   |        | clothing  |                    |   |
-  |        1 | MEC red windbreaker              | X | 175.0g   |        | clothing  | Want another thing |   |
-  |        1 | MEC medium sweater               | X | 405.0g   |        | clothing  |                    |   |
-  |        1 | MEC lightweight fleece pants     | X | 227.0g   |        | clothing  |                    |   |
-  |        1 | mosquito net                     | X | 38.0g    |        | clothing  |                    |   |
-  |        1 | Redhead heavy socks              | X | 149.0g   |        | clothing  |                    |   |
-  |        1 | Wigwam gobi liner                | X | 24.0g    |        | clothing  |                    |   |
-  |        1 | Wigwam ultimate liner pro        |   | 53.0g    |        | clothing  |                    |   |
-  |        1 | fleece slippers                  |   | 200.0g   |        | clothing  |                    |   |
-  |----------+----------------------------------+---+----------+--------+-----------+--------------------+---|
-  |        1 |                                  |   | 6.5103lb | $0.000 |           |                    |   |
-  |----------+----------------------------------+---+----------+--------+-----------+--------------------+---|
+  |----------+----------------------------------+---+-------------------+--------+-----------+--------------------+---|
+  | Quantity | Item                             | X | Weight            | Cost   | Tags      | Note               | C |
+  |----------+----------------------------------+---+-------------------+--------+-----------+--------------------+---|
+  |        1 | MEC lightweight longsleeve shirt | X | 275.0g            |        | clothing  |                    |   |
+  |        1 | Polartec micro sweater           | X | 209.0g            |        | clothing  |                    |   |
+  |        1 | MEC filled jacket                | X | 335.0g            |        | clothing  |                    |   |
+  |        1 | Mizuno superlight hat            | X | 56.0g             |        | clothing  |                    |   |
+  |        1 | MEC superlight gloves            |   | 52.0g             |        | clothing  |                    |   |
+  |        1 | green mesh bag                   |   | 42.0g             |        | container |                    |   |
+  |        1 | MEC medium-weight rain pants     |   | 296.0g            |        | clothing  |                    |   |
+  |        1 | MEC medium-weight rain jacket    |   | 417.0g            |        | clothing  |                    |   |
+  |        1 | MEC red windbreaker              | X | 175.0g            |        | clothing  | Want another thing |   |
+  |        1 | MEC medium sweater               | X | 405.0g            |        | clothing  |                    |   |
+  |        1 | MEC lightweight fleece pants     | X | 227.0g            |        | clothing  |                    |   |
+  |        1 | mosquito net                     | X | 38.0g             |        | clothing  |                    |   |
+  |        1 | Redhead heavy socks              | X | 149.0g            |        | clothing  |                    |   |
+  |        1 | Wigwam gobi liner                | X | 24.0g             |        | clothing  |                    |   |
+  |        1 | Wigwam ultimate liner pro        |   | 53.0g             |        | clothing  |                    |   |
+  |        1 | fleece slippers                  |   | 200.0g (6.5103lb) |        | clothing  |                    |   |
+  |----------+----------------------------------+---+-------------------+--------+-----------+--------------------+---|
+  |        1 |                                  |   | 6.5103lb          | $0.000 |           |                    |   |
+  |----------+----------------------------------+---+-------------------+--------+-----------+--------------------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail toiletries kit :gear:
-  |----------+------------------------+---+--------+--------+-----------+------+---|
-  | Quantity | Item                   | X | Weight | Cost   | Tags      | Note | C |
-  |----------+------------------------+---+--------+--------+-----------+------+---|
-  |        1 | Cactus creek ditty bag | X | 20.0g  |        | container |      |   |
-  |        1 | GUM travel toothbrush  | X | 21.0g  |        |           |      |   |
-  |        1 | glasses case           | X | 72.0g  |        | container |      |   |
-  |        1 | glasses cloth          |   | 8.0g   |        |           |      |   |
-  |        1 | floss                  | X | 14.0g  |        |           |      |   |
-  |----------+------------------------+---+--------+--------+-----------+------+---|
-  |        1 |                        |   | 135.0g | $0.000 |           |      |   |
-  |----------+------------------------+---+--------+--------+-----------+------+---|
+  |----------+------------------------+---+----------------+--------+-----------+------+---|
+  | Quantity | Item                   | X | Weight         | Cost   | Tags      | Note | C |
+  |----------+------------------------+---+----------------+--------+-----------+------+---|
+  |        1 | Cactus creek ditty bag | X | 20.0g          |        | container |      |   |
+  |        1 | GUM travel toothbrush  | X | 21.0g          |        |           |      |   |
+  |        1 | glasses case           | X | 72.0g          |        | container |      |   |
+  |        1 | glasses cloth          |   | 8.0g           |        |           |      |   |
+  |        1 | floss                  | X | 14.0g (135.0g) |        |           |      |   |
+  |----------+------------------------+---+----------------+--------+-----------+------+---|
+  |        1 |                        |   | 135.0g         | $0.000 |           |      |   |
+  |----------+------------------------+---+----------------+--------+-----------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail emergency kit :gear:
-  |----------+--------------------------------------+---+--------+--------+-----------+------+---|
-  | Quantity | Item                                 | X | Weight | Cost   | Tags      | Note | C |
-  |----------+--------------------------------------+---+--------+--------+-----------+------+---|
-  |        1 | 2L Sea to summit silnylon stuff sack | X | 22.0g  |        | container |      |   |
-  |        1 | 10 safety pins                       | X | 5.0g   |        |           |      |   |
-  |        1 | 10 elastics                          | X | 5.0g   |        |           |      |   |
-  |        1 | match case                           | X | 19.0g  |        | container |      |   |
-  |        1 | brass wire emergency                 | X | 17.0g  |        |           |      |   |
-  |        1 | 15ml Nalgene bottle                  | X | 15.0g  |        | container |      |   |
-  |        1 | 2mm cord emergency                   | X | 6.0g   |        |           |      |   |
-  |        1 | film container                       | X | 5.0g   |        | container |      |   |
-  |        1 | duct tape pencil                     | X | 8.0g   |        |           |      |   |
-  |        1 | Leatherman Squirt PS4                | X | 57.0g  |        |           |      |   |
-  |        1 | light nail clippers                  | X | 17.0g  |        |           |      |   |
-  |        1 | tweezers                             | X | 8.0g   |        |           |      |   |
-  |        1 | orange storm whistle                 | X | 21.0g  |        |           |      |   |
-  |        1 | Seam Grip                            | X | 34.0g  |        |           |      |   |
-  |        1 | knife sharpener                      | X | 29.0g  |        |           |      |   |
-  |        1 | scrub brush                          | X | 21.0g  |        |           |      |   |
-  |        1 | bandage pack                         |   | 5.0g   |        |           |      |   |
-  |----------+--------------------------------------+---+--------+--------+-----------+------+---|
-  |        1 |                                      |   | 294.0g | $0.000 |           |      |   |
-  |----------+--------------------------------------+---+--------+--------+-----------+------+---|
+  |----------+--------------------------------------+---+---------------+--------+-----------+------+---|
+  | Quantity | Item                                 | X | Weight        | Cost   | Tags      | Note | C |
+  |----------+--------------------------------------+---+---------------+--------+-----------+------+---|
+  |        1 | 2L Sea to summit silnylon stuff sack | X | 22.0g         |        | container |      |   |
+  |        1 | 10 safety pins                       | X | 5.0g          |        |           |      |   |
+  |        1 | 10 elastics                          | X | 5.0g          |        |           |      |   |
+  |        1 | match case                           | X | 19.0g         |        | container |      |   |
+  |        1 | brass wire emergency                 | X | 17.0g         |        |           |      |   |
+  |        1 | 15ml Nalgene bottle                  | X | 15.0g         |        | container |      |   |
+  |        1 | 2mm cord emergency                   | X | 6.0g          |        |           |      |   |
+  |        1 | film container                       | X | 5.0g          |        | container |      |   |
+  |        1 | duct tape pencil                     | X | 8.0g          |        |           |      |   |
+  |        1 | Leatherman Squirt PS4                | X | 57.0g         |        |           |      |   |
+  |        1 | light nail clippers                  | X | 17.0g         |        |           |      |   |
+  |        1 | tweezers                             | X | 8.0g          |        |           |      |   |
+  |        1 | orange storm whistle                 | X | 21.0g         |        |           |      |   |
+  |        1 | Seam Grip                            | X | 34.0g         |        |           |      |   |
+  |        1 | knife sharpener                      | X | 29.0g         |        |           |      |   |
+  |        1 | scrub brush                          | X | 21.0g         |        |           |      |   |
+  |        1 | bandage pack                         |   | 5.0g (294.0g) |        |           |      |   |
+  |----------+--------------------------------------+---+---------------+--------+-----------+------+---|
+  |        1 |                                      |   | 294.0g        | $0.000 |           |      |   |
+  |----------+--------------------------------------+---+---------------+--------+-----------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail electronics :gear:
-  |----------+--------------------+---+--------+--------+-------------+------+---|
-  | Quantity | Item               | X | Weight | Cost   | Tags        | Note | C |
-  |----------+--------------------+---+--------+--------+-------------+------+---|
-  |        1 | Nikon L610 camera  | X | 193.0g |        | electronics |      |   |
-  |        1 | pelican 1020 case  | X | 247.0g |        |             |      |   |
-  |        2 | SD card            | X | 4.0g   |        | electronics |      |   |
-  |        1 | Fenix headlamp     | X | 59.0g  |        | electronics |      |   |
-  |        1 | cheap watch        | X | 31.0g  |        | electronics |      |   |
-  |        1 | silver mini-tripod | X | 97.0g  |        |             |      |   |
-  |        1 | SPOT locator       | X | 96.0g  |        | electronics |      |   |
-  |----------+--------------------+---+--------+--------+-------------+------+---|
-  |        1 |                    |   | 727.0g | $0.000 |             |      |   |
-  |----------+--------------------+---+--------+--------+-------------+------+---|
+  |----------+--------------------+---+----------------+--------+-------------+------+---|
+  | Quantity | Item               | X | Weight         | Cost   | Tags        | Note | C |
+  |----------+--------------------+---+----------------+--------+-------------+------+---|
+  |        1 | Nikon L610 camera  | X | 193.0g         |        | electronics |      |   |
+  |        1 | pelican 1020 case  | X | 247.0g         |        |             |      |   |
+  |        2 | SD card            | X | 4.0g           |        | electronics |      |   |
+  |        1 | Fenix headlamp     | X | 59.0g          |        | electronics |      |   |
+  |        1 | cheap watch        | X | 31.0g          |        | electronics |      |   |
+  |        1 | silver mini-tripod | X | 97.0g          |        |             |      |   |
+  |        1 | SPOT locator       | X | 96.0g (727.0g) |        | electronics |      |   |
+  |----------+--------------------+---+----------------+--------+-------------+------+---|
+  |        1 |                    |   | 727.0g         | $0.000 |             |      |   |
+  |----------+--------------------+---+----------------+--------+-------------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail kitchen :gear:
-  |----------+---------------------------------------+---+----------+--------+-----------+-----------------+---|
-  | Quantity | Item                                  | X | Weight   | Cost   | Tags      | Note            | C |
-  |----------+---------------------------------------+---+----------+--------+-----------+-----------------+---|
-  |        1 | MSR wind screen (top)                 | X | 45.0g    |        |           |                 |   |
-  |        1 | MSR wind screen (bottom)              | X | 15.0g    |        |           |                 |   |
-  |        1 | MSR whisperlite                       | X | 276.0g   |        |           |                 |   |
-  |        1 | 22oz MSR fuel bottle                  | X | 146.0g   |        | container |                 |   |
-  |        1 | MSR spare parts/parts in sandwich bag | X | 29.0g    |        |           |                 |   |
-  |        1 | Optimus folding titanium spork        | X | 18.0g    |        |           |                 |   |
-  |        1 | measuring spoon                       | X | 2.0g     |        |           |                 |   |
-  |        1 | half green scrub                      | X | 4.0g     |        |           |                 |   |
-  |        1 | 0.9L titanium pot                     | X | 119.0g   |        |           |                 |   |
-  |        1 | bear rope                             | X | 86.0g    |        |           |                 |   |
-  |        1 | food stuff sack (green)               | X | 75.0g    |        | container |                 |   |
-  |        1 | food stuff sack (black)               | X | 100.0g   |        | container |                 |   |
-  |        1 | 60ml Nalgene short                    | X | 23.0g    |        | container | salt and pepper |   |
-  |        1 | 60ml Nalgene short                    | X | 23.0g    |        | container | soap            |   |
-  |        1 | 250ml Nalgene tall                    | X | 54.0g    |        | container | margarine       |   |
-  |        1 | dish rag                              |   | 31.0g    |        |           |                 |   |
-  |----------+---------------------------------------+---+----------+--------+-----------+-----------------+---|
-  |        1 |                                       |   | 2.3060lb | $0.000 |           |                 |   |
-  |----------+---------------------------------------+---+----------+--------+-----------+-----------------+---|
+  |----------+---------------------------------------+---+------------------+--------+-----------+-----------------+---|
+  | Quantity | Item                                  | X | Weight           | Cost   | Tags      | Note            | C |
+  |----------+---------------------------------------+---+------------------+--------+-----------+-----------------+---|
+  |        1 | MSR wind screen (top)                 | X | 45.0g            |        |           |                 |   |
+  |        1 | MSR wind screen (bottom)              | X | 15.0g            |        |           |                 |   |
+  |        1 | MSR whisperlite                       | X | 276.0g           |        |           |                 |   |
+  |        1 | 22oz MSR fuel bottle                  | X | 146.0g           |        | container |                 |   |
+  |        1 | MSR spare parts/parts in sandwich bag | X | 29.0g            |        |           |                 |   |
+  |        1 | Optimus folding titanium spork        | X | 18.0g            |        |           |                 |   |
+  |        1 | measuring spoon                       | X | 2.0g             |        |           |                 |   |
+  |        1 | half green scrub                      | X | 4.0g             |        |           |                 |   |
+  |        1 | 0.9L titanium pot                     | X | 119.0g           |        |           |                 |   |
+  |        1 | bear rope                             | X | 86.0g            |        |           |                 |   |
+  |        1 | food stuff sack (green)               | X | 75.0g            |        | container |                 |   |
+  |        1 | food stuff sack (black)               | X | 100.0g           |        | container |                 |   |
+  |        1 | 60ml Nalgene short                    | X | 23.0g            |        | container | salt and pepper |   |
+  |        1 | 60ml Nalgene short                    | X | 23.0g            |        | container | soap            |   |
+  |        1 | 250ml Nalgene tall                    | X | 54.0g            |        | container | margarine       |   |
+  |        1 | dish rag                              |   | 31.0g (2.3060lb) |        |           |                 |   |
+  |----------+---------------------------------------+---+------------------+--------+-----------+-----------------+---|
+  |        1 |                                       |   | 2.3060lb         | $0.000 |           |                 |   |
+  |----------+---------------------------------------+---+------------------+--------+-----------+-----------------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail worn :gear:
-  |----------+-----------------------------+---+----------+--------+----------+------+---|
-  | Quantity | Item                        | X | Weight   | Cost   | Tags     | Note | C |
-  |----------+-----------------------------+---+----------+--------+----------+------+---|
-  |        1 | Scarpa boots                |   | 3.7655lb |        |          |      |   |
-  |        1 | Redhead heavy socks         |   | 149.0g   |        | clothing |      |   |
-  |        1 | Wigwam gobi liner           |   | 24.0g    |        | clothing |      |   |
-  |        1 | MEC stretch shorts          |   | 122.0g   |        | clothing |      |   |
-  |        1 | MEC outdoor pants           |   | 297.0g   |        | clothing |      |   |
-  |        1 | Saskatchewan marathon shirt |   | 142.0g   |        | clothing |      |   |
-  |        1 | compass                     |   | 81.0g    |        |          |      |   |
-  |        1 | blue ball cap               |   | 60.0g    |        | clothing |      |   |
-  |----------+-----------------------------+---+----------+--------+----------+------+---|
-  |        1 |                             |   | 5.6945lb | $0.000 |          |      |   |
-  |----------+-----------------------------+---+----------+--------+----------+------+---|
+  |----------+-----------------------------+---+------------------+--------+----------+------+---|
+  | Quantity | Item                        | X | Weight           | Cost   | Tags     | Note | C |
+  |----------+-----------------------------+---+------------------+--------+----------+------+---|
+  |        1 | Scarpa boots                |   | 3.7655lb         |        |          |      |   |
+  |        1 | Redhead heavy socks         |   | 149.0g           |        | clothing |      |   |
+  |        1 | Wigwam gobi liner           |   | 24.0g            |        | clothing |      |   |
+  |        1 | MEC stretch shorts          |   | 122.0g           |        | clothing |      |   |
+  |        1 | MEC outdoor pants           |   | 297.0g           |        | clothing |      |   |
+  |        1 | Saskatchewan marathon shirt |   | 142.0g           |        | clothing |      |   |
+  |        1 | compass                     |   | 81.0g            |        |          |      |   |
+  |        1 | blue ball cap               |   | 60.0g (5.6945lb) |        | clothing |      |   |
+  |----------+-----------------------------+---+------------------+--------+----------+------+---|
+  |        1 |                             |   | 5.6945lb         | $0.000 |          |      |   |
+  |----------+-----------------------------+---+------------------+--------+----------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * Northern boundary trail travel :gear:
-  |----------+---------------------------+---+--------+--------+-------------+------+---|
-  | Quantity | Item                      | X | Weight | Cost   | Tags        | Note | C |
-  |----------+---------------------------+---+--------+--------+-------------+------+---|
-  |        1 | Samsung galaxy SIII       |   | 175.0g |        | electronics |      |   |
-  |        1 | Samsung earbuds           |   | 13.0g  |        | electronics |      |   |
-  |        1 | Samsung usb power adapter |   | 33.0g  |        | electronics |      |   |
-  |        2 | credit card               |   | 10.0g  |        |             |      |   |
-  |----------+---------------------------+---+--------+--------+-------------+------+---|
-  |        1 |                           |   | 231.0g | $0.000 |             |      |   |
-  |----------+---------------------------+---+--------+--------+-------------+------+---|
+  |----------+---------------------------+---+----------------+--------+-------------+------+---|
+  | Quantity | Item                      | X | Weight         | Cost   | Tags        | Note | C |
+  |----------+---------------------------+---+----------------+--------+-------------+------+---|
+  |        1 | Samsung galaxy SIII       |   | 175.0g         |        | electronics |      |   |
+  |        1 | Samsung earbuds           |   | 13.0g          |        | electronics |      |   |
+  |        1 | Samsung usb power adapter |   | 33.0g          |        | electronics |      |   |
+  |        2 | credit card               |   | 10.0g (231.0g) |        |             |      |   |
+  |----------+---------------------------+---+----------------+--------+-------------+------+---|
+  |        1 |                           |   | 231.0g         | $0.000 |             |      |   |
+  |----------+---------------------------+---+----------------+--------+-------------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable :gear:
-  |----------+-----------------------------------------------+---+--------+--------+------+---------------+---|
-  | Quantity | Item                                          | X | Weight | Cost   | Tags | Note          | C |
-  |----------+-----------------------------------------------+---+--------+--------+------+---------------+---|
-  |        1 | 10 index cards + 2 short pencils + waterproof | X | 50.0g  |        |      |               |   |
-  |        2 | large ziplock freezer bag                     | X |        |        |      | for batteries |   |
-  |----------+-----------------------------------------------+---+--------+--------+------+---------------+---|
-  |        1 |                                               |   | 50.0g  | $0.000 |      |               |   |
-  |----------+-----------------------------------------------+---+--------+--------+------+---------------+---|
+  |----------+-----------------------------------------------+---+---------+--------+------+---------------+---|
+  | Quantity | Item                                          | X | Weight  | Cost   | Tags | Note          | C |
+  |----------+-----------------------------------------------+---+---------+--------+------+---------------+---|
+  |        1 | 10 index cards + 2 short pencils + waterproof | X | 50.0g   |        |      |               |   |
+  |        2 | large ziplock freezer bag                     | X | (50.0g) |        |      | for batteries |   |
+  |----------+-----------------------------------------------+---+---------+--------+------+---------------+---|
+  |        1 |                                               |   | 50.0g   | $0.000 |      |               |   |
+  |----------+-----------------------------------------------+---+---------+--------+------+---------------+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable emergency kit :gear:
-  |----------+-------------------------------------------------+---+--------+---------+------------------------+---------------------------+---|
-  | Quantity | Item                                            | X | Weight | Cost    | Tags                   | Note                      | C |
-  |----------+-------------------------------------------------+---+--------+---------+------------------------+---------------------------+---|
-  |        1 | 3 lithium AAA batteries                         | X | 23.0g  | $19.490 | electronics,consumable |                           |   |
-  |        1 | film container                                  |   | 5.0g   |         | container              |                           |   |
-  |        1 | polysporin                                      | X | 19.0g  | $8.990  |                        |                           |   |
-  |        1 | 6 Imodium liqui-gel blister pack + instructions | X | 4.0g   | $8.990  |                        |                           |   |
-  |        1 | 8 Benadryl blister pack                         | X | 5.0g   |         |                        |                           |   |
-  |        1 | 10 Advil liquigels                              | X | 20.0g  | $6.990  |                        |                           |   |
-  |        1 | moleskin                                        | X | 13.0g  |         |                        |                           |   |
-  |        1 | medium Ziplock freezer bag                      | X | 6.8g   |         | container,consumable   | for medicines             |   |
-  |        1 | medium Ziplock freezer bag                      | X | 6.8g   |         | container,consumable   | for other emergency stuff |   |
-  |        1 | snack ziplock bag                               | X | 2.0g   |         | container,consumable   | scrub pad                 |   |
-  |        1 | large ziplock freezer bag                       | X |        |         |                        | pot                       |   |
-  |        1 | prepackaged gause 4"x4.5 yards                  | X | 11.0g  |         |                        |                           |   |
-  |----------+-------------------------------------------------+---+--------+---------+------------------------+---------------------------+---|
-  |        1 |                                                 |   | 115.6g | $44.460 |                        |                           |   |
-  |----------+-------------------------------------------------+---+--------+---------+------------------------+---------------------------+---|
+  |----------+-------------------------------------------------+---+----------------+---------+------------------------+---------------------------+---|
+  | Quantity | Item                                            | X | Weight         | Cost    | Tags                   | Note                      | C |
+  |----------+-------------------------------------------------+---+----------------+---------+------------------------+---------------------------+---|
+  |        1 | 3 lithium AAA batteries                         | X | 23.0g          | $19.490 | electronics,consumable |                           |   |
+  |        1 | film container                                  |   | 5.0g           |         | container              |                           |   |
+  |        1 | polysporin                                      | X | 19.0g          | $8.990  |                        |                           |   |
+  |        1 | 6 Imodium liqui-gel blister pack + instructions | X | 4.0g           | $8.990  |                        |                           |   |
+  |        1 | 8 Benadryl blister pack                         | X | 5.0g           |         |                        |                           |   |
+  |        1 | 10 Advil liquigels                              | X | 20.0g          | $6.990  |                        |                           |   |
+  |        1 | moleskin                                        | X | 13.0g          |         |                        |                           |   |
+  |        1 | medium Ziplock freezer bag                      | X | 6.8g           |         | container,consumable   | for medicines             |   |
+  |        1 | medium Ziplock freezer bag                      | X | 6.8g           |         | container,consumable   | for other emergency stuff |   |
+  |        1 | snack ziplock bag                               | X | 2.0g           |         | container,consumable   | scrub pad                 |   |
+  |        1 | large ziplock freezer bag                       | X |                |         |                        | pot                       |   |
+  |        1 | prepackaged gause 4"x4.5 yards                  | X | 11.0g (115.6g) |         |                        |                           |   |
+  |----------+-------------------------------------------------+---+----------------+---------+------------------------+---------------------------+---|
+  |        1 |                                                 |   | 115.6g         | $44.460 |                        |                           |   |
+  |----------+-------------------------------------------------+---+----------------+---------+------------------------+---------------------------+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail replaceable kitchen :gear:
   |----------+---------------------------+---+--------+--------+------+------+---|
   | Quantity | Item                      | X | Weight | Cost   | Note | Tags | C |
   |----------+---------------------------+---+--------+--------+------+------+---|
-  |        1 | soap in 2 ounce container |   |        |        |      |      |   |
+  |        1 | soap in 2 ounce container |   | (0.0g) |        |      |      |   |
   |----------+---------------------------+---+--------+--------+------+------+---|
   |        1 |                           |   | 0.0g   | $0.000 |      |      |   |
   |----------+---------------------------+---+--------+--------+------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail consumables :gear:
-  |----------+-------------------------------------------+---+----------+---------+------------------------+------+---|
-  | Quantity | Item                                      | X | Weight   | Cost    | Tags                   | Note | C |
-  |----------+-------------------------------------------+---+----------+---------+------------------------+------+---|
-  |        1 | 3 lithium AAA batteries                   | X | 23.0g    | $19.490 | electronics,consumable |      |   |
-  |        1 | 20 AA battery                             | X | 460.0g   | $12.990 | electronics,consumable |      |   |
-  |        2 | 23 match case matches                     |   | 8.0g     |         | consumable             |      |   |
-  |        1 | 50 Red bird matches + strikers from 1 box |   | 14.0g    |         |                        |      |   |
-  |        1 | matches for 4 ounce container             |   | 40.0g    |         |                        |      |   |
-  |        1 | 22oz fuel bottle fuel                     | X | 491.0g   |         | consumable             |      |   |
-  |        1 | 20ml toothpaste                           | X | 31.0g    | $1.490  | consumable             |      |   |
-  |        2 | toilet paper                              | X | 196.0g   |         | consumable             |      |   |
-  |        1 | 2 tbsp salt + 1 tbsp pepper               | X | 24.0g    |         | consumable             |      |   |
-  |----------+-------------------------------------------+---+----------+---------+------------------------+------+---|
-  |        1 |                                           |   | 2.8373lb | $33.970 |                        |      |   |
-  |----------+-------------------------------------------+---+----------+---------+------------------------+------+---|
+  |----------+-------------------------------------------+---+------------------+---------+------------------------+------+---|
+  | Quantity | Item                                      | X | Weight           | Cost    | Tags                   | Note | C |
+  |----------+-------------------------------------------+---+------------------+---------+------------------------+------+---|
+  |        1 | 3 lithium AAA batteries                   | X | 23.0g            | $19.490 | electronics,consumable |      |   |
+  |        1 | 20 AA battery                             | X | 460.0g           | $12.990 | electronics,consumable |      |   |
+  |        2 | 23 match case matches                     |   | 8.0g             |         | consumable             |      |   |
+  |        1 | 50 Red bird matches + strikers from 1 box |   | 14.0g            |         |                        |      |   |
+  |        1 | matches for 4 ounce container             |   | 40.0g            |         |                        |      |   |
+  |        1 | 22oz fuel bottle fuel                     | X | 491.0g           |         | consumable             |      |   |
+  |        1 | 20ml toothpaste                           | X | 31.0g            | $1.490  | consumable             |      |   |
+  |        2 | toilet paper                              | X | 196.0g           |         | consumable             |      |   |
+  |        1 | 2 tbsp salt + 1 tbsp pepper               | X | 24.0g (2.8373lb) |         | consumable             |      |   |
+  |----------+-------------------------------------------+---+------------------+---------+------------------------+------+---|
+  |        1 |                                           |   | 2.8373lb         | $33.970 |                        |      |   |
+  |----------+-------------------------------------------+---+------------------+---------+------------------------+------+---|
   #+TBLEL: otdb-gear-calc-gear
 * North boundary trail extra :gear:
-  |----------+------------------------+---+----------+--------+--------+------+---|
-  | Quantity | Item                   | X | Weight   | Cost   | Tags   | Note | C |
-  |----------+------------------------+---+----------+--------+--------+------+---|
-  |        2 | Bear spray             | X | 612.0g   |        | safety |      |   |
-  |        1 | spot manual            | X | 22.0g    |        |        |      |   |
-  |        3 | 10 sheets letter paper | X | 138.0g   |        |        |      |   |
-  |        1 | bush knife             | X | 217.0g   |        |        |      |   |
-  |----------+------------------------+---+----------+--------+--------+------+---|
-  |        1 |                        |   | 2.1804lb | $0.000 |        |      |   |
-  |----------+------------------------+---+----------+--------+--------+------+---|
+  |----------+------------------------+---+-------------------+--------+--------+------+---|
+  | Quantity | Item                   | X | Weight            | Cost   | Tags   | Note | C |
+  |----------+------------------------+---+-------------------+--------+--------+------+---|
+  |        2 | Bear spray             | X | 612.0g            |        | safety |      |   |
+  |        1 | spot manual            | X | 22.0g             |        |        |      |   |
+  |        3 | 10 sheets letter paper | X | 138.0g            |        |        |      |   |
+  |        1 | bush knife             | X | 217.0g (2.1804lb) |        |        |      |   |
+  |----------+------------------------+---+-------------------+--------+--------+------+---|
+  |        1 |                        |   | 2.1804lb          | $0.000 |        |      |   |
+  |----------+------------------------+---+-------------------+--------+--------+------+---|
   #+TBLEL: otdb-gear-calc-gear

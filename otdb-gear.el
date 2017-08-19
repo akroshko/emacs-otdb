@@ -272,7 +272,7 @@ WEIGHT-COST-LIST."
         new-cost
         new-tags
         (count 1))
-    (mpp weight-cost-list)
+    ;; (mpp weight-cost-list)
     ;; TODO: this could be generalized a bit better
     ;;       headings are good, but so are standards
     (do-org-table-rows collection-filename collection-heading row
@@ -421,25 +421,61 @@ DATABASE-ROW."
 corresponding to a gear collection."
   (let ((weight 0)
         (cost 0)
-        (new-lisp-table (butlast lisp-table-no-seperators))
+        (cummulative-weight 0.0)
+        cummulative-weight-list
+        (new-lisp-table (list (elt lisp-table 1)))
+        ;; (new-lisp-table (butlast lisp-table-no-seperators))
         (last-row (car (last lisp-table-no-seperators)))
         ;; (char-column (otdb-table-lisp-char-find-column lisp-table-no-seperators otdb-gear-column-mark))
         (char-columns (otdb-table-parse-char-columns lisp-table-no-seperators))
         new-last-row)
-    (mpp weight)
-    (dolist (lisp-row (butlast (cdr lisp-table-no-seperators)))
-      ;; TODO: no marks here for now, maybe only do "X" mark
-      ;; (and otdb-gear-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
-      ;; XXXX: do not need to include quantities because they are calculated on insertion
-      (unless (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)
-        (cond ((or (eq otdb-gear-weight-units 'lb)
-                   (eq otdb-gear-weight-units 'kg))
-               (setq weight (+ weight (otdb-table-lisp-row-float lisp-row (- otdb-gear-weight-column 1)))))
-              ((eq otdb-gear-weight-units 'lb-g)
-               ;; otherwise make sure weight is in grams
-               (setq weight (+ weight (* (otdb-table-lisp-row-float lisp-row (- otdb-gear-weight-column 1))
-                                         (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row (- otdb-gear-weight-column 1))) "g"))))))
-        (setq cost (+ cost (otdb-table-lisp-row-float lisp-row (- otdb-gear-cost-column 1))))))
+    (dolist (lisp-row (cddr (butlast lisp-table 2)))
+      (cond ((eq lisp-row 'hline)
+             (setq cummulative-weight-list (append (butlast cummulative-weight-list) (list cummulative-weight)))
+             (setq cummulative-weight 0.0)
+             t)
+            (t
+             ;; TODO: no marks here for now, maybe only do "X" mark
+             ;; (and otdb-gear-column-mark (not (otdb-table-check-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
+             ;; XXXX: do not need to include quantities because they are calculated on insertion
+             (unless (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)
+               (cond ((or (eq otdb-gear-weight-units 'lb)
+                          (eq otdb-gear-weight-units 'kg))
+                      ;; TODO: add here too....
+                      (let* ((current-weight (otdb-table-lisp-row-float lisp-row (- otdb-gear-weight-column 1)))
+                             (current-weight-converted (* current-weight
+                                                          (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row (- otdb-gear-weight-column 1))) "g"))))
+                        (setq weight (+ weight current-weight))
+                        (setq cummulative-weight (+ current-weight-converted cummulative-weight))
+                        (setq cummulative-weight-list (append cummulative-weight-list (list nil)))))
+                     ((eq otdb-gear-weight-units 'lb-g)
+                      ;; otherwise make sure weight is in grams
+                      (let ((current-weight (* (otdb-table-lisp-row-float lisp-row (- otdb-gear-weight-column 1))
+                                               (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row (- otdb-gear-weight-column 1))) "g"))))
+                        (setq weight (+ weight current-weight))
+                        (setq cummulative-weight (+ current-weight cummulative-weight))
+                        (setq cummulative-weight-list (append cummulative-weight-list (list nil))))))
+               (setq cost (+ cost (otdb-table-lisp-row-float lisp-row (- otdb-gear-cost-column 1))))))))
+    (pop cummulative-weight-list)
+    (dolist (lisp-row (cddr (butlast lisp-table 2)))
+      (cond ((eq lisp-row 'hline)
+             t)
+            (t
+             (let ((the-cummulative (pop cummulative-weight-list)))
+               ;; TODO: clear out anything already in brackets
+               (setq new-lisp-table (nconc
+                                     new-lisp-table
+                                     (list (nconc
+                                            (subseq lisp-row 0 3)
+                                            (list (if the-cummulative
+                                                      (concat
+                                                       (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3)))
+                                                       " ("
+                                                       (otdb-gear-weight-string the-cummulative)
+                                                       ")")
+                                                    (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3)))))
+                                            (subseq lisp-row 4 8)))))))))
+    ;; TODO: go through and make new version of table, but with cummulative...
     ;; insert into last row
     ;; TODO: make uniform with ???
     (setq new-last-row (list

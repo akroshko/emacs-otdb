@@ -1,3 +1,4 @@
+# -*- org-image-actual-width: 64; -*-
 * Pancakes :recipe:
   :PROPERTIES:
   :DESCRIPTION: nil

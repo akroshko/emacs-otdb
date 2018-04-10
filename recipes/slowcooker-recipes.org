@@ -1,3 +1,4 @@
+# -*- org-image-actual-width: 64; -*-
 * Basic tomato sauce :recipe:
   :PROPERTIES:
   :END:

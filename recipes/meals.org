@@ -1,3 +1,4 @@
+# -*- org-image-actual-width: 64; -*-
 * Sample day 1 :recipe:
   :PROPERTIES:
   :DESCRIPTION: Simple recipe for a day.

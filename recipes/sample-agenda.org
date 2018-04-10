@@ -1,3 +1,4 @@
+# -*- org-image-actual-width: 64; -*-
 * Grocery produce
   - [ ] banana pulp
   - [ ] cloves garlic

@@ -1,3 +1,4 @@
+# -*- org-image-actual-width: 64; -*-
 * == Northern boundary trail gear
   #+BEGIN_COMMENT
   - need gloves, matches, photocopies, printing

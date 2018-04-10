@@ -1,3 +1,4 @@
+# -*- org-image-actual-width: 64; -*-
 * Beef Stew :recipe:
   :PROPERTIES:
   :DESCRIPTION:

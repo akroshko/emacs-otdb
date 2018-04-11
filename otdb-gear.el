@@ -227,15 +227,15 @@ for ROW-LIST from a particular collection."
         (collection-list (otdb-gear-get-collections))
         collection-weight-cost-list)
     (dolist (row (cdr row-list))
-      (if (member (strip-full-no-properties (elt row 1)) collection-list)
+      (if (member (s-trim-full-no-properties (elt row 1)) collection-list)
           (progn
             (let ((wcl (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))))
-              (setq collection-weight-cost-list (cons (list (strip-full-no-properties (elt row 1)) (car wcl) (cadr wcl)) collection-weight-cost-list))))
+              (setq collection-weight-cost-list (cons (list (s-trim-full-no-properties (elt row 1)) (car wcl) (cadr wcl)) collection-weight-cost-list))))
         (progn
-          (setq quantity-alist (cons (list (strip-full-no-properties (elt row 1))
-                                           (strip-full-no-properties (elt row 0)))
+          (setq quantity-alist (cons (list (s-trim-full-no-properties (elt row 1))
+                                           (s-trim-full-no-properties (elt row 0)))
                                      quantity-alist))
-          (setq key-list (cons (strip-full-no-properties (elt row 1)) key-list)))))
+          (setq key-list (cons (s-trim-full-no-properties (elt row 1)) key-list)))))
     (setq database-row-alist (otdb-table-item-row-multiple otdb-gear-database otdb-gear-database-headline key-list 1))
     ;; calculate cost and weight
     (dolist (row-alist database-row-alist)
@@ -276,7 +276,7 @@ WEIGHT-COST-LIST."
     ;; TODO: this could be generalized a bit better
     ;;       headings are good, but so are standards
     (do-org-table-rows collection-filename collection-heading row
-                       (setq new-item (strip-full-no-properties (elt row 1)))
+                       (setq new-item (s-trim-full-no-properties (elt row 1)))
                        (when (not (equal count 1))
                          (setq new-weight (elt (assoc new-item weight-cost-list) 1))
                          (setq new-cost (elt (assoc new-item weight-cost-list) 2))
@@ -317,7 +317,7 @@ WEIGHT-COST-LIST."
 (defun otdb-gear-get-weight (row)
   "Get the weight of key in the ROW."
   (let* ((collection-list (otdb-gear-get-collections)))
-    (if (member (strip-full (elt row 1)) collection-list)
+    (if (member (s-trim-full (elt row 1)) collection-list)
         (/ (car (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))) (otdb-table-number (elt row 0)))
       (otdb-gear-get-weight-database (elt row 1) (elt row 0)))))
 
@@ -340,7 +340,7 @@ WEIGHT-COST-LIST."
 (defun otdb-gear-get-cost (row)
   "Get the cost of the item.  No idea if this is actually a valid thing."
   (let* ((collection-list (otdb-gear-get-collections)))
-    (if (member (strip-full (elt row 1)) collection-list)
+    (if (member (s-trim-full (elt row 1)) collection-list)
         (/ (cadr (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))) (otdb-table-number (elt row 0)))
       (otdb-gear-get-cost-database (elt row 1) (elt row 0)))))
 
@@ -476,16 +476,16 @@ corresponding to a gear collection."
                                             (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
                                                          (setq last-cummulative t)
                                                          (concat
-                                                          (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3)))
+                                                          (s-trim-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3)))
                                                           " ("
                                                           (otdb-gear-weight-string the-cummulative)
                                                           ")"))
                                                         ((and (not cummulative-ignore) last-cummulative the-cummulative)
                                                          (setq last-cummulative t)
-                                                         (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3))))
+                                                         (s-trim-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3))))
                                                         (t
                                                          (setq last-cummulative nil)
-                                                         (cic:strip-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3))))))
+                                                         (s-trim-full (replace-regexp-in-string "(.*)" "" (elt lisp-row 3))))))
                                             (subseq lisp-row 4 8)))))))))
     ;; TODO: go through and make new version of table, but with cummulative...
     ;; insert into last row

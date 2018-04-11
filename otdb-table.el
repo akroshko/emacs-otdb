@@ -374,7 +374,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
        (when (and  (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
          ;; find X column in header and record
          (let* ((x-column (otdb-table-char-find-column the-char))
-                (x-column-value (strip-full-no-properties (org-table-get nil x-column))))
+                (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
            (when x-column
              (when (or (string= x-column-value the-char)
                        (string= x-column-value ""))
@@ -402,7 +402,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
        (when (and  (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
          ;; find X column in header and record
          (let* ((x-column (otdb-table-char-find-column the-char))
-                (x-column-value (strip-full-no-properties (org-table-get nil x-column))))
+                (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
            (when x-column
              (when (or (string= x-column-value "-")
                        (string= x-column-value ""))
@@ -438,7 +438,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
                     (> (org-table-current-line) 1))
            ;; find X column in header and record
            (let* ((x-column (otdb-table-char-find-column the-char))
-                  (x-column-value (strip-full-no-properties (org-table-get nil x-column))))
+                  (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
              (when x-column
                (when (or (string= x-column-value "")
                          (cic:string-integer-p x-column-value))
@@ -478,7 +478,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
       (dolist (lisp-element (car lisp-table))
         (when (and
                (not found-column)
-               (string= column-char (strip-full-no-properties lisp-element)))
+               (string= column-char (s-trim-full-no-properties lisp-element)))
           (setq found-column current-column))
         (setq current-column (1+ current-column)))
       found-column)))
@@ -492,7 +492,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
     (dolist (lisp-element (car lisp-table))
       (when (and
              (not found-column)
-             (string= column-char (strip-full-no-properties lisp-element)))
+             (string= column-char (s-trim-full-no-properties lisp-element)))
         (setq found-column current-column))
       ;; TODO: change this to zero index
       (setq current-column (1+ current-column)))
@@ -663,13 +663,13 @@ TODO: probably want an error if not at proper table"
       (setq column 1))
     (cond ((org-at-table-p)
            ;; get first column of current row
-           (setq key (strip-full (org-table-get nil column))))
+           (setq key (s-trim-full (org-table-get nil column))))
           ((cic:org-list-p line)
            (when (string-match cic:emacs-stdlib-list-regexp line)
              (setq key (match-string 3 line))))
           (t
            (error "Not in valid file!")))
-    (strip-full-no-properties key)))
+    (s-trim-full-no-properties key)))
 
 (defun otdb-table-insert-key-database (new-key)
   "Insert NEW-KEY into the database.
@@ -919,7 +919,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
           (setq otdb-table-database-cache lisp-table))))
     (dolist (row lisp-table)
       ;; when column is a member
-      (let ((column-stripped (strip-full-no-properties (elt row (- column 1)))))
+      (let ((column-stripped (s-trim-full-no-properties (elt row (- column 1)))))
         (when (member column-stripped key-list)
           (setq found-rows-alist (cons (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist)))))
     found-rows-alist))
@@ -961,15 +961,15 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (unless (equal (length (delete-dups column-widths)) 1)
       (error "Incorrect column widths!"))
     ;; check for duplicate keys in big-lisp-table
-    (setq key-list (mapcar (lambda (e) (downcase (cic:strip-full (car e)))) big-lisp-table))
+    (setq key-list (mapcar (lambda (e) (downcase (s-trim-full (car e)))) big-lisp-table))
     (setq dups (cic:get-list-duplicates key-list))
     (when (> (length dups) 0)
       (error (concat "Duplicate data keys: " (pp-to-string dups)) message-buffer))
     ;; TODO: need more universal function?, this is a stupid hack for now
     (cond ((eq table-detect 'recipe)
-           (setq collection-keys (mapcar (lambda (e) (downcase (cic:strip-full e))) (otdb-recipe-get-recipes))))
+           (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-recipe-get-recipes))))
           ((eq table-detect 'backpacking)
-           (setq collection-keys (mapcar (lambda (e) (downcase (cic:strip-full e))) (otdb-gear-get-collections)))))
+           (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-gear-get-collections)))))
     (setq dups (cic:get-list-duplicates collection-keys))
     (when (> (length dups) 0)
       (error (concat "Duplicate collection keys: " (pp-to-string dups)) message-buffer))
@@ -1000,15 +1000,15 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
 (defun otdb-table-check-current-row-lisp (lisp-row eval-expression char-columns)
   (let ((let-form))
     (dolist (char-column char-columns)
-      (setq let-form (append let-form (list (list (intern (cadr char-column)) (and (not (equal ""  (strip-full (elt lisp-row (car char-column)))))))))))
+      (setq let-form (append let-form (list (list (intern (cadr char-column)) (and (not (equal ""  (s-trim-full (elt lisp-row (car char-column)))))))))))
     (setq form (list 'let let-form (car (read-from-string eval-expression))))
     (eval form)))
 
 (defun otdb-table-check-invalid-current-row-lisp (lisp-row eval-expression char-columns)
   (let ((invalid nil))
     (dolist (char-column char-columns)
-      (when (and (equal (strip-full (cadr char-column)) "X")
-                 (equal (strip-full (elt  lisp-row (car char-column))) "-"))
+      (when (and (equal (s-trim-full (cadr char-column)) "X")
+                 (equal (s-trim-full (elt  lisp-row (car char-column))) "-"))
         (setq invalid t)))
     invalid))
 
@@ -1018,11 +1018,11 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
 Match if all tags in TAGS-PATTERN are present or do not match if
 one or more tags in TAGS-PATTERN indicated by !<<tag>> is
 present."
-  (let* ((tag-pattern-list (split-string (strip-full tags-pattern) ","))
+  (let* ((tag-pattern-list (split-string (s-trim-full tags-pattern) ","))
          (tag-pattern-list-false (delq nil (mapcar (lambda (e) (and (string-match "^!" e) e)) tag-pattern-list)))
          (tag-pattern-list-false-strip (mapcar (lambda (e) (substring e 1)) tag-pattern-list-false))
          (tag-pattern-list-true (cl-set-difference tag-pattern-list tag-pattern-list-false))
-         (tag-list (split-string (strip-full tags) ",")))
+         (tag-list (split-string (s-trim-full tags) ",")))
     (and (cl-intersection tag-list tag-pattern-list-true :test 'equal)
          (not (cl-intersection tag-list tag-pattern-list-false-strip :test 'equal)))))
 

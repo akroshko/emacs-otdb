@@ -269,7 +269,7 @@ point or entered item."
         (setq prompt "Grocery item to add: ")
       (setq prompt (concat "Grocery item to add (" default-item "): ")))
     (setq selected-item (completing-read-default prompt full-list nil nil))
-    (when (not (full-string-p (strip-full selected-item)))
+    (when (not (full-string-p (s-trim-full selected-item)))
       (setq selected-item default-item))
     (cond ((member selected-item shopping-list-checked)
            (mpp-echo (format "Grocery item %s already checked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -335,7 +335,7 @@ point or entered item."
         (setq prompt "Shopping item to remove: ")
       (setq prompt (concat "Shopping item to remove (" default-item "): ")))
     (setq selected-item (completing-read-default prompt full-list nil nil))
-    (when (not (full-string-p (strip-full selected-item)))
+    (when (not (full-string-p (s-trim-full selected-item)))
       (setq selected-item default-item))
     (cond ((not (member selected-item full-list))
            (mpp-echo (format "Shopping item %s not found.  Nothing to remove!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -366,7 +366,7 @@ point or entered item."
         (setq prompt "Supply to jump to: ")
       (setq prompt (concat "Supply to jump to (" default-item "): ")))
     (setq selected-item (completing-read-default prompt full-list nil nil))
-    (when (not (full-string-p (strip-full selected-item)))
+    (when (not (full-string-p (s-trim-full selected-item)))
       (setq selected-item default-item))
     (cond ((not (member selected-item full-list))
            (mpp-echo (format "Supply %s not found.  Nothing to remove!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -423,7 +423,7 @@ point or entered item."
                         (do-org-list-items shopping-file headline-name item-line
                                            (when (string-match checkbox-regexp item-line)
                                              (setq matched-text (match-string 3 item-line))
-                                             (setq shopping-list (cons (strip-full-no-properties matched-text) shopping-list))))))
+                                             (setq shopping-list (cons (s-trim-full-no-properties matched-text) shopping-list))))))
     (setq dups (cic:get-list-duplicates shopping-list))
     (when (> (length dups) 0)
       (mpp-echo (concat "Duplicate groceries: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -658,11 +658,11 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
     ;; get list of keys to lookup
     (dolist (row (cdr row-list))
       ;; get the key if applicable
-      (if (member (strip-full-no-properties (elt row 1)) recipe-list)
+      (if (member (s-trim-full-no-properties (elt row 1)) recipe-list)
           (progn
             (setq recipe-calories-protein-fat-weight-volume-cost-list
                   (let ((ccl (otdb-recipe-get-calories-protein-fat-weight-volume-cost (elt row 1))))
-                    (cons (list (strip-full-no-properties (elt row 1))
+                    (cons (list (s-trim-full-no-properties (elt row 1))
                                 (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 0)))
                                 (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 1)))
                                 (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 2)))
@@ -673,10 +673,10 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
                                 "")
                           recipe-calories-protein-fat-weight-volume-cost-list))))
         (progn
-          (setq quantity-alist (cons (list (strip-full-no-properties (elt row 1))
-                                           (strip-full-no-properties (elt row 0)))
+          (setq quantity-alist (cons (list (s-trim-full-no-properties (elt row 1))
+                                           (s-trim-full-no-properties (elt row 0)))
                                      quantity-alist))
-          (setq key-list (cons (strip-full-no-properties (elt row 1)) key-list)))))
+          (setq key-list (cons (s-trim-full-no-properties (elt row 1)) key-list)))))
     ;; get the database rows
     (setq database-row-alist (otdb-table-item-row-multiple
                               (otdb-recipe-get-variable 'otdb-recipe-database)
@@ -739,7 +739,7 @@ CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST."
         new-tags
         (count 1))
     (do-org-table-rows recipe-filename recipe-heading row
-                       (setq new-ingredient (strip-full-no-properties (elt row 1)))
+                       (setq new-ingredient (s-trim-full-no-properties (elt row 1)))
                        (when (not (equal count 1))
                          (setq new-calories (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 1))
                          (setq new-protein (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 2))
@@ -850,7 +850,7 @@ recipe)."
           (heading-name-collection (save-excursion
                                      (org-back-to-heading)
                                      ;; strip off after first colon
-                                     (strip-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
+                                     (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
           (current-file (buffer-file-name))
           (first-row t))
       (with-current-file (concat otdb-recipe-temp-directory heading-name-collection ".org")
@@ -887,7 +887,7 @@ pdf file in ~/tmp."
     (let ((heading-name (save-excursion
                           (org-back-to-heading)
                           ;; strip off after first colon
-                          (strip-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
+                          (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
           (current-recipe-subtree (buffer-substring (region-beginning) (region-end)))
           (otdb-recipe-temp-directory "~/tmp/"))
       ;; put table in temporary file named after headline

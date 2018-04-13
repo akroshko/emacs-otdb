@@ -1,12 +1,12 @@
 ;;; otdb-table.el --- Create a database using an org-mode table and
 ;;; calculate things as a spreadsheet.
 ;;
-;; Copyright (C) 2015-2016, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2018, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20160525
+;; Version: 20180412
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -159,7 +159,7 @@ commands."
           ;; TODO: want to make sure buffer stays read-only if it has been made so for other reasons?
           (read-only-mode -1))
       (progn
-        (setq-local otdb-old-modeline-color (face-remap-add-relative 'mode-line :background "green"))
+        (setq-local otdb-old-modeline-color          (face-remap-add-relative 'mode-line          :background "green"))
         (setq-local otdb-old-modeline-color-inactive (face-remap-add-relative 'mode-line-inactive :background "red"))
         (setq otdb-table-tablet-mode t)
         (read-only-mode t)))))
@@ -326,14 +326,13 @@ helper functions.  MESSAGE-BUFFER gives messages."
 (defun otdb-table-unset-line (the-char)
   "Unset current line in otdb-table.."
   (otdb-table-inhibit-read-only
-   (when (otdb-table-buffer-p)
-     (when (and (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
-       (let ((x-column (otdb-table-char-find-column the-char)))
-         ;; find X column in header and record
-         (when x-column
-           (org-table-put nil x-column " ")))
-       ;; TODO: only align if interactive
-       (org-table-align)))))
+   (when (and (otdb-table-buffer-p) (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+     (let ((x-column (otdb-table-char-find-column the-char)))
+       ;; find X column in header and record
+       (when x-column
+         (org-table-put nil x-column " ")))
+     ;; TODO: only align if interactive
+     (org-table-align))))
 
 (defun otdb-table-invalid-check-line ()
   (interactive)
@@ -346,14 +345,13 @@ helper functions.  MESSAGE-BUFFER gives messages."
 (defun otdb-table-invalid-line (the-char)
   "Set current line in otdb-table as invalid"
   (otdb-table-inhibit-read-only
-   (when (otdb-table-buffer-p)
-     (when (and (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
-       (let ((x-column (otdb-table-char-find-column the-char)))
-         ;; find X column in header and record
-         (when x-column
-           (org-table-put nil x-column "-")))
-       ;; TODO: only align if interactive
-       (org-table-align)))))
+   (when (and (otdb-table-buffer-p) (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+     (let ((x-column (otdb-table-char-find-column the-char)))
+       ;; find X column in header and record
+       (when x-column
+         (org-table-put nil x-column "-")))
+     ;; TODO: only align if interactive
+     (org-table-align))))
 
 (defun otdb-table-set-toggle-check-line ()
   (interactive)
@@ -370,19 +368,17 @@ helper functions.  MESSAGE-BUFFER gives messages."
   (otdb-table-inhibit-read-only
    (when (otdb-table-buffer-p)
      (org-table-goto-column 1)
-     (when (org-table-p)
-       (when (and  (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
-         ;; find X column in header and record
-         (let* ((x-column (otdb-table-char-find-column the-char))
-                (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
-           (when x-column
-             (when (or (string= x-column-value the-char)
-                       (string= x-column-value ""))
-               (if (string= x-column-value "")
-                   (org-table-put nil x-column the-char)
-                 (org-table-put nil x-column " ")))))
-         ;; TODO: only align if interactive
-         (org-table-align))))))
+     (when (and (org-table-p) (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+       ;; find X column in header and record
+       (let* ((x-column (otdb-table-char-find-column the-char))
+              (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
+         (when (and x-column (or (string= x-column-value the-char)
+                                 (string= x-column-value "")))
+           (if (string= x-column-value "")
+               (org-table-put nil x-column the-char)
+             (org-table-put nil x-column " "))))
+       ;; TODO: only align if interactive
+       (org-table-align)))))
 
 (defun otdb-table-invalid-toggle-check-line ()
   (interactive)
@@ -398,19 +394,18 @@ helper functions.  MESSAGE-BUFFER gives messages."
   (otdb-table-inhibit-read-only
    (when (otdb-table-buffer-p)
      (org-table-goto-column 1)
-     (when (org-table-p)
-       (when (and  (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
-         ;; find X column in header and record
-         (let* ((x-column (otdb-table-char-find-column the-char))
-                (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
-           (when x-column
-             (when (or (string= x-column-value "-")
-                       (string= x-column-value ""))
-               (if (string= x-column-value "")
-                   (org-table-put nil x-column "-")
-                 (org-table-put nil x-column " ")))))
-         ;; TODO: only align if interactive
-         (org-table-align))))))
+     (when (and (org-table-p) (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+       ;; find X column in header and record
+       (let* ((x-column (otdb-table-char-find-column the-char))
+              (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
+         (when x-column
+           (when (or (string= x-column-value "-")
+                     (string= x-column-value ""))
+             (if (string= x-column-value "")
+                 (org-table-put nil x-column "-")
+               (org-table-put nil x-column " ")))))
+       ;; TODO: only align if interactive
+       (org-table-align)))))
 
 (defun otdb-table-decrement-line (&optional arg)
   "Decrement check on current line in otdb-table."
@@ -433,27 +428,28 @@ helper functions.  MESSAGE-BUFFER gives messages."
     (otdb-table-inhibit-read-only
      (when (otdb-table-buffer-p)
        (org-table-goto-column 1)
-       (when (org-table-p)
-         (when (and (org-table-check-inside-data-field t)
-                    (> (org-table-current-line) 1))
-           ;; find X column in header and record
-           (let* ((x-column (otdb-table-char-find-column the-char))
-                  (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
-             (when x-column
-               (when (or (string= x-column-value "")
-                         (cic:string-integer-p x-column-value))
-                 ;; if current value goes to zero
-                 ;; get number corresponding to arg?
-                 ;; TODO: reverse arg properly if
-                 (let ((change (cond ((equal arg '(4))
-                                      nil)
-                                     (arg
-                                      arg)
-                                     (t
-                                      1))))
-                   (org-table-put nil x-column (otdb-table-increment-string x-column-value change))))))
-           ;; TODO: only align if interactive
-           (org-table-align)))))))
+       (when (and (org-table-p)
+                  (org-table-check-inside-data-field t)
+                  (> (org-table-current-line) 1))
+         ;; find X column in header and record
+         (let* ((x-column (otdb-table-char-find-column the-char))
+                (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
+           (when (and (x-column
+                       (or
+                        (string= x-column-value "")
+                        (cic:string-integer-p x-column-value))))
+             ;; if current value goes to zero
+             ;; get number corresponding to arg?
+             ;; TODO: reverse arg properly if
+             (let ((change (cond ((equal arg '(4))
+                                  nil)
+                                 (arg
+                                  arg)
+                                 (t
+                                  1))))
+               (org-table-put nil x-column (otdb-table-increment-string x-column-value change)))))
+         ;; TODO: only align if interactive
+         (org-table-align))))))
 
 
 (defun otdb-table-increment-string (string change)
@@ -656,10 +652,11 @@ TODO: Fix some of the hardcoding here.
 TODO: probably want an error if not at proper table"
   (let (key
         (line (cic:get-current-line))
-        (column 2))
+        (column 2)
+        (fname-nondirectory (file-name-nondirectory (buffer-file-name))))
     (when (or
-           (equal (file-name-nondirectory (buffer-file-name)) "food-database.org")
-           (equal (file-name-nondirectory (buffer-file-name)) "gear-database.org"))
+           (equal fname-nondirectory "food-database.org")
+           (equal fname-nondirectory "gear-database.org"))
       (setq column 1))
     (cond ((org-at-table-p)
            ;; get first column of current row

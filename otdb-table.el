@@ -236,7 +236,7 @@ mode."
 
 ;; ensure C-c C-c works in tablet mode
 (advice-add 'org-ctrl-c-ctrl-c :around #'otdb-table-inhibit-read-only-advice)
-(advice-add 'tblel-eval :around #'otdb-table-inhibit-read-only-advice)
+(advice-add 'tblel-eval        :around #'otdb-table-inhibit-read-only-advice)
 
 ;; TODO: misnamed, badly, figure this out
 (defun otdb-table-database-buffer-p ()

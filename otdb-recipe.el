@@ -831,6 +831,7 @@ recipe)."
           (beginning-of-line)
           (let ((kill-whole-line t))
             (kill-line)
+            (setq kill-ring (cdr kill-ring))
             (forward-line -1))))))
   ;; add price checks
   (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
@@ -935,7 +936,8 @@ deletes volume, weights, and any comments."
     (when (string-match ":" (cic:get-current-line))
       (search-forward ":")
       (backward-char)
-      (kill-line))
+      (kill-line)
+      (setq kill-ring (cdr kill-ring)))
     ;; add in latex attributes
     (goto-char (point-min))
     (cic:org-find-table)

@@ -706,6 +706,7 @@ TODO: document further and remove hardcoding."
            (move-beginning-of-line 1)
            (search-forward-regexp "[-+*]" nil t)
            (kill-line)
+           (setq kill-ring (cdr kill-ring))
            ;; insert new-key
            (insert (concat " " new-key))
            (org-table-align))
@@ -715,6 +716,7 @@ TODO: document further and remove hardcoding."
            (search-forward "" nil t)
            ;; kill till end of line
            (kill-line)
+           (setq kill-ring (cdr kill-ring))
            ;; insert new-key
            (insert (concat " " new-key)))
           (t

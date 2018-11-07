@@ -704,7 +704,7 @@ TODO: document further and remove hardcoding."
            (org-table-put nil 2 new-key))
           ((cic:org-plain-list-p line)
            (move-beginning-of-line 1)
-           (search-forward-regexp "[-+*]" nil t)
+           (re-search-forward "[-+*]" nil t)
            (kill-line)
            (setq kill-ring (cdr kill-ring))
            ;; insert new-key
@@ -1018,7 +1018,7 @@ Match if all tags in TAGS-PATTERN are present or do not match if
 one or more tags in TAGS-PATTERN indicated by !<<tag>> is
 present."
   (let* ((tag-pattern-list (split-string (s-trim-full tags-pattern) ","))
-         (tag-pattern-list-false (delq nil (mapcar (lambda (e) (and (string-match "^!" e) e)) tag-pattern-list)))
+         (tag-pattern-list-false (remove-if-not (lambda (e) (and (string-match "^!" e) e)) tag-pattern-list))
          (tag-pattern-list-false-strip (mapcar (lambda (e) (substring e 1)) tag-pattern-list-false))
          (tag-pattern-list-true (cl-set-difference tag-pattern-list tag-pattern-list-false))
          (tag-list (split-string (s-trim-full tags) ",")))

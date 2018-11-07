@@ -452,13 +452,15 @@
   | 1         |                      |                    | 5021.1 | 228.8 | 96.0 |  7.74 |  1.541 |      3.382 |  64.566 | 18.227 | 17.207 | 1667.54 |   0.00 |      |   |
   |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|
   #+TBLEL: otdb-recipe-calc-recipe
-  1) Soak the beans overnight in 2L of water, alternately use total 8
-     cups water if slow cooker and (not) presoaked.  Cook for 2 hours,
-     changing the water twice.
+  1) Soak the beans overnight in 3L of water. Alternately, if the
+     beans not presoaked, use a total 8 cups water in a slow cooker
+     and cook on high for 2 hours, changing the water twice.
   2) Preheat oven to 300°F.
-  3) Put beans in casserole dish. Mix and stir until tomato paste and sugar is dissolved.
-  4) Top with bacon.
-  5) Bake for 5 to 7 hours.
+  3) Put beans in 3qt (9.5"x13.5"x2") casserole dish. Mix and stir
+     until tomato paste and sugar is dissolved.
+  4) Chop up bacon and top beans with it, mixing into surface as desired.
+  5) Cover with aluminum foil tightly.
+  6) Bake for 5 to 7 hours.
   #+BEGIN_COMMENT
   12 cups total
   #+END_COMMENT

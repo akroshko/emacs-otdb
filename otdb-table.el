@@ -230,8 +230,7 @@ mode."
           (toggle-read-only -1)
           (setq return-value (apply orig-fun args))
           (toggle-read-only t))
-      (progn
-        (setq return-value (apply orig-fun args))))
+      (setq return-value (apply orig-fun args)))
     return-value))
 
 ;; ensure C-c C-c works in tablet mode
@@ -528,28 +527,26 @@ otdb-table-update."
     ;; deal with fractions
     (when (string-match "[0-9.]" value)
       (if (string-match "/" value)
-          (progn
-            (let ((space-split (split-string value " "))
-                  (slash-part nil)
-                  (slash-split nil)
-                  first
-                  second)
-              ;; find the part with the slash
-              (dolist (part space-split)
-                (when (or (not slash-part) (string-match "/" part))
-                  (when first
-                    (setq second t))
-                  (unless second
-                    (setq first t))
-                  (setq slash-part part)))
-              (setq slash-split (split-string slash-part "/"))
-              (if second
-                  (+ (string-to-float (elt space-split 0)) (/ (string-to-float (elt slash-split 0))
-                                                              (string-to-float (elt slash-split 1))))
-                (/ (string-to-float (elt slash-split 0))
-                   (string-to-float (elt slash-split 1))))))
-        (progn
-          (string-to-float value))))))
+          (let ((space-split (split-string value " "))
+                (slash-part nil)
+                (slash-split nil)
+                first
+                second)
+            ;; find the part with the slash
+            (dolist (part space-split)
+              (when (or (not slash-part) (string-match "/" part))
+                (when first
+                  (setq second t))
+                (unless second
+                  (setq first t))
+                (setq slash-part part)))
+            (setq slash-split (split-string slash-part "/"))
+            (if second
+                (+ (string-to-float (elt space-split 0)) (/ (string-to-float (elt slash-split 0))
+                                                            (string-to-float (elt slash-split 1))))
+              (/ (string-to-float (elt slash-split 0))
+                 (string-to-float (elt slash-split 1)))))
+        (string-to-float value)))))
 
 (defun otdb-table-unit (value)
   "Read from string VALUE and get the unit as a string."
@@ -705,8 +702,8 @@ TODO: document further and remove hardcoding."
           ((cic:org-plain-list-p line)
            (move-beginning-of-line 1)
            (re-search-forward "[-+*]" nil t)
-           (kill-line)
-           (setq kill-ring (cdr kill-ring))
+           (let (kill-ring)
+             (kill-line))
            ;; insert new-key
            (insert (concat " " new-key))
            (org-table-align))
@@ -715,8 +712,8 @@ TODO: document further and remove hardcoding."
            (move-beginning-of-line 1)
            (search-forward "" nil t)
            ;; kill till end of line
-           (kill-line)
-           (setq kill-ring (cdr kill-ring))
+           (let (kill-ring)
+             (kill-line))
            ;; insert new-key
            (insert (concat " " new-key)))
           (t
@@ -952,10 +949,8 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
                                    (if (and
                                         (eq (elt lisp-table 0) 'hline)
                                         (eq (elt lisp-table 2) 'hline))
-                                       (progn
-                                         (setq column-widths (append column-widths (list (length (elt lisp-table 1))))))
-                                     (progn
-                                       (message (concat "Incorrect header in " database-file "!"))))))
+                                       (setq column-widths (append column-widths (list (length (elt lisp-table 1)))))
+                                     (message (concat "Incorrect header in " database-file "!")))))
     ;; if column widths not equal
     (unless (equal (length (delete-dups column-widths)) 1)
       (error "Incorrect column widths!"))

@@ -39,14 +39,14 @@
   - parsley?
   - [[http://www.inspiredtaste.net/22164/homemade-marinara-sauce/]]
   - [[http://www.bhg.com/recipe/sauces/slow-cooker-marinara-sauce/]]
-  - [[bibkey:BHG2011::508.0][marinara sauce]]
+  - [[uid:BUZ99H1AGIQ::508.0][g:cooking-project-documents/BHG2011 -- The Ultimate Slow Cooker Book=BUZ99H1AGIQ=.epub]] marinara sauce
   - [[http://www.budgetbytes.com/2011/11/slow-cooker-marinara/]]  see this one
   - [[http://www.theeffervescentvegan.com/2012/01/red-wine-vs-balsamic-vinegar.html]]
   - [[http://heartlandrenaissance.com/2012/09/marinara-sauce/]]
   - [[http://www.examiner.com/article/parsley-basil-and-oregano-three-useful-herbs-italian-cooking]]
   - [[http://www.epicurious.com/articlesguides/seasonalcooking/farmtotable/visualguidefreshherbs]]
-  - [[bibkey:ATK2011::507.0][Slow cooker revolution - One Test Kitchen 30 Slow Cookers]]
-  - [[bibkey:BHG2011::505.6][The Ultimate Slow Cooker Book]]
+  - [[uid:0CKKXIDODMY::507.0][g:cooking-project-documents/ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers=0CKKXIDODMY=.epub]]
+  - [[uid:BUZ99H1AGIQ::505.6][g:cooking-project-documents/BHG2011 -- The Ultimate Slow Cooker Book=BUZ99H1AGIQ=.epub]]
     2.25 oz can black olives
     red wine
   #+END_COMMENT
@@ -90,17 +90,17 @@
   6) Add last group of ingredients and let cool for 30-60 minutes.
   Makes 9 cups total
   #+BEGIN_COMMENT
-  - [[bibkey:Louise2008::110][My Mom Betty's Spaghetti Dinner]]
+  - [[uid:13KQWLHXCUI::110][g:cooking-project-documents/Louise2008 -- The complete slow cooker cookbook - essential recipes for hearty and delicious one-pot meals=13KQWLHXCUI=.pdf]]
   - [[http://iowagirleats.com/2012/08/22/crock-pot-spaghetti-sauce-with-omg-garlic-bread/]]
-  - [[bibkey:Moeller2012::140][Spaghetti Night and Italian Bread Basket]]
+  - [[uid:0OZKLKE7CIP::140][g:cooking-project-documents/Moeller2012 -- Creative slow-cooker meals=0OZKLKE7CIP=.pdf]] Spaghetti Night and Italian Bread Basket
   - italian seasoning
   - thyme?
   - also 28oz diced, 28 oz crush
   - capers and olives
-  - [[bibkey:ATK2011::507.0][Slow cooker revolution - One Test Kitchen 30 Slow Cookers]]
-  - [[bibkey:ATK2011::519.0][Weeknight Meat Sauce]]
+  - [[uid:0CKKXIDODMY::507.0][g:cooking-project-documents/ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers=0CKKXIDODMY=.epub]]
+  - [[uid:0CKKXIDODMY::519.0][g:cooking-project-documents/ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers=0CKKXIDODMY=.epub]] Weeknight Meat Sauce
     - don't like ATK habbit of using bread...
-  - [[bibkey:BHG2011::367.4][spaghetti sauce italiano]]
+  - [[uid:BUZ99H1AGIQ::367.4][g:cooking-project-documents/BHG2011 -- The Ultimate Slow Cooker Book=BUZ99H1AGIQ=.epub]] spaghetti sauce italiano
   - [[http://www.eatliverun.com/spaghetti-with-meat-sauce/]]
     1/2 tsp thyme
     2 tsp dark brown sugar
@@ -112,43 +112,48 @@
   :PROPERTIES:
   :DESCRIPTION: nil
   :END:
-  |----------+-------------------------+----------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
-  | Quantity | Ingredient              | Note           |    Cal |   Pro |   Fat |     $ | $/kCal | $/100g pro | % carb |  % pro |  % fat |  Weight | Volume | Tags | X |
-  |----------+-------------------------+----------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
-  | 3/4      | Meat tomato sauce       | (up to 4 cups) | 1861.9 | 103.6 |  99.9 | 7.342 |  3.943 |      7.087 | 29.454 | 22.257 | 48.289 | 547.530 |  0.000 |      |   |
-  | 16oz     | cottage cheese          |                |  400.0 |  56.0 |  10.0 | 3.490 |  8.725 |      6.232 | 21.500 | 56.000 | 22.500 | 500.000 |        |      |   |
-  | 1/2lb    | mozzarella cheese       |                |  680.4 |  68.0 |  37.8 | 4.400 |  6.467 |      6.471 | 10.024 | 39.976 | 50.000 | 226.796 |        |      |   |
-  | 12       | no-boil lasagna noodles |                |  768.0 |  26.4 |   3.6 | 1.893 |  2.465 |      7.170 | 82.031 | 13.750 |  4.219 | 204.000 |        |      |   |
-  |----------+-------------------------+----------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
-  | 1        |                         |                | 3710.3 | 254.0 | 151.3 | 17.12 |  4.616 |      6.742 | 35.916 | 27.383 | 36.701 | 1478.33 |   0.00 |      |   |
-  |----------+-------------------------+----------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
+  |----------+-------------------------+---------------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
+  | Quantity | Ingredient              | Note                |    Cal |   Pro |   Fat |     $ | $/kCal | $/100g pro | % carb |  % pro |  % fat |  Weight | Volume | Tags | X |
+  |----------+-------------------------+---------------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
+  | 3/4      | Meat tomato sauce       | (up to 4 cups)      | 1861.9 | 103.6 |  99.9 | 7.342 |  3.943 |      7.087 | 29.454 | 22.257 | 48.289 | 547.530 |  0.000 |      |   |
+  | 16oz     | cottage cheese          | (or Ricotta cheese) |  400.0 |  56.0 |  10.0 | 3.490 |  8.725 |      6.232 | 21.500 | 56.000 | 22.500 | 500.000 |        |      |   |
+  | 1/2lb    | mozzarella cheese       |                     |  680.4 |  68.0 |  37.8 | 4.400 |  6.467 |      6.471 | 10.024 | 39.976 | 50.000 | 226.796 |        |      |   |
+  | 1/4 cup  | Parmesan cheese         | (1/2 cup?)          |  100.0 |   8.0 |   8.0 | 0.504 |  5.040 |      6.300 | -4.000 | 32.000 | 72.000 |  24.000 |        |      |   |
+  | 12       | no-boil lasagna noodles |                     |  768.0 |  26.4 |   3.6 | 1.893 |  2.465 |      7.170 | 82.031 | 13.750 |  4.219 | 204.000 |        |      |   |
+  |----------+-------------------------+---------------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
+  | 1        |                         |                     | 3810.3 | 262.0 | 159.3 | 17.63 |  4.627 |      6.729 | 34.869 | 27.504 | 37.627 | 1502.33 |   0.00 |      |   |
+  |----------+-------------------------+---------------------+--------+-------+-------+-------+--------+------------+--------+--------+--------+---------+--------+------+---|
   #+TBLEL: otdb-recipe-calc-recipe
-  1) Put 1 1/2 cups sauce in the bottom of slow cooker.
-  2) 3 noodles.
-  3) 1/3 cheese.
-  4) 1 1/2 cups sauce.
-  5) 3 noodles.
-  6) 1 1/2 cups sauce.
-  7) 3 noodles.
-  8) 1/3 cheese.
-  9) 1 1/2 cups sauce.
-  10) 3 noodles.
-  11) 1 cup sauce.
-  12) Top with remaining mozzarella and 1/4 cup parmesan.
-  13) Cook on low/normal for 4 to 6 hours.
+  1) Mix cottage cheese with all except 1/2 cup mozzarella cheese.
+  2) Put 1 1/2 cups sauce in the bottom of the slow cooker.
+  3) Put a layer of 3 noodles.
+  4) Spread 1/3 of the cheese mixture.
+  5) Put 1 1/2 cups sauce.
+  6) Put a layer of 3 noodles.
+  7) Spread 1/3 of the cheese mixture.
+  8) Put 1 1/2 cups sauce.
+  9) Put a layer of 3 noodles.
+  10) Spread 1/3 of the cheese mixture.
+  11) Put 1 1/2 cups sauce.
+  12) Put a layer of 3 noodles.
+  13) Put 1 cup sauce.
+  14) Top with remaining mozzarella (1/2 cup) and then 1/4 cup parmesan.
+  15) Cook on low/normal for 4 to 6 hours.
   #+BEGIN_COMMENT
+  - [[uid:BUZ99H1AGIQ::463.3][g:cooking-project-documents/BHG2011 -- The Ultimate Slow Cooker Book=BUZ99H1AGIQ=.epub]]
+  - [[uid:BUZ99H1AGIQ::458.9][g:cooking-project-documents/BHG2011 -- The Ultimate Slow Cooker Book=BUZ99H1AGIQ=.epub]]
+    based mostly on above two, scheme is to start with noodles and end with sauce
   - [[http://allrecipes.com/recipe/slow-cooker-lasagna/]]
   - [[http://www.weightwatchers.com/food/rcp/RecipePage.aspx?recipeId=135321]]
+  TODO combine mozza and parmasen
   - [[http://www.tablespoon.com/recipes/easy-crockpot-lasagna/fc587848-9ea5-4f95-a1f7-8d50a3f011f9]]
-  - [[http://www.tasteofhome.com/recipes/slow-cooker-lasagna]]
   - [[http://crockpot365.blogspot.ca/2008/01/super-easy-crockpot-lasagna.html]]
-  - [[http://www.examiner.com/article/inexpensive-dinners-under-2-per-serving-crock-pot-lasagna]]
+  - [[http://www.examiner.com/article/inexpensive-dinners-under-2-per-serving-crock-pot-lasagna]] (dead link)
   - [[http://tastycheapskate.blogspot.ca/2012/04/crock-pot-spinach-lasagna.html]]
     - more good stuff?
   - [[http://www.cookinglight.com/food/recipe-finder/healthy-lasagna-recipes-00412000074099/]]
-  - [[http://www.myrecipes.com/recipe/pesto-lasagna-with-spinach-mushrooms-10000000549820/]]
-  - [[bibkey:BHG2011::458.9][The Ultimate Slow Cooker Book]]
-    - good one to base it on
+  - [[http://www.tasteofhome.com/recipes/slow-cooker-lasagna]] and [[http://www.myrecipes.com/recipe/pesto-lasagna-with-spinach-mushrooms-10000000549820/]]
+    - good ones to base it on
     - 3 layers
     - sauce on bottom
     - start with noodles, end with sauce
@@ -189,11 +194,11 @@
   #+BEGIN_COMMENT
   - [[http://www.eatliverun.com/crock-pot-spinach-lasagna/]]
     - primary
-  - [[bibkey:ATK2011::723.0][Slow cooker revolution - One Test Kitchen 30 Slow Cookers]]
+  - [[uid:0CKKXIDODMY::723.0][g:cooking-project-documents/ATK2011 -- Slow cooker revolution - One Test Kitchen 30 Slow Cookers=0CKKXIDODMY=.epub]]
     - see this for better version and instructions next time
     - think about sauce from this one too
-  - [[bibkey:Larsen2009::330.0][The 7 dollar a meal slow cooker cookbook - 301 inexpensive meals the whole family will love]]
-  - [[bibkey:Rappaport2013::306][The big book of slow cooker recipes - more than 700 slow cooker recipes for breakfast, lunch, dinner and dessert]]
+  - [[uid:0V5UVU3R37K::330.0][g:cooking-project-documents/Larsen2009 -- The 7 dollar a meal slow cooker cookbook - 301 inexpensive meals the whole family will love=0V5UVU3R37K=.epub]]
+  - [[uid:CRFN63115Q1::306][g:cooking-project-documents/Rappaport2013 -- The big book of slow cooker recipes - more than 700 slow cooker recipes for breakfast lunch dinner and dessert=CRFN63115Q1=.pdf]]
   - carrots?
   - pepper flakes
   #+END_COMMENT
@@ -281,9 +286,9 @@
   #+BEGIN_COMMENT
   - [[http://www.epicurious.com/recipes/food/views/Halftime-Chili-1201]]
   - [[http://cooking.stackexchange.com/questions/39646/what-would-be-good-substitute-for-thyme-and-oregano-in-chili]]
-  - [[bibkey:Spitler2008::167][1,001 Best Slow Cooker Recipes]]
+  - [[uid:21RPLRKWTQU::167][g:cooking-project-documents/Spitler2008 -- 1001 Best Slow Cooker Recipes=21RPLRKWTQU=.pdf]]
     - celery seed
-  - [[bibkey:Louise2008::48][Fresh Vegetable Medley Stew]]
+  - [[uid:13KQWLHXCUI::48][g:cooking-project-documents/Louise2008 -- The complete slow cooker cookbook - essential recipes for hearty and delicious one-pot meals=13KQWLHXCUI=.pdf]] Fresh Vegetable Medley Stew
   - 1 carrot
   - 1 bell pepper
   - 1/2 cup frozen corn
@@ -344,16 +349,16 @@
   [[http://www.cookingclassy.com/2013/11/olive-garden-copycat-minestrone-soup-slow-cooker/]]
     - thyme, rosemary, parsley, bay leaves, oreano, more beans?
     - white beans and kidney beans
-    - [[bibkey:Kelly2012::Minestrone-Inspired Chunky Fennel and White Bean Soup][Minestrone-Inspired Chunky Fennel and White Bean Soup]]
+    - [[uid:VS5CZDUBR4U][g:cooking-project-documents/Kelly2012 -- Quick and easy Vegan Slow Cooking - More than 150 tasty nourishing recipes that practically make themselves=VS5CZDUBR4U=.epub]] Minestrone-Inspired Chunky Fennel and White Bean Soup
       - sage and caraway?
   [[http://www.weightwatchers.com/food/rcp/RecipePage.aspx?recipeid=389891]]
   [[http://www.yummyhealthyeasy.com/2012/12/the-best-crock-pot-minestrone-soup.html]]
   [[https://shine.yahoo.com/shine-food/polar-vortex-no-match-slow-cooked-minestrone-191600773.html]]
    - rosemary and oregano
-  [[bibkey:Katzen1992::7][Minestrone, Moosewood cookbook]]
+  [[uid:6D3300K1DL1::7][g:cooking-project-documents/Katzen1992 -- Moosewood cookbook=6D3300K1DL1=.pdf]] Minestrone
     - basil and oregano
   - white and kidney beans, or ????
-  - [[bibkey:Mantesh2012::85][Mighty Minestrone]]
+  - [[uid:TPG31Q28PR2::85][g:cooking-project-documents/Mantesh2012 -- The 150 Healthiest Slow Cooker Recipes on Earth - How to Make Nutritious and Delicious Meals=TPG31Q28PR2=.pdf]] Mighty Minestrone
     - basil and oregano too
     - red wine vineagar
   - [[http://www.jamieoliver.com/us/foundation/jamies-food-revolution/recipes/MINESTRONE_SOUP]]
@@ -431,6 +436,8 @@
   |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|
   | Quantity  | Ingredient           | Note               |    Cal |   Pro |  Fat |     $ | $/kCal | $/100g pro |  % carb |  % pro |  % fat |  Weight | Volume | Tags | X |
   |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|
+  | 2 lb      | pinto beans          | or navy beans      | 3179.8 | 196.4 |  9.4 | 3.014 |  0.948 |      1.535 |  72.633 | 24.706 |  2.661 | 907.185 |        |      |   |
+  |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|
   | 2         | medium onions        |                    |  158.3 |   3.7 |  0.3 | 0.660 |  4.169 |     17.838 |  88.945 |  9.349 |  1.706 | 323.556 |        |      |   |
   | 4         | cloves garlic        |                    |   35.8 |   1.5 |  0.1 | 0.077 |  2.151 |      5.133 |  80.726 | 16.760 |  2.514 |  19.333 |        |      |   |
   |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|
@@ -447,7 +454,6 @@
   | 1 1/2 cup | hot water            | if presoaked       |        |       |      |       |        |            |         |        |        |         |        |      |   |
   |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|
   | 1/2 lb    | bacon                |                    |  907.2 |  18.1 | 86.2 | 1.805 |  1.990 |      9.972 |   6.504 |  7.981 | 85.516 | 226.796 |        |      |   |
-  | 2 lb      | pinto beans          | or navy beans      | 3179.8 | 196.4 |  9.4 | 3.014 |  0.948 |      1.535 |  72.633 | 24.706 |  2.661 | 907.185 |        |      |   |
   |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|
   | 1         |                      |                    | 5021.1 | 228.8 | 96.0 |  7.74 |  1.541 |      3.382 |  64.566 | 18.227 | 17.207 | 1667.54 |   0.00 |      |   |
   |-----------+----------------------+--------------------+--------+-------+------+-------+--------+------------+---------+--------+--------+---------+--------+------+---|

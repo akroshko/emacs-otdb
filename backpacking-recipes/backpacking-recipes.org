@@ -211,14 +211,14 @@
   | 1         |                       |                                 | 1107.5 | 20.3 |  45. | 2.494 |  2.252 |     12.286 | 56.099 |  7.332 |  36.569 |   276.9 |  2.125 |
   |-----------+-----------------------+---------------------------------+--------+------+------+-------+--------+------------+--------+--------+---------+---------+--------|
   #+TBLEL: otdb-recipe-calc-recipe
-  1) Add spices, dried fruit, and vegtables to water and bring to
+  1) Add spices, dried fruit, and vegetables to water and bring to
      boil.
   2) Add rice and cook.
   #+BEGIN_COMMENT
   This one is good for cheap ingredients.
-  [[GrayTitlon2000 -- Cooking the one-burner way - Gourmet cuisine for the backcountry chef::85]]
-  [[Black2008 -- One pan wonders - Backcountry cooking at its finest::62]]
-  [[Kesselheim -- Trail food - Drying and cooking food for backpackers and paddlers::63]]
+  [[bibkey:GrayTitlon2000 -- Cooking the one-burner way - Gourmet cuisine for the backcountry chef::85]]
+  [[bibkey:Black2008 -- One pan wonders - Backcountry cooking at its finest::62]]
+  [[bibkey:Kesselheim -- Trail food - Drying and cooking food for backpackers and paddlers::63]]
   Minute rice: 1 rice to 1 water, 1 cup rice weighs 88g
   Normal rice: 1 cup weights 158g, takes 1.5 to 2 cup water
   - sundried tomatoes and tomato powder would be delicious

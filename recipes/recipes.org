@@ -249,33 +249,40 @@
   | Quantity | Ingredient            | Note        |    Cal |  Pro |  Fat |     $ | $/kCal | $/100g pro |  % carb |  % pro |   % fat |  Weight | Volume | Tags | Tags | X |
   |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------+------+------+---|
   | 2        | Proofed yeast mixture |             |   32.0 |  0.6 |  0.0 | 0.580 | 18.125 |     96.667 |  92.500 |  7.500 |   0.000 |  24.000 |  0.000 |      |      |   |
-  | 4 cup    | all-purpose flour     |             | 1760.0 | 64.0 |  8.0 | 0.384 |  0.218 |      0.600 |  81.364 | 14.545 |   4.091 | 480.000 |        |      |      |   |
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------+------+------+---|
+  | 4 cup    | bread flour           |             | 1600.0 | 64.0 |  4.8 | 0.861 |  0.538 |      1.345 |  81.300 | 16.000 |   2.700 | 480.000 |        |      |      |   |
   | 3 tbsp   | white sugar           |             |  144.0 |  0.0 |  0.0 | 0.047 |  0.326 |            | 100.000 |  0.000 |   0.000 |  36.000 |        |      |      |   |
   | 1 tsp    | salt                  |             |    0.0 |  0.0 |  0.0 | 0.012 |        |            |         |        |         |   4.000 |        |      |      |   |
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------+------+------+---|
   | 3 tbsp   | margarine             |             |  315.0 |  0.0 | 36.0 | 0.115 |  0.365 |            |  -2.857 |  0.000 | 102.857 |  45.000 |        |      |      |   |
   | 1 cup    | water                 | about 115°F |    0.0 |      |      | 0.000 |        |            |         |        |         |         |        |      |      |   |
   |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------+------+------+---|
-  | 1        |                       |             | 2251.0 | 64.6 | 44.0 |  1.14 |  0.506 |      1.762 |  70.928 | 11.479 |  17.592 |  589.00 |   0.00 |      |      |   |
+  | 1        |                       |             | 2091.0 | 64.6 | 40.8 |  1.61 |  0.772 |      2.500 |  70.081 | 12.358 |  17.561 |  589.00 |   0.00 |      |      |   |
   |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------+------+------+---|
   #+TBLEL: otdb-recipe-calc-recipe
-  1) \yeastinstructions
-  2) Warm the mixing bowl by filling with warm water (close to 115°F but
-     the exact temperature is not important.
+  1) Follow instructions for [[recipe:Proofed yeast mixture]].
+  2) Warm the mixing bowl by filling with warm water (close to 115°F
+     but the exact temperature is not important).
   3) Mix together dry ingredients.
-  4) Melt the butter and mix into the sugar and water.
-  5) Add the liquids to the bowl and add the flour. Add additional flour 1/4
-     cup at a time until the dough is only slightly sticky and it cleans the sides of
-     bowl.
-  6) \firstrise
-  7) Divide the dough into two parts, flatten it out, roll it up, and
-     tuck the ends.  Put the dough into two greased bread pans and let
-     rise for a another hour.  Preheat oven to 400°F.
-  8) Bake for 30 minutes. Let cool for 5 minutes after baking.
+  4) Melt the margarine and mix with the water.
+  5) Add the liquids to the bowl and add the flour while mixing. Add
+     additional flour 1/4 cup at a time until the dough is only
+     slightly sticky and it cleans the sides of bowl.
+  6) Knead for 5-10 minutes.
+  7) Form dough into a ball and put covered into a large bowl and let
+     rise for 60-90 minutes.
+  8) Preheat oven to 400°F.
+  9) Divide the dough into two equal parts. Flatten it out into two
+     rectangles with the short side the size of the breads pans. Roll
+     these up and tuck in the ends.  Put the dough into two greased
+     bread pans and let rise for another hour.
+  10) Bake for 30 minutes. Let cool for 5 minutes after baking.
   #+BEGIN_COMMENT
   TODO: fix up firstrise instructions
   TOOD: bread flour different
+  TODO: do I want the flour to clean sides of bowl?
+  TODO: does sugar go with water or flour? not sure about original instructions
   #+END_COMMENT
-
 * Biscuits :recipe:
   :PROPERTIES:
   :DESCRIPTION: Based on the Crisco recipe.
@@ -287,6 +294,7 @@
   | 1 tbsp   | baking powder     |                         |    0.0 |  0.0 |   0.0 | 0.160 |        |            |         |        |         |  12.000 |        |      |   |
   | 2 tbsp   | white sugar       |                         |   96.0 |  0.0 |   0.0 | 0.032 |  0.333 |            | 100.000 |  0.000 |   0.000 |  24.000 |        |      |   |
   | 1/2 tsp  | salt              |                         |    0.0 |  0.0 |   0.0 | 0.006 |        |            |         |        |         |   2.000 |        |      |   |
+  |----------+-------------------+-------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+------+---|
   | 1/2 cup  | shortening        | or lard                 |  840.0 |  0.0 |  96.0 | 0.484 |  0.576 |            |  -2.857 |  0.000 | 102.857 |  96.000 |        |      |   |
   |----------+-------------------+-------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+------+---|
   | 3/4 cup  | water             | start with 2 tbsp extra |    0.0 |      |       | 0.000 |        |            |         |        |         |         |        |      |   |
@@ -389,7 +397,7 @@
   2) Toss the peaches with the sugar-spice mixture, add the lemon juice, and cornstarch or substitutes.
   3) Bake for 10 minutes then reduce heat to 350°F and bake for an
      additional 40 to 50 minutes until golden brown. Do not underbake.
-  See [[bibkey:Bittman2008::934]] for alternatives including peach and
+  See [[uid:GK2UDMNFX2G::934]] for alternatives including peach and
   berry, peach and ginger pie. Peaches will soften quicker by putting
   in brown paper bag at room temperature.
   #+BEGIN_COMMENT
@@ -810,7 +818,7 @@
   8) Bake for 45 minutes or until a toothpick comes out clean.
   9) Keeps well for a couple days, good toasted for another couple.
   #+BEGIN_COMMENT
-  From [[bibkey:Bittman2008]]
+  From [[uid:GK2UDMNFX2G]]
   #+END_COMMENT
 * Olive oil pizza crust :recipe:
   :PROPERTIES:
@@ -831,17 +839,17 @@
   | 1         |                   |                                 | 1368.0 | 32.2 | 58.0 |  0.71 |  0.518 |      2.199 |  52.427 |  9.415 |  38.158 |  249.33 |   0.00 |      |   |
   |-----------+-------------------+---------------------------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+--------+------+---|
   #+TBLEL: otdb-recipe-calc-recipe
-  1) Combine yeast mixture
+  1) Combine first group of ingredients and wait 10 minutes or until
+     it is foaming (proofed).
   2) Sift together the dry ingredients.
-  3) Add the yeast mixture, remaining water, and the oil to the dry ingredients.
+  3) Add dry ingredients and olive oil to the yeast mixture until
+     fairly uniform.
   4) Knead for 8 minutes.
-  5) Allow first rise for an hour and a half.
+  5) Allow first rise for two hours.
   6) Stretch dough out to 12-14"
-  7) Allow to rise before baking
   #+BEGIN_COMMENT
-  [[bibkey:WeinsteinScarborough2009::27]]
+  [[uid:OCND2I0WSDN::27][g:cooking-project-documents/WeinsteinScarborough2009 -- Pizza - Grill It Bake It Love It=OCND2I0WSDN=.pdf]]
   Should be about "1 pound"
-  TODO better first rise stuff, need to find this again
   #+END_COMMENT
 * Pizza sauce :recipe:
   :PROPERTIES:
@@ -855,7 +863,7 @@
   | 1 tbsp   | white sugar               | (too much) |  48.0 |  0.0 |  0.0 | 0.016 |  0.333 |            | 100.000 |  0.000 |   0.000 | 12.000 |        |      |   |
   | 2 tsp    | basil                     |            |       |      |      |       |        |            |         |        |         |        |        |      |   |
   | 1 tsp    | oregano                   |            |       |      |      |       |        |            |         |        |         |        |        |      |   |
-  | 1/2 tsp  | red pepper flakes         |            |       |      |      |       |        |            |         |        |         |        |        |      |   |
+  | 1/2 tsp  | red pepper flakes         | ???        |       |      |      |       |        |            |         |        |         |        |        |      |   |
   | 1        | cloves garlic             | minced     |   9.0 |  0.4 |  0.0 | 0.019 |  2.111 |      4.750 |  82.222 | 17.778 |   0.000 |  4.833 |        |      |   |
   | 1/2 tsp  | salt                      |            |   0.0 |  0.0 |  0.0 | 0.006 |        |            |         |        |         |  2.000 |        |      |   |
   |----------+---------------------------+------------+-------+------+------+-------+--------+------------+---------+--------+---------+--------+--------+------+---|
@@ -865,7 +873,7 @@
   1) Mix all of the ingredients together and simmer for 15 minutes.
   Makes 3 cups total
   #+BEGIN_COMMENT
-  [[bibkey:WeinsteinScarborough2009::38]], based directly on this
+  [[uid:OCND2I0WSDN::38][g:cooking-project-documents/WeinsteinScarborough2009 -- Pizza - Grill It Bake It Love It=OCND2I0WSDN=.pdf]], based directly on this
   - more oregano to be stereotypical?
   - slow cooker?
   - I hate tomato sauce with just diced
@@ -876,24 +884,24 @@
   :PROPERTIES:
   :DESCRIPTION:
   :END:
-  |----------+----------------------+-------------------+--------+------+------+-------+--------+------------+--------+--------+---------+---------+--------+------+---|
-  | Quantity | Ingredient           | Note              |    Cal |  Pro |  Fat |     $ | $/kCal | $/100g pro | % carb |  % pro |   % fat |  Weight | Volume | Tags | X |
-  |----------+----------------------+-------------------+--------+------+------+-------+--------+------------+--------+--------+---------+---------+--------+------+---|
-  | 2 tbsp   | olive oil            |                   |  240.0 |  0.0 | 27.0 | 0.160 |  0.667 |            | -1.250 |  0.000 | 101.250 |         |        |      |   |
-  | 1 tbsp   | Worcestershire sauce |                   |    0.0 |  0.0 |  0.0 | 0.103 |        |            |        |        |         |         |        |      |   |
-  | 4        | cloves garlic        | thinly sliced     |   35.8 |  1.5 |  0.1 | 0.077 |  2.151 |      5.133 | 80.726 | 16.760 |   2.514 |  19.333 |        |      |   |
-  | 1/2 tsp  | red pepper flakes    |                   |        |      |      |       |        |            |        |        |         |         |        |      |   |
-  | 4 cup    | mushrooms            |                   |        |      |      |       |        |            |        |        |         |         |        |      |   |
-  |----------+----------------------+-------------------+--------+------+------+-------+--------+------------+--------+--------+---------+---------+--------+------+---|
-  |          | cornmeal             |                   |        |      |      | 2.490 |        |            |        |        |         |         |        |      |   |
-  | 1/2 tsp  | black pepper         |                   |    0.0 |  0.2 |  0.0 | 0.016 |        |      8.000 |        |        |         |   1.000 |        |      |   |
-  | 1/4      | Pizza sauce          |                   |  187.2 |  5.1 | 10.1 | 0.367 |  1.960 |      7.196 | 40.545 | 10.897 |  48.558 |   4.707 |  0.000 |      |   |
-  | 1/2 lb   | mozzarella cheese    | shredded          |  680.4 | 68.0 | 37.8 | 4.400 |  6.467 |      6.471 | 10.024 | 39.976 |  50.000 | 226.796 |        |      |   |
-  | 1/2 cup  | olives               |                   |        |      |      |       |        |            |        |        |         |         |        |      |   |
-  | 1 tbsp   | basil leaves         | or oregano leaves |        |      |      |       |        |            |        |        |         |         |        |      |   |
-  |----------+----------------------+-------------------+--------+------+------+-------+--------+------------+--------+--------+---------+---------+--------+------+---|
-  | 1        |                      |                   | 1143.4 | 74.8 | 75.0 |  7.61 |  6.658 |     10.178 | 14.798 | 26.168 |  59.034 |  251.84 |   0.00 |      |   |
-  |----------+----------------------+-------------------+--------+------+------+-------+--------+------------+--------+--------+---------+---------+--------+------+---|
+  |----------+----------------------+-------------------+--------+-------+-------+--------+--------+------------+--------+--------+---------+----------+--------+------+---|
+  | Quantity | Ingredient           | Note              |    Cal |   Pro |   Fat |      $ | $/kCal | $/100g pro | % carb |  % pro |   % fat |   Weight | Volume | Tags | X |
+  |----------+----------------------+-------------------+--------+-------+-------+--------+--------+------------+--------+--------+---------+----------+--------+------+---|
+  | 2 tbsp   | olive oil            |                   |  240.0 |   0.0 |  27.0 |  0.160 |  0.667 |            | -1.250 |  0.000 | 101.250 |          |        |      |   |
+  | 1 tbsp   | Worcestershire sauce |                   |    0.0 |   0.0 |   0.0 |  0.103 |        |            |        |        |         |          |        |      |   |
+  | 4        | cloves garlic        | thinly sliced     |   35.8 |   1.5 |   0.1 |  0.077 |  2.151 |      5.133 | 80.726 | 16.760 |   2.514 |   19.333 |        |      |   |
+  | 1/2 tsp  | red pepper flakes    | ????              |        |       |       |        |        |            |        |        |         |          |        |      |   |
+  | 4 cup    | mushrooms            |                   |        |       |       |        |        |            |        |        |         |          |        |      |   |
+  |----------+----------------------+-------------------+--------+-------+-------+--------+--------+------------+--------+--------+---------+----------+--------+------+---|
+  |          | cornmeal             |                   |        |       |       |  2.490 |        |            |        |        |         |          |        |      |   |
+  | 1/4      | Pizza sauce          | 3/4 cup           |  187.2 |   5.1 |  10.1 |  0.367 |  1.960 |      7.196 | 40.545 | 10.897 |  48.558 |    4.707 |  0.000 |      |   |
+  | 6 ounces | mozzarella cheese    | shredded          | 3600.0 | 360.0 | 200.0 |  3.880 |  1.078 |      1.078 | 10.000 | 40.000 |  50.000 | 1200.000 |        |      |   |
+  | 1 tbsp   | basil leaves         | or oregano leaves |        |       |       |        |        |            |        |        |         |          |        |      |   |
+  | 1 ounce  | Parmesan cheese      |                   | 2083.3 | 166.7 | 166.7 | 10.490 |  5.035 |      6.293 | -4.022 | 32.007 |  72.016 |  500.000 |        |      |   |
+  | 1/2 cup  | olives               | (optional)        |        |       |       |        |        |            |        |        |         |          |        |      |   |
+  |----------+----------------------+-------------------+--------+-------+-------+--------+--------+------------+--------+--------+---------+----------+--------+------+---|
+  | 1        |                      |                   | 6146.3 | 533.3 | 403.9 |  17.57 |  2.858 |      3.294 |  6.150 | 34.707 |  59.143 |  1724.04 |   0.00 |      |   |
+  |----------+----------------------+-------------------+--------+-------+-------+--------+--------+------------+--------+--------+---------+----------+--------+------+---|
   #+TBLEL: otdb-recipe-calc-recipe
   1) Using olive oil sauté garlic for minute.
   2) Add mushrooms, Worcestershire sauce, and red pepper together and
@@ -904,13 +912,13 @@
      too much.
   5) Spread mozzarella evenly on the pizza.
   6) Spread the mushroom mixture evenly.
-  7) Spread olives and basil evenly on the crust.
+  7) Spread olives and basil evenly.
   8) Bake at 450°F for 16 to 18 minutes, or until the cheese is brown.
      Pop any air bubbles in the first 10 minutes.
   #+BEGIN_COMMENT
-  - no idea where this really comes from, possibly search web links
-    [[bibkey:WeinsteinScarborough2009::45]]
-    [[bibkey:WeinsteinScarborough2009::47]]
+  - no idea where this really comes from, possibly search web links?
+  [[uid:OCND2I0WSDN::45][g:cooking-project-documents/WeinsteinScarborough2009 -- Pizza - Grill It Bake It Love It=OCND2I0WSDN=.pdf]]
+  [[uid:OCND2I0WSDN::47][g:cooking-project-documents/WeinsteinScarborough2009 -- Pizza - Grill It Bake It Love It=OCND2I0WSDN=.pdf]]
   - TODO how much cornmeal?
   - TODO olives to can?
   - TODO: 1/2 cup olives
@@ -1020,6 +1028,6 @@
   - pepperoni
   - parsley
   - fill with sauce?
-  - more vegtables?
+  - more vegetables?
   - mushrooms! (more canned? bigger cans?)
   #+END_COMMENT

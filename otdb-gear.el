@@ -95,8 +95,7 @@
               (progn
                 (setq otdb-gear-item-last-pattern otdb-gear-item-pattern)
                 (setq otdb-gear-item-pattern nil))
-            (progn
-              (setq otdb-gear-item-pattern otdb-gear-item-last-pattern))))))
+            (setq otdb-gear-item-pattern otdb-gear-item-last-pattern)))))
 
 (defun otdb-gear-menu-tags ()
   "Set menu item to reflect current value of otdb-gear-item-tags."
@@ -112,8 +111,7 @@
               (progn
                 (setq otdb-gear-item-last-tags otdb-gear-item-tags)
                 (setq otdb-gear-item-tags nil))
-            (progn
-              (setq otdb-gear-item-tags otdb-gear-item-last-tags))))))
+            (setq otdb-gear-item-tags otdb-gear-item-last-tags)))))
 
 (defun otdb-gear-reset-filters ()
   (interactive)
@@ -228,9 +226,8 @@ for ROW-LIST from a particular collection."
         collection-weight-cost-list)
     (dolist (row (cdr row-list))
       (if (member (s-trim-full-no-properties (elt row 1)) collection-list)
-          (progn
-            (let ((wcl (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))))
-              (setq collection-weight-cost-list (cons (list (s-trim-full-no-properties (elt row 1)) (car wcl) (cadr wcl)) collection-weight-cost-list))))
+          (let ((wcl (otdb-gear-get-collection-weight-cost (elt row 1) (string-to-number (elt row 0)))))
+            (setq collection-weight-cost-list (cons (list (s-trim-full-no-properties (elt row 1)) (car wcl) (cadr wcl)) collection-weight-cost-list)))
         (progn
           (setq quantity-alist (cons (list (s-trim-full-no-properties (elt row 1))
                                            (s-trim-full-no-properties (elt row 0)))

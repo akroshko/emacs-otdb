@@ -116,8 +116,7 @@ now."
               (progn
                 (setq otdb-recipe-item-last-tags otdb-recipe-item-tags)
                 (setq otdb-recipe-item-tags nil))
-            (progn
-              (setq otdb-recipe-item-tags otdb-recipe-item-last-tags))))))
+            (setq otdb-recipe-item-tags otdb-recipe-item-last-tags)))))
 
 (defun otdb-recipe-menu-item-pattern ()
   (cons (cond (otdb-recipe-item-pattern
@@ -132,8 +131,7 @@ now."
               (progn
                 (setq otdb-recipe-item-last-pattern otdb-recipe-item-pattern)
                 (setq otdb-recipe-item-pattern nil))
-            (progn
-              (setq otdb-recipe-item-pattern otdb-recipe-item-last-pattern))))))
+            (setq otdb-recipe-item-pattern otdb-recipe-item-last-pattern)))))
 
 (defun otdb-recipe-menu-column-mark ()
   (cons (concat "Change column mark: " (pp-to-string otdb-recipe-column-mark)) 'otdb-recipe-read-column-mark))
@@ -659,24 +657,22 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
     (dolist (row (cdr row-list))
       ;; get the key if applicable
       (if (member (s-trim-full-no-properties (elt row 1)) recipe-list)
-          (progn
-            (setq recipe-calories-protein-fat-weight-volume-cost-list
-                  (let ((ccl (otdb-recipe-get-calories-protein-fat-weight-volume-cost (elt row 1))))
-                    (cons (list (s-trim-full-no-properties (elt row 1))
-                                (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 0)))
-                                (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 1)))
-                                (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 2)))
-                                (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 3)))
-                                (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 4)))
-                                (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 5)))
-                                (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 6)))
-                                "")
-                          recipe-calories-protein-fat-weight-volume-cost-list))))
-        (progn
-          (setq quantity-alist (cons (list (s-trim-full-no-properties (elt row 1))
-                                           (s-trim-full-no-properties (elt row 0)))
-                                     quantity-alist))
-          (setq key-list (cons (s-trim-full-no-properties (elt row 1)) key-list)))))
+          (setq recipe-calories-protein-fat-weight-volume-cost-list
+                (let ((ccl (otdb-recipe-get-calories-protein-fat-weight-volume-cost (elt row 1))))
+                  (cons (list (s-trim-full-no-properties (elt row 1))
+                              (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 0)))
+                              (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 1)))
+                              (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 2)))
+                              (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 3)))
+                              (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 4)))
+                              (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 5)))
+                              (ignore-errors (* (otdb-table-number (elt row 0)) (elt ccl 6)))
+                              "")
+                        recipe-calories-protein-fat-weight-volume-cost-list)))
+        (setq quantity-alist (cons (list (s-trim-full-no-properties (elt row 1))
+                                         (s-trim-full-no-properties (elt row 0)))
+                                   quantity-alist))
+        (setq key-list (cons (s-trim-full-no-properties (elt row 1)) key-list))))
     ;; get the database rows
     (setq database-row-alist (otdb-table-item-row-multiple
                               (otdb-recipe-get-variable 'otdb-recipe-database)
@@ -830,8 +826,8 @@ recipe)."
         (when (string-match "\\[ \\]" current-line)
           (beginning-of-line)
           (let ((kill-whole-line t))
-            (kill-line)
-            (setq kill-ring (cdr kill-ring))
+            (let (kill-ring)
+              (kill-line))
             (forward-line -1))))))
   ;; add price checks
   (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
@@ -936,8 +932,8 @@ deletes volume, weights, and any comments."
     (when (string-match ":" (cic:get-current-line))
       (search-forward ":")
       (backward-char)
-      (kill-line)
-      (setq kill-ring (cdr kill-ring)))
+      (let (kill-ring)
+        (kill-line)))
     ;; add in latex attributes
     (goto-char (point-min))
     (cic:org-find-table)
@@ -1003,13 +999,12 @@ corresponding to a recipe."
             (setq cost-calories-column (nconc cost-calories-column (list nil)))
             (setq cost-protein-column (nconc cost-protein-column (list nil)))))
         (if (otdb-table-lisp-row-check lisp-row 3)
-            (progn
-              (let ((row-calories (otdb-table-lisp-row-float lisp-row 3))
-                    (row-protein (otdb-table-lisp-row-float lisp-row 4))
-                    (row-fat (otdb-table-lisp-row-float lisp-row 5)))
-                (setq percent-carb-column (nconc percent-carb-column (list (* 100.0 (/ (- row-calories (+ (* 4.0 row-protein) (* 9.0 row-fat))) row-calories)))))
-                (setq percent-protein-column (nconc percent-protein-column (list (* 100.0 (/ (* 4.0 row-protein) row-calories)))))
-                (setq percent-fat-column (nconc percent-fat-column (list (* 100.0 (/ (* 9.0 row-fat) row-calories)))))))
+            (let ((row-calories (otdb-table-lisp-row-float lisp-row 3))
+                  (row-protein (otdb-table-lisp-row-float lisp-row 4))
+                  (row-fat (otdb-table-lisp-row-float lisp-row 5)))
+              (setq percent-carb-column (nconc percent-carb-column (list (* 100.0 (/ (- row-calories (+ (* 4.0 row-protein) (* 9.0 row-fat))) row-calories)))))
+              (setq percent-protein-column (nconc percent-protein-column (list (* 100.0 (/ (* 4.0 row-protein) row-calories)))))
+              (setq percent-fat-column (nconc percent-fat-column (list (* 100.0 (/ (* 9.0 row-fat) row-calories))))))
           (progn
             (setq percent-carb-column (nconc percent-carb-column (list nil)))
             (setq percent-protein-column (nconc percent-protein-column (list nil)))

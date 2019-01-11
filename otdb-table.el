@@ -128,12 +128,12 @@
 (defun otdb-table-detect ()
   "Users should modify this file to meet their file structure.
 May eventually be generalized a little better."
-  (let ((current-directory (file-name-base (directory-file-name default-directory)))
-        (current-filename (buffer-file-name)))
-    (cond ((with-current-file-min current-filename
+  (let (;; (current-directory (file-name-base (directory-file-name default-directory)))
+        (current-buffer (current-buffer)))
+    (cond ((with-current-buffer-min current-buffer
              (re-search-forward "^\\*.*:recipe:" nil t))
            'recipe)
-          ((with-current-file-min current-filename
+          ((with-buffer-min current-buffer
              (re-search-forward "^\\*.*:gear:" nil t))
            'backpacking)
           (t

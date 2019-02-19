@@ -167,7 +167,7 @@ commands."
 (defun otdb-table-buffer-p ()
   "Check if we are in an otdb-table buffer.
 This is seperate from the otdb-database."
-  (and (eq major-mode 'org-mode)
+  (and (derived-mode-p 'org-mode)
        (save-excursion (goto-char (point-min))
                        ;; assume two spaces in front of TBLEL
                        (re-search-forward "^  #\\+TBLEL:" nil t))
@@ -243,7 +243,7 @@ mode."
 This is seperate from the otdb-database."
   (when (save-excursion (goto-char (point-min))
                         ;; assume two spaces in front of TBLEL
-                        (and (eq major-mode 'org-mode)
+                        (and (derived-mode-p 'org-mode)
                              (re-search-forward "^  #\\+TBLEL:" nil t)))))
 
 (defvar otdb-table-collections-cache
@@ -771,23 +771,21 @@ TODO: Document usage further."
                                         (otdb-recipe-get-ingredients)
                                       (append (otdb-recipe-get-ingredients) (otdb-recipe-get-recipes))))
                    (ingredient (completing-read "Ingredient: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))
-              (cond
-               ((eq major-mode 'org-mode)
-                ;; add a new checkbox
-                (otdb-table-insert-key-at-point ingredient))
-               (t
-                (error "Not in valid file!")))))
+              (cond ((derived-mode-p 'org-mode)
+                     ;; add a new checkbox
+                     (otdb-table-insert-key-at-point ingredient))
+                    (t
+                     (error "Not in valid file!")))))
            ((eq table-detect 'backpacking)
             (let* ((line (cic:get-current-line))
                    (completion-list (if (equal arg '(4))
                                         (otdb-gear-get-items)
                                       (append (otdb-gear-get-items) (otdb-gear-get-collections))))
                    (item (completing-read "Items: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))
-              (cond
-               ((eq major-mode 'org-mode)
-                (otdb-table-insert-key-at-point item))
-               (t
-                (error "Not in valid file!"))))))))
+              (cond ((derived-mode-p 'org-mode)
+                     (otdb-table-insert-key-at-point item))
+                    (t
+                     (error "Not in valid file!"))))))))
   (org-table-align))
 
 ;; TODO: select file

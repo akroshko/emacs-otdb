@@ -81,7 +81,7 @@
   "Helper function to lookup different otdb-recipe variables
 depending on context.  FORCE only forces backpacking recipes for
 now."
-  (let ((current-filename (ignore-errors (buffer-file-name))))
+  (let ((current-filename (ignore-errors buffer-file-name)))
     (cond ((or (member current-filename (cdr (assoc 'otdb-recipe-files otdb-recipe-backpacking-alist))) (eq force 'backpacking))
            ;; use the backpacking version
            (let ((backpacking-recipe-files otdb-recipe-backpacking-alist))
@@ -848,7 +848,7 @@ recipe)."
                                      (org-back-to-heading)
                                      ;; strip off after first colon
                                      (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
-          (current-file (buffer-file-name))
+          (current-file buffer-file-name)
           (first-row t))
       (with-current-file (concat otdb-recipe-temp-directory heading-name-collection ".org")
         (erase-buffer)

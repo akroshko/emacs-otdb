@@ -177,7 +177,7 @@ This is seperate from the otdb-database."
 (defun otdb-setup-hook ()
   (when (otdb-table-buffer-p)
     (let ((otdb-detect (otdb-table-detect))
-          (current-filename (ignore-errors (buffer-file-name))))
+          (current-filename (ignore-errors buffer-file-name)))
       (cond ((eq otdb-detect 'backpacking)
              (otdb-gear-mode 1))
             ((eq otdb-detect 'recipe)
@@ -282,7 +282,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
           (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)
           (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer))
          (t
-          (let ((table-filename (buffer-file-name))
+          (let ((table-filename buffer-file-name)
                 (table-lisp (cic:org-table-to-lisp-no-separators))
                 (table-heading (save-excursion (org-back-to-heading) (cic:get-headline-text (cic:get-current-line))))
                 looked-up)
@@ -650,7 +650,7 @@ TODO: probably want an error if not at proper table"
   (let (key
         (line (cic:get-current-line))
         (column 2)
-        (fname-nondirectory (file-name-nondirectory (buffer-file-name))))
+        (fname-nondirectory (file-name-nondirectory buffer-file-name)))
     (when (or
            (equal fname-nondirectory "food-database.org")
            (equal fname-nondirectory "gear-database.org"))

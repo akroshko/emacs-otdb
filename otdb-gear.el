@@ -5,7 +5,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20180811
+;; Version: 20190223
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -53,12 +53,12 @@
   "Use 'kg for kilograms, 'lb for pounds, and 'lb-g for lbs for
   larger weights and g for smaller weights..")
 
-(defvar otdb-gear-mode-map
-  nil
-  "Keymap for otdb-gear.")
+;; (defvar otdb-gear-mode-map
+;;   nil
+;;   "Keymap for otdb-gear.")
 
 ;; XXXX: if above global flag is set, only calculate non-nil and non-invalid for select columns
-;; TODO: need key and/or menu item to toggle this variable
+;; need key to toggle this variable
 (defvar otdb-gear-column-mark
   nil
   "Set to string \"X\" for check and string \"C\" for cost.")
@@ -81,6 +81,28 @@
   nil
   "Hold the last set of tags")
 
+(defun otdb-gear-reset-filters ()
+  (interactive)
+  ;; XXXX: resetting clears all
+  (setq otdb-gear-item-last-pattern nil
+        otdb-gear-item-pattern nil
+        otdb-gear-item-last-tags nil
+        otdb-gear-item-tags nil
+        otdb-gear-column-mark nil))
+
+(defvar otdb-gear-read-column-mark-history
+  nil
+  "The history of column mark inputs.")
+
+(defun otdb-gear-read-column-mark ()
+  "Read and change the column mark."
+  (interactive)
+  (let ((thestring (read-string (concat "Column mark expression " (pp-to-string otdb-gear-column-mark) ": ") nil otdb-gear-read-column-mark-history otdb-gear-column-mark)))
+    (if (cic:is-not-empty-string-nil thestring)
+        (setq otdb-gear-column-mark thestring)
+      nil)))
+
+
 (defun otdb-gear-menu-item-pattern ()
   "Set menu item to reflect current value of otdb-gear-item-pattern."
   (cons (cond (otdb-gear-item-pattern
@@ -96,6 +118,17 @@
                 (setq otdb-gear-item-last-pattern otdb-gear-item-pattern)
                 (setq otdb-gear-item-pattern nil))
             (setq otdb-gear-item-pattern otdb-gear-item-last-pattern)))))
+
+(defun otdb-gear-menu-files (map)
+  (define-key map [menu-bar otdb-gear-menu gear-collections]        (cons "Gear collection files" (make-sparse-keymap "gear collection files")))
+  ;; TODO: does not update dynamically at the moment
+  (when (boundp 'otdb-gear-collection-files)
+    (dolist (collection (cic:ensure-list otdb-gear-collection-files))
+      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections collection) (cons collection (cic:make-file-finder collection)))))
+  (define-key map [menu-bar otdb-gear-menu gear-databases]          (cons "Gear database files" (make-sparse-keymap "gear database files")))
+  (when (boundp 'otdb-gear-database)
+    (dolist (database (cic:ensure-list otdb-gear-database))
+      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases database) (cons database (cic:make-file-finder database))))))
 
 (defun otdb-gear-menu-tags ()
   "Set menu item to reflect current value of otdb-gear-item-tags."
@@ -113,44 +146,12 @@
                 (setq otdb-gear-item-tags nil))
             (setq otdb-gear-item-tags otdb-gear-item-last-tags)))))
 
-(defun otdb-gear-reset-filters ()
-  (interactive)
-  ;; XXXX: resetting clears all
-  (setq otdb-gear-item-last-pattern nil)
-  (setq otdb-gear-item-pattern nil)
-  (setq otdb-gear-item-last-tags nil)
-  (setq otdb-gear-item-tags nil)
-  (setq otdb-gear-column-mark nil))
-
-(defvar otdb-gear-read-column-mark-history
-  nil
-  "The history of column mark inputs.")
-
-(defun otdb-gear-read-column-mark ()
-  "Read and change the column mark."
-  (interactive)
-  (let ((thestring (read-string (concat "Column mark expression " (pp-to-string otdb-gear-column-mark) ": ") nil otdb-gear-read-column-mark-history otdb-gear-column-mark)))
-    (if (cic:is-not-empty-string-nil thestring)
-        (setq otdb-gear-column-mark thestring)
-      nil)))
-
 (defun otdb-gear-menu-column-mark ()
   (cons (concat "Change column mark: " (pp-to-string otdb-gear-column-mark)) 'otdb-gear-read-column-mark))
 
-(defun otdb-gear-menu-files (map)
-  (define-key map [menu-bar otdb-gear-menu gear-collections]        (cons "Gear collection files" (make-sparse-keymap "gear collection files")))
-  ;; TODO: does not update dynamically at the moment
-  (when (boundp 'otdb-gear-collection-files)
-    (dolist (collection (cic:ensure-list otdb-gear-collection-files))
-      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections collection) (cons collection (cic:make-file-finder collection)))))
-  (define-key map [menu-bar otdb-gear-menu gear-databases]          (cons "Gear database files" (make-sparse-keymap "gear database files")))
-  (when (boundp 'otdb-gear-database)
-    (dolist (database (cic:ensure-list otdb-gear-database))
-      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases database) (cons database (cic:make-file-finder database))))))
-
 (defun otdb-gear-mode-map ()
   (let ((map (make-sparse-keymap)))
-    (otdb-table-skeleton-map map)
+    (setq map (otdb-table-skeleton-map map))
     (define-key map [menu-bar otdb-gear-menu]                         (cons "otdb-gear" (make-sparse-keymap "otdb-gear")))
     (define-key map [menu-bar otdb-gear-menu reset-filters]           (cons "Reset gear filters" 'otdb-gear-reset-filters))
     ;; TODO: generate these from alist
@@ -189,7 +190,6 @@
     (define-key map [menu-bar otdb-gear-menu toggle-check]            '("Toggle (X)" . otdb-table-set-toggle-check-line))
     (define-key map [menu-bar otdb-gear-menu calc-special-command]    '(menu-item "Use special buffer for calculation" (lambda () (interactive) (otdb-gear-calc-special-command))
                                                                                   :keys "s-d s"))
-    (otdb-table-skeleton-menu-map map 'otdb-gear-menu)
     map))
 (setq otdb-gear-mode-map (otdb-gear-mode-map))
 
@@ -201,10 +201,11 @@
 
 (add-hook 'menu-bar-update-hook 'otdb-gear-update-menu)
 
-(define-minor-mode otdb-gear-mode
-  :global nil
-  :lighter " otdb-gear"
-  :keymap otdb-gear-mode-map
+(defvar otdb-gear-mode-map
+  (let ((map (make-sparse-keymap)))
+    (otdb-table-skeleton-map map)))
+
+(define-derived-mode otdb-gear-mode org-mode "org-table database gear mode"
   (make-local-variable 'otdb-table-tablet-mode)
   (make-local-variable 'otdb-old-modeline-color)
   (make-local-variable 'otdb-old-modeline-color-inactive)
@@ -212,7 +213,7 @@
 
 (add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-init)
 (defun otdb-gear-mode-init ()
-  (when (and otdb-gear-mode (functionp 'hl-line-mode))
+  (when (and (derived-mode-p 'otdb-gear-mode) (functionp 'hl-line-mode))
     (hl-line-mode 1)))
 
 (defun otdb-gear-lookup-function (row-list)
@@ -354,7 +355,7 @@ DATABASE-ROW."
 (defun otdb-gear-get-collection-weight-cost (collection quantity)
   "Get the weight and cost from gear collection COLLECTION."
   (let ((collection-location (otdb-gear-find-collection collection)))
-    (with-current-file (car collection-location)
+    (with-current-file-transient (car collection-location)
       (goto-char (cadr collection-location))
       (cic:org-find-table)
       (cic:org-table-last-row)
@@ -386,11 +387,10 @@ DATABASE-ROW."
   "Get the location of gear collection COLLECTION."
   (let (location)
     (dolist (collection-file otdb-gear-collection-files)
-      (with-current-file-min collection-file
-        (let ((found (progn
-                       (when (re-search-forward (concat "^\* " collection " :gear:") nil t)
-                         (beginning-of-line)
-                         (point)))))
+      (with-current-file-transient-min collection-file
+        (let ((found (when (re-search-forward (concat "^\* " collection " :gear:") nil t)
+                       (beginning-of-line)
+                       (point))))
           (when found
             (setq location (list collection-file found))))))
     location))
@@ -509,11 +509,11 @@ corresponding to a gear collection."
   (let (the-new-buffer)
     (when (eq (otdb-table-detect) 'backpacking)
       (cond (otdb-gear-item-pattern
-             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear-pattern--" otdb-gear-item-pattern "--" (format-time-string "%Y%m%dT%H%M%S" (current-time)) "*"))))
+             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear-pattern--" otdb-gear-item-pattern "--" (cic:standard-datestamp-current-time) "*"))))
             (otdb-gear-item-tags
-             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear-tags--" otdb-gear-item-tags "--" (format-time-string "%Y%m%dT%H%M%S" (current-time)) "*"))))
+             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear-tags--" otdb-gear-item-tags "--" (cic:standard-datestamp-current-time) "*"))))
             (t
-             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear--" (format-time-string "%Y%m%dT%H%M%S" (current-time)) "*")))))
+             (setq the-new-buffer (generate-new-buffer (concat "*otdb-gear--" (cic:standard-datestamp-current-time) "*")))))
       (with-current-buffer the-new-buffer
         (org-mode)
         (otdb-gear-mode)
@@ -563,13 +563,12 @@ corresponding to a gear collection."
             (with-current-buffer current-temporary-buffer
               (insert (concat "  | " (mapconcat 'identity lisp-row " | ") "\n")))))
         (when (and collection-location (not (otdb-table-check-invalid-current-row-lisp lisp-row otdb-gear-column-mark char-columns)))
-          (save-excursion
-            ;; find the collection
-            (with-current-file-min (car collection-location)
-              ;; TODO: open everything up?
-              (goto-char (cadr collection-location))
-              (cic:org-find-table)
-              ;; advance to table
-              (otdb-gear-calc-special (cic:org-table-to-lisp-no-separators) current-temporary-buffer))))))))
+          ;; find the collection
+          (with-current-file-transient-min (car collection-location)
+            ;; TODO: open everything up?
+            (goto-char (cadr collection-location))
+            (cic:org-find-table)
+            ;; advance to table
+            (otdb-gear-calc-special (cic:org-table-to-lisp-no-separators) current-temporary-buffer)))))))
 
 (provide 'otdb-gear)

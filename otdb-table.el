@@ -57,9 +57,6 @@
 ;; database/table keys
 ;; modes, macros, and utility commands
 
-;; http://ergoemacs.org/emacs/elisp_menu_for_major_mode.html
-;; http://ergoemacs.org/emacs/elisp_menu.html
-;; see particular files for minor modes for menus
 (defun otdb-table-skeleton-map (map)
   (define-key map (kbd "s-d !") 'otdb-table-agenda-attention)
   (define-key map (kbd "s-d *") 'otdb-table-recalculate)
@@ -81,7 +78,7 @@
   ;; TODO want to be able to go and pop back
   ;; update the "agenda" with the key
   (define-key map (kbd "s-d u") 'otdb-table-agenda-uncheck-key)
-  ;; TODO: figure out better key scheme, do I actually want these (or like them) with the menu
+  ;; TODO: figure out better key scheme
   (define-key map (kbd "H-t") 'otdb-table-set-toggle-check-line)
   (define-key map (kbd "H-T") 'otdb-table-invalid-toggle-check-line)
   (define-key map (kbd "M-H-t") 'otdb-table-set-toggle-cost-line)
@@ -93,37 +90,8 @@
   ;; (define-key map (kbd "H-M-<up>") nil)
   ;; (define-key map (kbd "H-M-<down>") nil)
   (define-key map (kbd "H-m") 'otdb-toggle-tablet-mode)
-  ;; menu keys
-  (define-key map [menu-bar] (make-sparse-keymap "otdb")))
+  map)
 
-(defun otdb-table-skeleton-menu-map (map menu-name)
-  (define-key map (vector 'menu-bar menu-name 'separator) '("--"))
-  (define-key map (vector 'menu-bar menu-name 'put-key)               '("Put key in database" . otdb-table-put-key-in-database))
-  (define-key map (vector 'menu-bar menu-name 'insert-key)            '("Insert key" . otdb-table-insert-key))
-  (define-key map (vector 'menu-bar menu-name 'goto-database-key)     '("Goto database key" . otdb-table-goto-key-in-database))
-  (define-key map (vector 'menu-bar menu-name 'recalculate)           '("Recalculate table" . otdb-table-recalculate))
-  (define-key map (vector 'menu-bar menu-name 'recalculate-locally)   '(menu-item "Recalculate tables in file" (lambda () (interactive) (otdb-table-recalculate '(4)))
-                                                                                  :keys "C-u s-d *"))
-  (define-key map (vector 'menu-bar menu-name 'recalculate-global)    '(menu-item "Recalculate tables globally" (lambda () (interactive) (otdb-table-recalculate '(16)))
-                                                                                  :keys "C-u C-u s-d *"))
-  (define-key map (vector 'menu-bar menu-name 'recalculate-global-3x) '(menu-item "Recalculate tables globally 3x" (lambda () (interactive) (otdb-table-recalculate '(64)))
-                                                                                  :keys "C-u C-u C-u s-d *"))
-  (define-key map (vector 'menu-bar menu-name 'tablet-mode)           '(menu-item "Tablet mode" otdb-toggle-tablet-mode
-                                                                                  :button (:toggle . (and otdb-table-tablet-mode)))))
-
-;; TODO: resurect this mode for better extensibility, derive other modes
-;; (define-minor-mode otdb-table-mode
-;;   :global nil
-;;   :lighter " otdb"
-;;   :keymap (let ((table-detect (otdb-table-detect)))
-;;             (cond ((eq table-detect 'backpacking)
-;;                    otdb-gear-mode-map)
-;;                   ((eq table-detect 'recipe)
-;;                    otdb-recipe-mode-map)))
-;;   (make-local-variable 'otdb-table-tablet-mode)
-;;   (make-local-variable 'otdb-old-modeline-color)
-;;   (make-local-variable 'otdb-old-modeline-color-inactive)
-;;   (setq-local otdb-table-tablet-mode nil))
 
 (defun otdb-table-detect ()
   "Users should modify this file to meet their file structure.
@@ -133,7 +101,7 @@ May eventually be generalized a little better."
     (cond ((with-current-buffer-min current-buffer
              (re-search-forward "^\\*.*:recipe:" nil t))
            'recipe)
-          ((with-buffer-min current-buffer
+          ((with-current-buffer-min current-buffer
              (re-search-forward "^\\*.*:gear:" nil t))
            'backpacking)
           (t
@@ -179,18 +147,16 @@ This is seperate from the otdb-database."
     (let ((otdb-detect (otdb-table-detect))
           (current-filename (ignore-errors buffer-file-name)))
       (cond ((eq otdb-detect 'backpacking)
-             (otdb-gear-mode 1))
+             (otdb-gear-mode))
             ((eq otdb-detect 'recipe)
-             (if (member current-filename (cdr (assoc 'otdb-recipe-files otdb-recipe-backpacking-alist)))
-                 (otdb-recipe-backpacking-mode 1)
-               (otdb-recipe-mode 1)))))))
+             (otdb-recipe-mode))))))
 
-(add-hook 'org-mode-hook 'otdb-setup-hook)
+(add-hook 'find-file-hook 'otdb-setup-hook)
 
-(defun otdb-setup-minibuffer-hook ()
-  (and (boundp 'otdb-recipe-mode) (otdb-recipe-mode 0))
-  (and (boundp 'otdb-gear-mode) (otdb-gear-mode 0)))
-(add-hook 'minibuffer-setup-hook 'otdb-setup-minibuffer-hook)
+;; (defun otdb-setup-minibuffer-hook ()
+;;   (and (boundp 'otdb-recipe-mode) (otdb-recipe-mode 0))
+;;   (and (boundp 'otdb-gear-mode) (otdb-gear-mode 0)))
+;; (add-hook 'minibuffer-setup-hook 'otdb-setup-minibuffer-hook)
 
 (defun otdb-table-elp-instrument ()
   "Standard profiling setup"
@@ -275,7 +241,7 @@ helper functions.  MESSAGE-BUFFER gives messages."
             (org-table-map-tables (lambda () (otdb-table-update nil database heading collection-files lookup-function insert-function message-buffer)))))
          ((equal arg '(16))
           (dolist (collection-file collection-files)
-            (with-current-file-min collection-file
+            (with-current-file-transient-min collection-file
               (otdb-table-update '(4) database heading collection-files lookup-function insert-function message-buffer))))
          ((equal arg '(64))
           (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)

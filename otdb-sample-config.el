@@ -84,26 +84,4 @@
                                       "recipes/slowcooker-recipes.org")))
    (cons 'otdb-recipe-message-buffer "*Recipe messages*")))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; backpacking recipes
-
-(defvar otdb-recipe-backpacking-alist
-  (list
-   ;; The main location of the database
-   (cons 'otdb-recipe-database (cic:join-paths otdb-root "recipes/food-database.org"))
-   (cons 'otdb-recipe-database-headline "Ingredients")
-   ;; The main location of the agenda, should be re-re-factored out of code.
-   (cons 'otdb-recipe-agenda (cic:join-paths otdb-root "backpacking-recipes/backpacking-agenda.org"))
-   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
-   ;; The grocery list used for mobile use.
-   (cons 'otdb-recipe-shopping (cic:join-paths otdb-root "backpacking-recipes/backpacking-groceries.org"))
-   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
-   ;; The headline for price checks to make.
-   (cons 'otdb-recipe-price-check-headline "Price checks")
-   (cons 'otdb-recipe-files (mapcar (lambda (f)
-                                      (cic:join-paths otdb-root f))
-                                    '("backpacking-recipes/backpacking-meals.org"
-                                      "backpacking-recipes/backpacking-recipes.org")))
-   (cons 'otdb-recipe-message-buffer "*Backpacking recipe messages*")))
-
 (provide 'otdb-sample-config)

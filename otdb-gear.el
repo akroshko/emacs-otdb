@@ -1,6 +1,6 @@
 ;;; otdb-gear.el --- For calculating the weights of backpacking (or other) gear.
 ;;
-;; Copyright (C) 2015-2018, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2019, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
@@ -124,11 +124,11 @@
   ;; TODO: does not update dynamically at the moment
   (when (boundp 'otdb-gear-collection-files)
     (dolist (collection (cic:ensure-list otdb-gear-collection-files))
-      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections collection) (cons collection (cic:make-file-finder collection)))))
+      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections (make-symbol collection)) (cons collection (cic:make-file-finder collection)))))
   (define-key map [menu-bar otdb-gear-menu gear-databases]          (cons "Gear database files" (make-sparse-keymap "gear database files")))
   (when (boundp 'otdb-gear-database)
     (dolist (database (cic:ensure-list otdb-gear-database))
-      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases database) (cons database (cic:make-file-finder database))))))
+      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases (make-symbol database)) (cons database (cic:make-file-finder database))))))
 
 (defun otdb-gear-menu-tags ()
   "Set menu item to reflect current value of otdb-gear-item-tags."

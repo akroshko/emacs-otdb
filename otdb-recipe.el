@@ -2,7 +2,7 @@
 ;;; into org-mode tables and calculation of costs and macronutrient
 ;;; amounts.
 ;;
-;; Copyright (C) 2015-2018, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2019, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
@@ -134,16 +134,14 @@ depending on context."
   (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections)              (cons "Recipe files" (make-sparse-keymap "recipe files")))
   (when (boundp 'otdb-recipe-normal-alist)
     (dolist (collection (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-files)))
-      (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections collection) (cons collection (cic:make-file-finder collection)))))
+      (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections (make-symbol collection)) (cons collection (cic:make-file-finder collection)))))
   ;; https://stackoverflow.com/questions/9966279/how-to-dynamically-define-a-menu-item-what-is-the-thing-in-square-braces
   ;; TODO: hope this always works out properly, might have issue if databases change
   ;;       does not update dynamically at the moment
   (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases)                (cons "Recipe databases" (make-sparse-keymap "recipe databases")))
-  (message "++++++++++++++++++++ Menu files!!!")
   (when (boundp 'otdb-recipe-normal-alist)
     (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database)))
-      (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases database)    (cons database (cic:make-file-finder database)))))
-  (message "-------------------- Menu files!!!"))
+      (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases (make-symbol database)) (cons database (cic:make-file-finder database))))))
 
 (defun otdb-recipe-update-menu ()
   (let ((the-mode-map otdb-recipe-mode-map)
@@ -167,7 +165,7 @@ depending on context."
     ;; TODO: change for tags more like
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns)            (cons "Recipe ingredient patterns" (make-sparse-keymap "recipe ingredient patterns")))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns 'spice)     (cons "Spice" (lambda () (interactive)
-                                                                                                  nil)))
+                                                                                                   nil)))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns 'packaging) (cons "Packaging" (lambda () (interactive)
                                                                                                        nil)))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-pattern)             (otdb-recipe-menu-item-pattern))
@@ -175,7 +173,7 @@ depending on context."
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags 'spice)         (cons "Spice" (lambda () (interactive)
                                                                                                    (setq otdb-recipe-item-tags "spice"))))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags 'packaging)     (cons "Packaging" (lambda () (interactive)
-                                                                                                      (setq otdb-recipe-item-tags "packaging"))))
+                                                                                                       (setq otdb-recipe-item-tags "packaging"))))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tag)                 (otdb-recipe-menu-tags))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator2) '("--"))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'column-mark-cost)         '(menu-item "Toggle column mark cost (C)" (lambda () (interactive) (setq otdb-recipe-column-mark "C"))

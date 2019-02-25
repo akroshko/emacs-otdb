@@ -1,7 +1,7 @@
 ;;; otdb-table.el --- Create a database using an org-mode table and
 ;;; calculate things as a spreadsheet.
 ;;
-;; Copyright (C) 2015-2018, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2019, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>

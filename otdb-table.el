@@ -668,8 +668,7 @@ TODO: document further and remove hardcoding."
           ((cic:org-plain-list-p line)
            (move-beginning-of-line 1)
            (re-search-forward "[-+*]" nil t)
-           (let (kill-ring)
-             (kill-line))
+           (cic:kill-line-elisp)
            ;; insert new-key
            (insert (concat " " new-key))
            (org-table-align))
@@ -678,8 +677,7 @@ TODO: document further and remove hardcoding."
            (move-beginning-of-line 1)
            (search-forward "" nil t)
            ;; kill till end of line
-           (let (kill-ring)
-             (kill-line))
+           (cic:kill-line-elisp)
            ;; insert new-key
            (insert (concat " " new-key)))
           (t

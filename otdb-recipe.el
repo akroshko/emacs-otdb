@@ -769,6 +769,7 @@ recipe)."
 (defun otdb-recipe-agenda-push-groceries ()
   "Push the currently checked groceries to the special file for export."
   (interactive)
+  ;; TODO: want to save the buffer at some point
   (with-current-file (cdr (assoc 'otdb-recipe-shopping otdb-recipe-normal-alist))
     (erase-buffer))
   ;; loop over the headings with "Grocery"
@@ -783,10 +784,11 @@ recipe)."
       (let ((current-line (cic:get-current-line)))
         (when (string-match "\\[ \\]" current-line)
           (beginning-of-line)
-          (let ((kill-whole-line t))
-            (let (kill-ring)
-              (kill-line))
-            (forward-line -1))))))
+          ;; TODO: elisp version of this function
+          (let (kill-ring
+                (kill-whole-line t))
+            (kill-line))
+          (forward-line -1)))))
   ;; add price checks
   (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
                     (when (string-match (otdb-recipe-get-variable 'otdb-recipe-price-check-headline)  headline-name)
@@ -828,7 +830,7 @@ recipe)."
           (insert tmp-buffer-string)
           (goto-char (point-min))
           (otdb-recipe-add-latex-header heading-name-collection)
-          (save-buffer)
+          (basic-save-buffer)
           (org-latex-export-to-pdf))))))
 
 (defun otdb-recipe-export ()
@@ -852,7 +854,7 @@ pdf file in ~/tmp."
         (goto-char (point-min))
         ;; put in the header
         (otdb-recipe-add-latex-header)
-        (save-buffer)
+        (basic-save-buffer)
         (org-latex-export-to-pdf)))))
 
 (defun otdb-recipe-add-latex-header (&optional title)
@@ -890,8 +892,7 @@ deletes volume, weights, and any comments."
     (when (string-match ":" (cic:get-current-line))
       (search-forward ":")
       (backward-char)
-      (let (kill-ring)
-        (kill-line)))
+      (cic:kill-line-elisp))
     ;; add in latex attributes
     (goto-char (point-min))
     (cic:org-find-table)

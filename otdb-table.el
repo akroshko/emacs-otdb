@@ -639,22 +639,22 @@ TODO: document further and remove hardcoding."
   (let ((table-detect (otdb-table-detect)))
     (cond ((eq table-detect 'recipe)
            ;; TODO: will need to change for multiple files
-           (with-current-file-org-table (otdb-recipe-get-variable 'otdb-recipe-database)
-                                        (otdb-recipe-get-variable 'otdb-recipe-database-headline)
-                                        ;; go to last row
-                                        (cic:org-table-last-row)
-                                        ;; insert the new key
-                                        (org-table-insert-row '(4))
-                                        (insert new-key)
-                                        (org-table-align)))
+           (with-current-file-transient-org-table (otdb-recipe-get-variable 'otdb-recipe-database)
+                                                  (otdb-recipe-get-variable 'otdb-recipe-database-headline)
+                                                  ;; go to last row
+                                                  (cic:org-table-last-row)
+                                                  ;; insert the new key
+                                                  (org-table-insert-row '(4))
+                                                  (insert new-key)
+                                                  (org-table-align)))
           ((eq table-detect 'backpacking)
-           (with-current-file-org-table otdb-gear-database otdb-gear-database-headline
-                                        ;; go to last row
-                                        (cic:org-table-last-row)
-                                        ;; insert the new key
-                                        (org-table-insert-row '(4))
-                                        (insert new-key)
-                                        (org-table-align)))
+           (with-current-file-transient-org-table otdb-gear-database otdb-gear-database-headline
+                                                  ;; go to last row
+                                                  (cic:org-table-last-row)
+                                                  ;; insert the new key
+                                                  (org-table-insert-row '(4))
+                                                  (insert new-key)
+                                                  (org-table-align)))
           (t
            (error "Not in valid file!")))))
 
@@ -872,8 +872,8 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
         (progn
           (setq database-files (cic:ensure-list database))
           (dolist (database-file database-files)
-            (with-current-file-org-table database-file table-name
-                                         (setq lisp-table (append lisp-table (cic:org-table-to-lisp-no-separators)))))
+            (with-current-file-transient-org-table database-file table-name
+                                                   (setq lisp-table (append lisp-table (cic:org-table-to-lisp-no-separators)))))
           (setq otdb-table-database-cache lisp-table))))
     (dolist (row lisp-table)
       ;; when column is a member
@@ -905,14 +905,14 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (setq database-files (cic:ensure-list database))
     (dolist (database-file database-files)
       ;; TODO: heading not found? do I need it at all?
-      (with-current-file-org-table database-file table-name
-                                   (setq lisp-table (org-table-to-lisp))
-                                   (setq big-lisp-table (append big-lisp-table (cdr (cic:org-table-to-lisp-no-separators))))
-                                   (if (and
-                                        (eq (elt lisp-table 0) 'hline)
-                                        (eq (elt lisp-table 2) 'hline))
-                                       (setq column-widths (append column-widths (list (length (elt lisp-table 1)))))
-                                     (message (concat "Incorrect header in " database-file "!")))))
+      (with-current-file-transient-org-table database-file table-name
+                                             (setq lisp-table (org-table-to-lisp))
+                                             (setq big-lisp-table (append big-lisp-table (cdr (cic:org-table-to-lisp-no-separators))))
+                                             (if (and
+                                                  (eq (elt lisp-table 0) 'hline)
+                                                  (eq (elt lisp-table 2) 'hline))
+                                                 (setq column-widths (append column-widths (list (length (elt lisp-table 1)))))
+                                               (message (concat "Incorrect header in " database-file "!")))))
     ;; if column widths not equal
     (unless (equal (length (delete-dups column-widths)) 1)
       (error "Incorrect column widths!"))

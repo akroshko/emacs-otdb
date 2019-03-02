@@ -263,12 +263,13 @@ point or entered item."
            ;; add a checkbox if necessary
            (cond ((not (string-match "[A-Za-z]" (char-to-string unmatched-item)))
                   ;; find headline and add at the end
-                  (with-current-file-headline (otdb-recipe-get-variable 'otdb-recipe-agenda) (nth (- unmatched-item 48) shopping-headlines)
-                                              (hide-subtree)
-                                              (org-show-subtree)
-                                              (org-end-of-subtree)
-                                              (cic:org-insert-indent-list-item)
-                                              (insert (concat "[X] " selected-item))))
+                  (with-current-file-transient-headline (otdb-recipe-get-variable 'otdb-recipe-agenda) (nth (- unmatched-item 48) shopping-headlines)
+                                                        (hide-subtree)
+                                                        (org-show-subtree)
+                                                        (org-end-of-subtree)
+                                                        (cic:org-insert-indent-list-item)
+                                                        (insert (concat "[X] " selected-item))
+                                                        (basic-save-buffer)))
                  ((equal unmatched-item (string-to-char "q"))
                   ;; just finish
                   ))))))
@@ -775,10 +776,12 @@ recipe)."
   ;; loop over the headings with "Grocery"
   (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
                     (when (string-match "^Grocery.*" headline-name)
+                      ;; TODO: save-some-buffers? transient or not?
                       (with-current-file (otdb-recipe-get-variable 'otdb-recipe-shopping)
                         (insert headline-subtree)
                         (insert "\n"))))
   ;; kill unchecked lines
+  ;; TODO: save-some-buffers? transient or not?
   (with-current-file-min (otdb-recipe-get-variable 'otdb-recipe-shopping)
     (while (= (forward-line 1) 0)
       (let ((current-line (cic:get-current-line)))
@@ -792,6 +795,7 @@ recipe)."
   ;; add price checks
   (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
                     (when (string-match (otdb-recipe-get-variable 'otdb-recipe-price-check-headline)  headline-name)
+                      ;; TODO: save-some-buffers? transient or not?
                       (with-current-file (otdb-recipe-get-variable 'otdb-recipe-shopping)
                         (insert headline-subtree)
                         (insert "\n")))))
@@ -822,7 +826,7 @@ recipe)."
                                  ;; lookup recipe and get subtree from there
                                  ;; do process to add one recipe to buffer, get this into a function
                                  (let ((recipe-location (otdb-recipe-find (elt current-row 1))))
-                                   (with-current-file (car recipe-location)
+                                   (with-current-file-transient (car recipe-location)
                                      (goto-char (cadr recipe-location))
                                      (org-mark-subtree)
                                      (setq current-recipe-subtree (buffer-substring (region-beginning) (region-end)))

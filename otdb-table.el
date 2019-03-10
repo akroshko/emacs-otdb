@@ -947,7 +947,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (dolist (lisp-element top-row)
       (when (and (equal (length lisp-element) 1) (string-match "[[:alpha:]]" lisp-element))
         (setq single-columns (append single-columns  (list (list count lisp-element)))))
-      (setq count (+ count 1)))
+      (setq count (1+ count)))
     single-columns))
 
 ;; TODO: faked for now, need to deal with numbers

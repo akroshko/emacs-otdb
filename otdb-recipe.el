@@ -1081,7 +1081,7 @@ corresponding to a recipe."
                       (if (member count '(0 3 4 5 6 12 13))
                           (setq lisp-row-quantity (append lisp-row-quantity (list (otdb-recipe-multiply-preserve e quantity))))
                         (setq lisp-row-quantity  (append lisp-row-quantity (list e))))
-                      (setq count (+ count 1)))
+                      (setq count (1+ count)))
                     (insert (concat "  | " (mapconcat 'identity lisp-row-quantity " | ") "\n")))
                 (insert (concat "  | " (mapconcat 'identity lisp-row " | ") "\n")))))
           (when (and recipe-location (not (otdb-table-check-invalid-current-row-lisp lisp-row otdb-recipe-column-mark char-columns)))

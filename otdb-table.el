@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20190228
+;; Version: 20190312
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -58,9 +58,11 @@
 ;; modes, macros, and utility commands
 
 (defun otdb-table-skeleton-map (map)
+  ;; TODO: placeholder, non-existant function
   (define-key map (kbd "s-d !") 'otdb-table-agenda-attention)
   (define-key map (kbd "s-d *") 'otdb-table-recalculate)
-  (define-key map (kbd "s-d +") 'otdb-recipe-agenda-push-groceries)
+  ;; TODO: placeholder, non-existant function
+  (define-key map (kbd "s-d +") 'otdb-recipe-push-to-agenda)
   ;; update the "agenda" with the key
   (define-key map (kbd "s-d a") 'otdb-table-agenda-check-add-key)
   ;; goto key in main database
@@ -68,7 +70,6 @@
   ;; XXXX this makes sense to do on a new row or checklist item, or to complete something
   (define-key map (kbd "s-d i") 'otdb-table-insert-key)
   ;; (define-key map (kbd "s-d u") 'otdb-table-update-key-in-database)
-  (define-key map (kbd "s-d j") 'otdb-table-agenda-jump)
   ;; TODO: find occurences in database and collections
   ;; (define-key map (kbd "s-d o") 'otdb-table-occurences-key)
   ;; put key into main database, ask for key, update key at point if necessary
@@ -789,20 +790,6 @@ TODO: Document usage further."
                    ;; add a new row to the database
                    (otdb-table-insert-key-database new-key))
                (mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))))
-          (t
-           (error "Not in valid file!")))))
-
-(defun otdb-table-agenda-attention ()
-  "Call attention in agenda to a key in the table for things such
-as price checking.  Can be used whenever values related to an
-item are in need of checking."
-  (interactive)
-  (otdb-table-reset-cache)
-  (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           (otdb-recipe-agenda-price-check))
-          ((eq table-detect 'backpacking)
-           (error "Not in valid file!"))
           (t
            (error "Not in valid file!")))))
 

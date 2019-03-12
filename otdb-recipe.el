@@ -311,59 +311,6 @@ point or entered item."
           ((member selected-supply supply-list-unchecked)
            (mpp-echo (format "Shopping item %s already unchecked!" selected-supply) (otdb-recipe-get-variable 'otdb-recipe-message-buffer))))))
 
-(defun otdb-table-agenda-jump ()
-  "Jump to the item near point in agenda."
-  (interactive)
-  (let* ((default-item (ignore-errors (otdb-table-get-key-at-point)))
-         (shopping-list-checked (otdb-recipe-get-shopping 'checked))
-         (shopping-list-unchecked (otdb-recipe-get-shopping 'unchecked))
-         (full-list (append shopping-list-checked shopping-list-unchecked))
-         prompt
-         selected-item)
-    (if (not (full-string-p default-item))
-        (setq prompt "Supply to jump to: ")
-      (setq prompt (concat "Supply to jump to (" default-item "): ")))
-    (setq selected-item (completing-read-default prompt full-list nil nil))
-    (when (not (full-string-p (s-trim-full selected-item)))
-      (setq selected-item default-item))
-    (cond ((not (member selected-item full-list))
-           (mpp-echo (format "Supply %s not found.  Nothing to remove!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
-          (t
-           (find-file (otdb-recipe-get-variable 'otdb-recipe-agenda))
-           (goto-char (point-min))
-           (re-search-forward (concat cic:emacs-stdlib-checkbox-regexp " " selected-item))
-           (org-back-to-heading)
-           (beginning-of-line)
-           (hide-subtree)
-           (org-show-subtree)
-           (re-search-forward (concat cic:emacs-stdlib-checkbox-regexp " " selected-item))
-           (beginning-of-line)))))
-
-(defun otdb-recipe-agenda-price-check ()
-  "Add an item near point to be price checked."
-  (interactive)
-  (let* ((default-item (ignore-errors (otdb-table-get-key-at-point)))
-         (shopping-list-checked (otdb-recipe-get-shopping 'checked))
-         (shopping-list-unchecked (otdb-recipe-get-shopping 'unchecked))
-         (full-list (append shopping-list-checked shopping-list-unchecked))
-         prompt
-         selected-item)
-    (if (not (full-string-p default-item))
-        (setq prompt "Item to price check: ")
-      (setq prompt (concat "Item to price check (" default-item "): ")))
-    (setq selected-item (completing-read-default prompt full-list nil nil))
-    (unless (full-string-p selected-item)
-      (setq selected-item default-item))
-    (find-file (otdb-recipe-get-variable 'otdb-recipe-agenda))
-    (goto-char (point-min))
-    (goto-char (org-find-exact-headline-in-buffer (otdb-recipe-get-variable 'otdb-recipe-price-check-headline)))
-    (beginning-of-line)
-    (hide-subtree)
-    (org-show-subtree)
-    (org-end-of-subtree)
-    (cic:org-insert-indent-list-item)
-    (insert selected-item)))
-
 (defun otdb-recipe-get-shopping (&optional checktype)
   "Get the list of items to shop for, optionally with CHECKTYPE."
   (let (line
@@ -766,39 +713,6 @@ recipe)."
 (defun otdb-recipe-get-invalid-text (text)
   "XXXX: unused for now, want to mark things that are bad with a color."
   (propertize text 'font-lock-face '(:foreground "red")))
-
-(defun otdb-recipe-agenda-push-groceries ()
-  "Push the currently checked groceries to the special file for export."
-  (interactive)
-  ;; TODO: want to save the buffer at some point
-  (with-current-file (cdr (assoc 'otdb-recipe-shopping otdb-recipe-normal-alist))
-    (erase-buffer))
-  ;; loop over the headings with "Grocery"
-  (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
-                    (when (string-match "^Grocery.*" headline-name)
-                      ;; TODO: save-some-buffers? transient or not?
-                      (with-current-file (otdb-recipe-get-variable 'otdb-recipe-shopping)
-                        (insert headline-subtree)
-                        (insert "\n"))))
-  ;; kill unchecked lines
-  ;; TODO: save-some-buffers? transient or not?
-  (with-current-file-min (otdb-recipe-get-variable 'otdb-recipe-shopping)
-    (while (= (forward-line 1) 0)
-      (let ((current-line (cic:get-current-line)))
-        (when (string-match "\\[ \\]" current-line)
-          (beginning-of-line)
-          ;; TODO: elisp version of this function
-          (let (kill-ring
-                (kill-whole-line t))
-            (kill-line))
-          (forward-line -1)))))
-  ;; add price checks
-  (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
-                    (when (string-match (otdb-recipe-get-variable 'otdb-recipe-price-check-headline)  headline-name)
-                      ;; TODO: save-some-buffers? transient or not?
-                      (with-current-file (otdb-recipe-get-variable 'otdb-recipe-shopping)
-                        (insert headline-subtree)
-                        (insert "\n")))))
 
 (defun otdb-recipe-export-multiple ()
   "Export each component recipe in a table containing recipes to a pdf file in ~/tmp."

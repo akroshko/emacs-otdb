@@ -71,12 +71,6 @@
    (cons 'otdb-recipe-database-headline "Ingredients")
    ;; The main location of the agenda, should be re-re-factored out of code.
    (cons 'otdb-recipe-agenda (cic:join-paths otdb-root "recipes/sample-agenda.org"))
-   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
-   ;; The grocery list used for mobile use.
-   (cons 'otdb-recipe-shopping (cic:join-paths otdb-root "recipes/groceries.org"))
-   ;; TODO: issue with this in otdb-recipe-agenda-push-groceries
-   ;; The headline for price checks to make.
-   (cons 'otdb-recipe-price-check-headline "Price checks")
    (cons 'otdb-recipe-files (mapcar (lambda (f)
                                       (cic:join-paths otdb-root f))
                                     '("recipes/recipes.org"

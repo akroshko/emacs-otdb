@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20190228
+;; Version: 20190427
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -35,8 +35,8 @@
 ;; Features that might be required by this library:
 ;;
 ;; Standard Emacs features, to be documented specificly later.  Also
-;; requires features from https://github.com/akroshko/emacs-stdlib,
-;; using (require 'emacs-stdlib) is sufficient.
+;; requires features from https://github.com/akroshko/cic-emacs-common,
+;; using (require 'cic-emacs-common) is sufficient.
 ;;
 ;;; Code:
 

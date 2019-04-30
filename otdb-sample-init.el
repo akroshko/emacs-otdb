@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20190228
+;; Version: 20190416
 ;; URL:
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -34,8 +34,9 @@
 ;; Features that might be required by this library:
 ;;
 ;; Standard Emacs features, to be documented specificly later.  Also
-;; requires features from https://github.com/akroshko/emacs-stdlib,
-;; using (require 'emacs-stdlib) is sufficient.
+;; requires features from https://github.com/akroshko/cic-emacs-common,
+;; TODO: no,fix this
+;; using (require 'cic-emacs-common) is sufficient.
 ;;
 ;;; Code:
 
@@ -45,20 +46,21 @@
 (require 'org-table)
 
 (add-to-list 'load-path ".")
-(add-to-list 'load-path "../emacs-stdlib/")
-(load "../emacs-stdlib/emacs-config.el")
-(requiring-package (emacs-stdlib-aliases))
-(requiring-package (emacs-stdlib-patterns))
-(requiring-package (emacs-stdlib-functions))
-(requiring-package (emacs-stdlib-keys))
-(requiring-package (emacs-stdlib-super-hyper-keys))
+(add-to-list 'load-path "../cic-emacs-common/")
+;; TODO: replace this
+(load "../cic-emacs-common/cic-emacs-config.el")
+(requiring-package (cic-emacs-common-aliases))
+(requiring-package (cic-emacs-patterns))
+(requiring-package (cic-emacs-functions))
+(requiring-package (cic-emacs-macros))
+(requiring-package (cic-emacs-org-mode))
+(requiring-package (cic-emacs-passwords))
+(requiring-package (cic-emacs-strings))
 (requiring-package (tblel))
 ;; XXXX: uncomment to use my other keys
-;; (emacs-stdlib-keys-mode t)
-;; (emacs-stdlib-keys-non-term-mode t)
-;; (emacs-stdlib-keys-org-mode t)
-;; (emacs-stdlib-super-keys-mode t)
-;; (emacs-stdlib-hyper-keys-mode t)
+;; (cic-emacs-keys-mode t)
+;; (cic-emacs-keys-non-term-mode t)
+;; (cic-emacs-keys-org-mode t)
 ;; TODO put these in an accessible place
 (requiring-package (otdb-sample-config))
 (requiring-package (otdb-table))

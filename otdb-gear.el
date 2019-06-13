@@ -13,8 +13,8 @@
 ;; published by the Free Software Foundation; either version 3, or
 ;; (at your option) any later version.
 ;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
 ;;
@@ -132,20 +132,14 @@ databases."
     ;; TODO: menu to jump to database(s)
     (define-key map [menu-bar otdb-gear-menu item-patterns]                (cons "Gear item patterns" (make-sparse-keymap "gear item patterns")))
     ;; TODO: make these actually work
-    (define-key map [menu-bar otdb-gear-menu item-patterns clothing]       (cons "Clothing" (lambda () (interactive)
-                                                                                              nil)))
-    (define-key map [menu-bar otdb-gear-menu item-patterns packaging]      (cons "Packaging" (lambda () (interactive)
-                                                                                               nil)))
+    (define-key map [menu-bar otdb-gear-menu item-patterns clothing]       (cons "Clothing"  'nil-command))
+    (define-key map [menu-bar otdb-gear-menu item-patterns packaging]      (cons "Packaging" 'nil-command))
     (define-key map [menu-bar otdb-gear-menu item-pattern]                 (otdb-gear-menu-item-pattern))
-    (define-key map [menu-bar otdb-gear-menu item-tags]                    (cons "Gear tags" (make-sparse-keymap "gear tags patterns")))
-    (define-key map [menu-bar otdb-gear-menu item-tags clothing]           (cons "Clothing"  (lambda () (interactive)
-                                                                                               (setq otdb-gear-item-tags "clothing"))))
-    (define-key map [menu-bar otdb-gear-menu item-tags consumable]         (cons "Consumable" (lambda () (interactive)
-                                                                                                (setq otdb-gear-item-tags "consumable"))))
-    (define-key map [menu-bar otdb-gear-menu item-tags electronics]        (cons "Electronics" (lambda () (interactive)
-                                                                                                 (setq otdb-gear-item-tags "electronics"))))
-    (define-key map [menu-bar otdb-gear-menu item-tags container]          (cons "Container" (lambda () (interactive)
-                                                                                               (setq otdb-gear-item-tags "container"))))
+    (define-key map [menu-bar otdb-gear-menu item-tags]                    (cons "Gear tags"   (make-sparse-keymap "gear tags patterns")))
+    (define-key map [menu-bar otdb-gear-menu item-tags clothing]           (cons "Clothing"    (command-with-args 'set otdb-gear-item-tags "clothing")))
+    (define-key map [menu-bar otdb-gear-menu item-tags consumable]         (cons "Consumable"  (command-with-args 'set otdb-gear-item-tags "consumable")))
+    (define-key map [menu-bar otdb-gear-menu item-tags electronics]        (cons "Electronics" (command-with-args 'set otdb-gear-item-tags "electronics")))
+    (define-key map [menu-bar otdb-gear-menu item-tags container]          (cons "Container"   (command-with-args 'set otdb-gear-item-tags "container")))
     (define-key map [menu-bar otdb-gear-menu item-tag]                     (otdb-gear-menu-tags))
     (define-key map [menu-bar otdb-gear-menu separator3] '("--"))
     (define-key map [menu-bar otdb-gear-menu toggle-check-invalid]         '("Toggle column X as invalid" . otdb-table-invalid-toggle-check-line))

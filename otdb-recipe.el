@@ -175,8 +175,8 @@ databases."
     ;; TODO: generate these from alist
     (otdb-recipe-menu-files map 'otdb-recipe-menu)
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator4) '("--"))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe-multiple)       '("Export recipe multiple" otdb-recipe-export-multiple))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe)                '("Export recipe"          otdb-recipe-export))
+    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe-multiple)       '("Export recipe multiple" . otdb-recipe-export-multiple))
+    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe)                '("Export recipe"          . otdb-recipe-export))
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator3) '("--"))
     ;; TODO: change for tags more like
     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns)                (cons "Recipe ingredient patterns" (make-sparse-keymap "recipe ingredient patterns")))

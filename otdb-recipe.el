@@ -248,7 +248,7 @@ point or entered item."
                                (save-excursion
                                  (org-narrow-to-subtree)
                                  (goto-char (point-min))
-                                 (when (ignore-errors (re-search-forward (concat cic:checkbox-regexp " " selected-item)))
+                                 (when (re-search-forward (concat cic:checkbox-regexp " " selected-item) nil t)
                                    (org-toggle-checkbox))
                                  (widen))))
            (cic:mpp-echo (format "Grocery item %s successfully checked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -729,15 +729,16 @@ recipe)."
                             (otdb-recipe-get-variable 'otdb-recipe-database-headline)
                             ingredient))
 
-(defun otdb-recipe-export-multiple ()
+(defun otdb-recipe-export-multiple (&optional otdb-recipe-temp-directory)
   "Export each component recipe in a table containing recipes to a pdf file in ~/tmp."
   (interactive)
   (require 'ox-publish)
   ;; loop over rows in current table
+  (unless otdb-recipe-temp-directory
+    (setq otdb-recipe-temp-directory "~/tmp/"))
   (save-excursion
     (org-back-to-heading)
-    (let ((otdb-recipe-temp-directory "~/tmp/")
-          (heading-name-collection (save-excursion
+    (let ((heading-name-collection (save-excursion
                                      (org-back-to-heading)
                                      ;; strip off after first colon
                                      (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
@@ -766,29 +767,35 @@ recipe)."
           (basic-save-buffer)
           (org-latex-export-to-pdf))))))
 
-(defun otdb-recipe-export ()
+(defun otdb-recipe-export (&optional otdb-recipe-temp-directory)
   "Export the single recipe in a table containing recipes to a
 pdf file in ~/tmp."
   (interactive)
   (require 'ox-publish)
+  ;; TODO: requires a trailing slash if set elsewhere
+  (unless otdb-recipe-temp-directory
+    (setq otdb-recipe-temp-directory "~/tmp/"))
   (save-excursion
     ;; get current table
     (org-mark-subtree)
-    (let ((heading-name (save-excursion
-                          (org-back-to-heading)
-                          ;; strip off after first colon
-                          (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
-          (current-recipe-subtree (buffer-substring (region-beginning) (region-end)))
-          (otdb-recipe-temp-directory "~/tmp/"))
-      ;; put table in temporary file named after headline
-      (with-current-file-transient (concat otdb-recipe-temp-directory heading-name ".org")
-        (erase-buffer)
-        (insert (otdb-recipe-add-tmp-buffer current-recipe-subtree))
-        (goto-char (point-min))
-        ;; put in the header
-        (otdb-recipe-add-latex-header)
-        (basic-save-buffer)
-        (org-latex-export-to-pdf)))))
+    (when (string-match ":recipe:" (save-excursion
+                                     (org-back-to-heading)
+                                     (cic:get-current-line)))
+        (let ((heading-name (save-excursion
+                              (org-back-to-heading)
+                              ;; strip off after first colon
+                              (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
+              (current-recipe-subtree (buffer-substring (region-beginning) (region-end))))
+          (message (concat "Exporting recipe: "  heading-name))
+          ;; put table in temporary file named after headline
+          (with-current-file-transient (concat otdb-recipe-temp-directory heading-name ".org")
+            (erase-buffer)
+            (insert (otdb-recipe-add-tmp-buffer current-recipe-subtree))
+            (goto-char (point-min))
+            ;; put in the header
+            (otdb-recipe-add-latex-header)
+            (basic-save-buffer)
+            (org-latex-export-to-pdf))))))
 
 (defun otdb-recipe-add-latex-header (&optional title)
   "Add a LaTeX header to the temporary org-mode file for export
@@ -816,14 +823,14 @@ deletes volume, weights, and any comments."
     (insert current-recipe-subtree)
     (goto-char (point-min))
     ;; do I find comments to delete???
-    (when (search-forward "#+BEGIN_COMMENT")
+    (when (search-forward "#+BEGIN_COMMENT" nil t)
       (beginning-of-line)
       ;; delete to end of buffer
       (kill-region (point) (point-max)))
     (goto-char (point-min))
     ;; get rid of tags?
     (when (string-match ":" (cic:get-current-line))
-      (search-forward ":")
+      (search-forward ":" nil t)
       (backward-char)
       (cic:kill-line-elisp))
     ;; add in latex attributes
@@ -1052,7 +1059,7 @@ different than 1 and filtered by CALCULATION-TYPE."
 
 ;; TODO: eventually get rid of ignore-errors, makes impossible to
 ;; debug
-(defun otdb-table-tblel-calorie-protein-cost-table (lisp-table lisp-table-no-seperators)
+(defun otdb-table-tblel-calorie-protein-cost-table (lisp-table lisp-table-no-seperators &rest tblel-args)
   "Table tblel function for TBLFM to calculate cost per 1000
 calories in the database and cost per 100g protein."
   (dolist (therow (nthcdr 1 lisp-table-no-seperators))

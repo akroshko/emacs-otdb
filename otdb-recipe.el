@@ -7,7 +7,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20190429
+;; Version: 20191209
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -388,6 +388,16 @@ TODO return location at beginning of line"
                          (push (match-string 1 table-name) recipe-list))))
       (setq otdb-table-collections-cache recipe-list)
       recipe-list)))
+
+(defun otdb-recipe-complete ()
+  "Select and complete a recipe name, then go to it."
+  (interactive)
+  (let* ((recipe-list (otdb-recipe-get-recipes))
+         (recipe (completing-read "Recipe: " recipe-list nil t))
+         (recipe-location (otdb-recipe-find recipe)))
+    (find-file (car recipe-location))
+    (goto-char (cadr recipe-location))
+    (show-subtree)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; recipes

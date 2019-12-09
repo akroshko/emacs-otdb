@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20190416
+;; Version: 20191209
 ;; URL:
 ;;
 ;; This program is free software; you can redistribute it and/or

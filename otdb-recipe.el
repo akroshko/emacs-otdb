@@ -2,12 +2,12 @@
 ;;; into org-mode tables and calculation of costs and macronutrient
 ;;; amounts.
 ;;
-;; Copyright (C) 2015-2019, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
-;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
+;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20191209
+;; Version: 20230528
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -160,47 +160,47 @@ databases."
     (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database)))
       (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases (make-symbol database)) (cons database (cic:make-file-finder database))))))
 
-(defun otdb-recipe-update-menu ()
+(defun otdb-menu-bar-update-hook--recipe-update-menu ()
   "Run from a hook to update the otdb-recipe-mode menu."
   (when (derived-mode-p 'otdb-recipe-mode)
     (define-key otdb-recipe-mode-map (vector 'menu-bar 'otdb-recipe-menu 'item-pattern) (otdb-recipe-menu-item-pattern))
     (define-key otdb-recipe-mode-map (vector 'menu-bar 'otdb-recipe-menu 'item-tag)     (otdb-recipe-menu-tags))))
 
-(defvar otdb-recipe-mode-map
-  (let ((map (make-sparse-keymap)))
-    (setq map (otdb-table-skeleton-map map))
-    (define-key map [menu-bar otdb-recipe-menu]                                        (cons "otdb-recipe" (make-sparse-keymap "otdb-recipe")))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu)                               (cons "otdb-recipe" (make-sparse-keymap "otdb-recipe")))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'reset-filters)                '("Reset recipe filters" otdb-recipe-reset-filters))
-    ;; TODO: generate these from alist
-    (otdb-recipe-menu-files map 'otdb-recipe-menu)
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator4) '("--"))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe-multiple)       '("Export recipe multiple" . otdb-recipe-export-multiple))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe)                '("Export recipe"          . otdb-recipe-export))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator3) '("--"))
-    ;; TODO: change for tags more like
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns)                (cons "Recipe ingredient patterns" (make-sparse-keymap "recipe ingredient patterns")))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns 'spice)         (cons "Spice"                      'nil-command))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns 'packaging)     (cons "Packaging"                  'nil-command))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-pattern)                 (otdb-recipe-menu-item-pattern))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags)                    (cons "Ingredient tags" (make-sparse-keymap "ingredient tags patterns")))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags 'spice)             (cons "Spice"     (command-with-args 'set otdb-recipe-item-tags "spice")))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags 'packaging)         (cons "Packaging" (command-with-args 'set otdb-recipe-item-tags "packaging")))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tag)                     (otdb-recipe-menu-tags))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator2) '("--"))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'toggle-check-invalid)         '("Toggle column X as invalid" . otdb-table-invalid-toggle-check-line))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'toggle-check-cost)            '("Toggle column X as \"C\""   . otdb-table-set-toggle-cost-line))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'toggle-check)                 '("Toggle column X"            . otdb-table-set-toggle-check-line))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-pattern) '("Use special buffer for calculating specified pattern" . otdb-recipe-calc-in-special-buffer-pattern))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-tagged)  '("Use special buffer for calculating selected tags"     . otdb-recipe-calc-in-special-buffer-tag))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-cost)    '("use special buffer for calculating cost"              . otdb-recipe-calc-in-special-buffer-cost))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-checked) '("use special buffer for calculating checked"           . otdb-recipe-calc-in-special-buffer-checked))
-    (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-all)     '(menu-item "Use special buffer for calculating all"     otdb-recipe-calc-in-special-buffer-all
-                                                                                                   :keys "s-d s"))
-    map)
-  "The key map for otdb-recipe-mode.")
-
-(add-hook 'menu-bar-update-hook 'otdb-recipe-update-menu)
+;; (defvar otdb-recipe-mode-map
+;;   (let ((map (make-sparse-keymap)))
+;;     (setq map (otdb-table-skeleton-map map))
+;;     (define-key map [menu-bar otdb-recipe-menu]                                        (cons "otdb-recipe" (make-sparse-keymap "otdb-recipe")))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu)                               (cons "otdb-recipe" (make-sparse-keymap "otdb-recipe")))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'reset-filters)                '("Reset recipe filters" otdb-recipe-reset-filters))
+;;     ;; TODO: generate these from alist
+;;     (otdb-recipe-menu-files map 'otdb-recipe-menu)
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator4) '("--"))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe-multiple)       '("Export recipe multiple" . otdb-recipe-export-multiple))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'export-recipe)                '("Export recipe"          . otdb-recipe-export))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator3) '("--"))
+;;     ;; TODO: change for tags more like
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns)                (cons "Recipe ingredient patterns" (make-sparse-keymap "recipe ingredient patterns")))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns 'spice)         (cons "Spice"                      'nil-command))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-patterns 'packaging)     (cons "Packaging"                  'nil-command))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-pattern)                 (otdb-recipe-menu-item-pattern))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags)                    (cons "Ingredient tags" (make-sparse-keymap "ingredient tags patterns")))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags 'spice)             (cons "Spice"     (command-with-args 'set otdb-recipe-item-tags "spice")))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tags 'packaging)         (cons "Packaging" (command-with-args 'set otdb-recipe-item-tags "packaging")))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'item-tag)                     (otdb-recipe-menu-tags))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'separator2) '("--"))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'toggle-check-invalid)         '("Toggle column X as invalid" . otdb-table-invalid-toggle-check-line))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'toggle-check-cost)            '("Toggle column X as \"C\""   . otdb-table-set-toggle-cost-line))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'toggle-check)                 '("Toggle column X"            . otdb-table-set-toggle-check-line))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-pattern) '("Use special buffer for calculating specified pattern" . otdb-recipe-calc-in-special-buffer-pattern))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-tagged)  '("Use special buffer for calculating selected tags"     . otdb-recipe-calc-in-special-buffer-tag))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-cost)    '("use special buffer for calculating cost"              . otdb-recipe-calc-in-special-buffer-cost))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-checked) '("use special buffer for calculating checked"           . otdb-recipe-calc-in-special-buffer-checked))
+;;     (define-key map (vector 'menu-bar 'otdb-recipe-menu 'calc-special-command-all)     '(menu-item "Use special buffer for calculating all"     otdb-recipe-calc-in-special-buffer-all
+;;                                                                                                    :keys "s-d s"))
+;;     map)
+;;   "The key map for otdb-recipe-mode.")
+;;
+;; (add-hook 'menu-bar-update-hook 'otdb-menu-bar-update-hook--recipe-update-menu)
 
 (define-derived-mode otdb-recipe-mode org-mode "org-table database recipe mode"
   (make-local-variable 'otdb-table-tablet-mode)
@@ -243,7 +243,7 @@ point or entered item."
            ;; TODO: make sure only one appropriate box is checked
            ;;       reset any things needed by save-excursion, etc.
            (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
-                             (when (string-match "^Grocery.*" headline-name)
+                             (when (string-match-p "^Grocery.*" headline-name)
                                ;; find in subtree
                                (save-excursion
                                  (org-narrow-to-subtree)
@@ -254,7 +254,7 @@ point or entered item."
            (cic:mpp-echo (format "Grocery item %s successfully checked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
           (t
            (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
-                             (when (string-match "^Grocery.*" headline-name)
+                             (when (string-match-p "^Grocery.*" headline-name)
                                (push headline-name shopping-headlines)))
            (setq shopping-headlines (nreverse shopping-headlines))
            (dotimes (headline-number (length shopping-headlines))
@@ -269,7 +269,7 @@ point or entered item."
                                                                             '(?q)))))
            ;; create the prompt and read them (use q)
            ;; add a checkbox if necessary
-           (cond ((not (string-match "[A-Za-z]" (char-to-string unmatched-item)))
+           (cond ((not (string-match-p "[A-Za-z]" (char-to-string unmatched-item)))
                   ;; find headline and add at the end
                   (with-current-file-transient-headline (otdb-recipe-get-variable 'otdb-recipe-agenda) (nth (- unmatched-item 48) shopping-headlines)
                                                         (outline-hide-subtree)
@@ -282,11 +282,11 @@ point or entered item."
                   ;; just finish
                   ))))))
 
-(add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-init)
-(defun otdb-recipe-mode-init ()
+(defun otdb-recipe-mode-hook--init ()
   "Initialize otdb-recipe-mode with some extra functionality."
   (when (derived-mode-p 'otdb-recipe-mode) (functionp 'hl-line-mode)
         (hl-line-mode 1)))
+(add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-hook--init)
 
 (defun otdb-recipe-uncheck ()
   "Uncheck a box in the shopping list based on current item near
@@ -308,7 +308,7 @@ point or entered item."
            (cic:mpp-echo (format "Shopping item %s not found.  Nothing to remove!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
           ((member selected-item shopping-list-checked)
            (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
-                             (when (string-match "^Grocery.*" headline-name)
+                             (when (string-match-p "^Grocery.*" headline-name)
                                ;; find in subtree
                                (save-excursion
                                  (org-narrow-to-subtree)
@@ -335,9 +335,10 @@ point or entered item."
     (do-org-headlines shopping-file headline-name headline-subtree
                       (when (string-match "Grocery.*" headline-name)
                         (do-org-list-items shopping-file headline-name item-line
-                                           (when (string-match checkbox-regexp item-line)
-                                             (setq matched-text  (match-string 3 item-line))
-                                             (push (s-trim-full-no-properties matched-text) shopping-list)))))
+                                           (save-match-data
+                                             (when (string-match checkbox-regexp item-line)
+                                               (setq matched-text  (match-string 3 item-line))
+                                               (push (s-trim-full-no-properties matched-text) shopping-list))))))
     (setq dups (cic:get-list-duplicates shopping-list))
     (when (> (length dups) 0)
       (cic:mpp-echo (concat "Duplicate groceries: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
@@ -384,8 +385,9 @@ TODO return location at beginning of line"
           recipe-list)
       (dolist (recipe-file (otdb-recipe-get-variable 'otdb-recipe-files))
         (do-org-tables recipe-file table-name table
-                       (when (string-match "\\(.*\\) :recipe:" table-name)
-                         (push (match-string 1 table-name) recipe-list))))
+                       (save-match-data
+                         (when (string-match "\\(.*\\) :recipe:" table-name)
+                           (push (match-string 1 table-name) recipe-list)))))
       (setq otdb-table-collections-cache recipe-list)
       recipe-list)))
 
@@ -393,7 +395,7 @@ TODO return location at beginning of line"
   "Select and complete a recipe name, then go to it."
   (interactive)
   (let* ((recipe-list (otdb-recipe-get-recipes))
-         (recipe (completing-read "Recipe: " recipe-list nil t))
+         (recipe (ido-completing-read "Recipe: " recipe-list nil t))
          (recipe-location (otdb-recipe-find recipe)))
     (find-file (car recipe-location))
     (goto-char (cadr recipe-location))
@@ -740,12 +742,13 @@ recipe)."
                             ingredient))
 
 (defun otdb-recipe-export-multiple (&optional otdb-recipe-temp-directory)
-  "Export each component recipe in a table containing recipes to a pdf file in ~/tmp."
+  "Export each component recipe in a table containing recipes to a pdf file in ~/tmp/otdb-recipes"
   (interactive)
   (require 'ox-publish)
   ;; loop over rows in current table
   (unless otdb-recipe-temp-directory
-    (setq otdb-recipe-temp-directory "~/tmp/"))
+    (setq otdb-recipe-temp-directory "~/tmp/otdb-recipes/")
+    (make-directory otdb-recipe-temp-directory t))
   (save-excursion
     (org-back-to-heading)
     (let ((heading-name-collection (save-excursion
@@ -770,7 +773,7 @@ recipe)."
                                      (goto-char (cadr recipe-location))
                                      (org-mark-subtree)
                                      (setq current-recipe-subtree (buffer-substring (region-beginning) (region-end))
-                                           tmp-buffer-string      (concat tmp-buffer-string (otdb-recipe-add-tmp-buffer current-recipe-subtree))))))))
+                                           tmp-buffer-string      (concat tmp-buffer-string (otdb-recipe-create-tmp-org current-recipe-subtree 'no-header))))))))
           (insert tmp-buffer-string)
           (goto-char (point-min))
           (otdb-recipe-add-latex-header heading-name-collection)
@@ -784,77 +787,138 @@ pdf file in ~/tmp."
   (require 'ox-publish)
   ;; TODO: requires a trailing slash if set elsewhere
   (unless otdb-recipe-temp-directory
-    (setq otdb-recipe-temp-directory "~/tmp/"))
+    (setq otdb-recipe-temp-directory "~/tmp/otdb-recipes/"))
+  (make-directory otdb-recipe-temp-directory t)
   (save-excursion
     ;; get current table
     (org-mark-subtree)
-    (when (string-match ":recipe:" (save-excursion
-                                     (org-back-to-heading)
-                                     (cic:get-current-line)))
-        (let ((heading-name (save-excursion
-                              (org-back-to-heading)
-                              ;; strip off after first colon
-                              (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
-              (current-recipe-subtree (buffer-substring (region-beginning) (region-end))))
-          (message (concat "Exporting recipe: "  heading-name))
-          ;; put table in temporary file named after headline
-          (with-current-file-transient (concat otdb-recipe-temp-directory heading-name ".org")
-            (erase-buffer)
-            (insert (otdb-recipe-add-tmp-buffer current-recipe-subtree))
-            (goto-char (point-min))
-            ;; put in the header
-            (otdb-recipe-add-latex-header)
-            (basic-save-buffer)
-            (org-latex-export-to-pdf))))))
+    ;; TODO: unmark
+    (when (string-match-p ":recipe:" (save-excursion
+                                       (org-back-to-heading)
+                                       (cic:get-current-line)))
+      (let ((heading-name (save-excursion
+                            (org-back-to-heading)
+                            ;; strip off after first colon
+                            (s-trim-full (car (split-string (cic:get-headline-text (cic:get-current-line)) ":")))))
+            (current-recipe-subtree (buffer-substring (region-beginning) (region-end)))
+            (org-export-with-broken-links t))
+        (message (concat "Exporting recipe: "  heading-name))
+        ;; put table in temporary file named after headline
+        (with-current-file-transient-literal (concat otdb-recipe-temp-directory heading-name ".org")
+          (erase-buffer)
+          (insert (otdb-recipe-create-tmp-org current-recipe-subtree))
+          (basic-save-buffer)
+          (goto-char (point-min))
+          (org-latex-export-to-pdf))))))
 
 (defun otdb-recipe-add-latex-header (&optional title)
   "Add a LaTeX header to the temporary org-mode file for export
 with an optional TITLE."
-  (insert "#+AUTHOR:\n")
-  (insert "#+DATE:\n")
-  (insert "#+TITLE:\n")
-  (insert "#+OPTIONS: toc:nil num:nil\n")
-  (insert "#+LATEX_CLASS_OPTIONS: [landscape,10pt]\n")
-  (insert "#+LATEX_HEADER: \\usepackage{nopageno}\n")
-  (insert "#+LATEX_HEADER: \\usepackage{geometry}\n")
-  (insert "#+LATEX_HEADER: \\newgeometry{landscape,left=1.0cm,right=0.2cm}\n")
+  (insert "#+AUTHOR:\n"
+          "#+DATE:\n"
+          "#+TITLE:\n"
+          "#+OPTIONS: toc:nil num:nil\n"
+          "#+LATEX_CLASS_OPTIONS: [landscape,10pt]\n"
+          "#+LATEX_HEADER: \\usepackage{nopageno}\n"
+          "#+LATEX_HEADER: \\usepackage{geometry}\n"
+          "#+LATEX_HEADER: \\newgeometry{landscape,left=1.0cm,right=0.2cm}\n")
   (when title
-    (insert "#+BEGIN_LATEX\n")
-    (insert "\\begin{center}\n")
-    (insert "\\textbf{\\Huge " title "}\n")
-    (insert "\\end{center}\n")
-    (insert "#+END_LATEX\n")))
+    (insert "#+BEGIN_LATEX\n"
+            "\\begin{center}\n"
+            "\\textbf{\\Huge " title "}\n"
+            "\\end{center}\n"
+            "#+END_LATEX\n")))
 
-(defun otdb-recipe-add-tmp-buffer (current-recipe-subtree)
+(defun otdb-recipe-create-tmp-org (current-recipe-subtree &optional no-header)
   "Add a recipe form CURRENT-RECIPE-SUBTREE to a temporary
 buffer, then return the string after processing.  Generally
 deletes volume, weights, and any comments."
-  (with-temp-buffer
-    (insert current-recipe-subtree)
-    (goto-char (point-min))
-    ;; do I find comments to delete???
-    (when (search-forward "#+BEGIN_COMMENT" nil t)
+  ;; split into parts and process
+  (let (header
+        table
+        table-elisp
+        footer
+        new-header
+        new-table
+        new-footer)
+    (with-temp-buffer
+      (insert current-recipe-subtree)
+      (goto-char (point-min))
+      (cic:org-find-table)
       (beginning-of-line)
-      ;; delete to end of buffer
-      (kill-region (point) (point-max)))
+      (setq header (buffer-substring-no-properties (point-min) (org-table-begin)))
+      (setq table (buffer-substring-no-properties (org-table-begin) (org-table-end)))
+      (setq footer (buffer-substring-no-properties (org-table-end) (point-max)))
+      (setq table-elisp (copy-sequence (org-table-to-lisp table))))
+    (setq table-elisp (mapcar (lambda (e)
+                                (if (eq e 'hline)
+                                    e
+                                  (append (subseq e 0 12) (subseq e 14))))
+                              table-elisp))
+    (with-temp-buffer
+      (setq new-header (with-temp-buffer
+                         (insert header)
+                         (goto-char (point-min))
+                         (when (string-match-p ":" (cic:get-current-line))
+                           (search-forward ":" nil t)
+                           (backward-char)
+                           (cic:kill-line-elisp))
+                         (goto-char (point-min))
+                         (unless no-header
+                           (otdb-recipe-add-latex-header))
+                         (buffer-substring-no-properties (point-min) (point-max))))
+      (insert new-header)
+      (setq new-table (with-temp-buffer
+                        (insert "#+ATTR_LATEX: :center nil\n"
+                                (cic:org-table-create-from-elisp table-elisp))
+                        (goto-char (point-min))
+                        (search-forward "|---")
+                        (forward-line)
+                        (search-forward "| ")
+                        (org-table-align)
+                        (buffer-substring-no-properties (point-min) (point-max))))
+      (insert new-table)
+      (setq new-footer (with-temp-buffer
+                         (insert footer)
+                         (goto-char (point-min))
+                         (when (search-forward "#+BEGIN_COMMENT" nil t)
+                           (beginning-of-line)
+                           ;; delete to end of buffer
+                           (cic:otdb-delete-until-end-of-buffer))
+                         (goto-char (point-min))
+                         ;; delete all subheadings
+                         (when (org-goto-first-child)
+                           (cic:otdb-delete-until-end-of-buffer))
+                         (buffer-substring-no-properties (point-min) (point-max))))
+      (insert new-footer)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+
+(defun cic:org-table-create-from-elisp (elisp-table)
+  "Create an org table (in text form) from ELISP-TABLE (in lisp
+form)."
+  (with-temp-buffer
+    (dolist (row elisp-table)
+      (if (eq row 'hline)
+          (insert "|------|\n")
+        (progn
+          (insert "| ")
+          (dolist (cell row)
+            (insert cell
+                    " |"))
+          (insert "\n"))))
     (goto-char (point-min))
-    ;; get rid of tags?
-    (when (string-match ":" (cic:get-current-line))
-      (search-forward ":" nil t)
-      (backward-char)
-      (cic:kill-line-elisp))
-    ;; add in latex attributes
-    (goto-char (point-min))
-    (cic:org-find-table)
-    (insert "#+ATTR_LATEX: :center nil\n")
-    ;; get rid of the last two columns
-    (cic:org-find-table)
-    (forward-line)
-    (org-table-goto-column 13)
-    (org-table-delete-column)
-    (org-table-delete-column)
-    (goto-char (point-min))
-  (buffer-substring (point-min) (point-max))))
+    (goto-char (org-table-begin))
+    (buffer-substring-no-properties (point-min) (point-max))))
+
+(defun cic:otdb-delete-until-end-of-buffer ()
+  "Delete until end of buffer, but do not touch any kill rings or
+clipboards."
+  (let (kill-ring
+        kill-whole-line
+        kill-ring-yank-pointer
+        (save-interprogram-paste-before-kill nil)
+        (interprogram-cut-function nil))
+    (delete-region (point) (point-max))))
 
 (defun otdb-recipe-calc-recipe (lisp-table lisp-table-no-seperators)
   "Calculated an updated lisp table from the LISP-TABLE and
@@ -1043,8 +1107,8 @@ different than 1 and filtered by CALCULATION-TYPE."
                 (eq calculation-type 'all)
                 (and (eq calculation-type 'check)   (otdb-table-check-current-row-lisp lisp-row char-columns "X"))
                 (and (eq calculation-type 'cost)    (otdb-table-check-current-row-lisp lisp-row char-columns "C"))
-                (and (eq calculation-type 'tag)     (and otdb-recipe-item-tags    (string-match otdb-recipe-item-tags    (elt lisp-row otdb-recipe-check-column))))
-                (and (eq calculation-type 'pattern) (and otdb-recipe-item-pattern (string-match otdb-recipe-item-pattern (elt lisp-row otdb-recipe-item-column)))))
+                (and (eq calculation-type 'tag)     (and otdb-recipe-item-tags    (string-match-p otdb-recipe-item-tags    (elt lisp-row otdb-recipe-check-column))))
+                (and (eq calculation-type 'pattern) (and otdb-recipe-item-pattern (string-match-p otdb-recipe-item-pattern (elt lisp-row otdb-recipe-item-column)))))
                (with-current-buffer current-temporary-buffer
                  (if (/= quantity 1)
                      (progn

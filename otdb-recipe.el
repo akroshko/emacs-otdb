@@ -2,12 +2,12 @@
 ;;; into org-mode tables and calculation of costs and macronutrient
 ;;; amounts.
 ;;
-;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2021, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20230528
+;; Version: 20191209
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -70,6 +70,38 @@
   1
   "The table column that contains the item.")
 
+(defconst otdb-recipe-note-column
+  2
+  "The table column that contains the item.")
+
+(defconst otdb-recipe-calories-column
+  3
+  "The table column that contains the calories of the item.")
+
+(defconst otdb-recipe-protein-column
+  4
+  "The table column that contains the amount of protein in the item.")
+
+(defconst otdb-recipe-fat-column
+  5
+  "The table column that contains the amount of fat in the item.")
+
+(defconst otdb-recipe-cost-column
+  6
+  "The table column that contains the cost of item.")
+
+(defconst otdb-recipe-weight-column
+  12
+  "The table column that contains the weight of the item.")
+
+(defconst otdb-recipe-volume-column
+  13
+  "The table column that contains the volume of the item.")
+
+(defconst otdb-recipe-tags-column
+  14
+  "The table column that contains the tags of the item.")
+
 (defconst otdb-recipe-database-item-column
   0
   "The table column in the database that contains the item.")
@@ -93,6 +125,23 @@
 (defconst otdb-recipe-database-serving-volume-column
   5
   "The table column in the database that contains the volume.")
+
+(defconst otdb-recipe-database-serving-calories-column
+  6
+  "The table column in the database that contains the calories per serving.")
+
+(defconst otdb-recipe-database-serving-protein-column
+  7
+  "The table column in the database that contains the protein per serving.")
+
+(defconst otdb-recipe-database-serving-fat-column
+  8
+  "The table column in the database that contains the fat per serving.")
+
+(defconst otdb-recipe-database-serving-tags-column
+  13
+  "The table column in the database that contains the tags.")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; for different collection of recipe files
@@ -351,15 +400,16 @@ another recipe."
     (with-current-file-transient (car recipe-location)
       (goto-char (cadr recipe-location))
       (cic:org-find-table)
-      (cic:org-table-last-row)
-      ;; TODO replace with configurable alist
-      (list (string-to-number (org-table-get nil 4))
-            (string-to-number (org-table-get nil 5))
-            (string-to-number (org-table-get nil 6))
-            (string-to-number (org-table-get nil 13))
-            (string-to-number (org-table-get nil 14))
-            (string-to-number (org-table-get nil 7))
-            ""))))
+      ;; (cic:org-table-last-row)
+      (let* ((table-lisp (cic:org-table-to-lisp-no-separators))
+             (last-row (mapcar 'substring-no-properties (car (last table-lisp)))))
+        ;; TODO replace with configurable alist
+        (list (list 'calories (string-to-number (nth otdb-recipe-calories-column last-row)))
+              (list 'protein  (string-to-number (nth otdb-recipe-protein-column last-row)))
+              (list 'fat      (string-to-number (nth otdb-recipe-fat-column last-row)))
+              (list 'weight   (string-to-number (nth otdb-recipe-weight-column last-row)))
+              (list 'volume   (string-to-number (nth otdb-recipe-volume-column last-row)))
+              (list 'cost     (string-to-number (nth otdb-recipe-cost-column last-row))))))))
 
 ;; find recipes
 (defun otdb-recipe-find (recipe)
@@ -597,13 +647,12 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
                        (row-item (elt row otdb-recipe-item-column))
                        (ccl (otdb-recipe-get-calories-protein-fat-weight-volume-cost row-item)))
                   (push (list (s-trim-full-no-properties row-item)
-                              (ignore-errors (* (otdb-table-number row-quantity) (elt ccl 0)))
-                              (ignore-errors (* (otdb-table-number row-quantity) (elt ccl 1)))
-                              (ignore-errors (* (otdb-table-number row-quantity) (elt ccl 2)))
-                              (ignore-errors (* (otdb-table-number row-quantity) (elt ccl 3)))
-                              (ignore-errors (* (otdb-table-number row-quantity) (elt ccl 4)))
-                              (ignore-errors (* (otdb-table-number row-quantity) (elt ccl 5)))
-                              (ignore-errors (* (otdb-table-number row-quantity) (elt ccl 6)))
+                              (list 'calories (ignore-errors (* (otdb-table-number row-quantity) (cadr (assoc 'calories ccl)))))
+                              (list 'protein  (ignore-errors (* (otdb-table-number row-quantity) (cadr (assoc 'protein ccl)))))
+                              (list 'fat      (ignore-errors (* (otdb-table-number row-quantity) (cadr (assoc 'fat ccl)))))
+                              (list 'weight   (ignore-errors (* (otdb-table-number row-quantity) (cadr (assoc 'weight ccl)))))
+                              (list 'volume   (ignore-errors (* (otdb-table-number row-quantity) (cadr (assoc 'volume ccl)))))
+                              (list 'cost     (ignore-errors (* (otdb-table-number row-quantity) (cadr (assoc 'cost ccl)))))
                               "")
                         recipe-calories-protein-fat-weight-volume-cost-list)))
         (progn
@@ -621,41 +670,41 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
       (let ((row (cadr row-alist))
             (quantity (cadr (assoc (car row-alist) quantity-alist))))
         (let ((calories
-               (when (cic:full-string-p (elt row 6))
+               (when (cic:full-string-p (elt row otdb-recipe-database-serving-calories-column))
                  (ignore-errors
-                   (otdb-recipe-calories-protein-fat-weight row quantity 6 nil))))
+                   (otdb-recipe-calories-protein-fat-weight row quantity otdb-recipe-database-serving-calories-column nil))))
               (protein
-               (when (cic:full-string-p (elt row 7))
+               (when (cic:full-string-p (elt row otdb-recipe-database-serving-protein-column))
                  (ignore-errors
-                   (otdb-recipe-calories-protein-fat-weight row quantity 7 nil))))
+                   (otdb-recipe-calories-protein-fat-weight row quantity otdb-recipe-database-serving-protein-column nil))))
               (fat
-               (when (cic:full-string-p (elt row 8))
+               (when (cic:full-string-p (elt row otdb-recipe-database-serving-fat-column))
                  (ignore-errors
-                   (otdb-recipe-calories-protein-fat-weight row quantity 8 nil))))
+                   (otdb-recipe-calories-protein-fat-weight row quantity otdb-recipe-database-serving-fat-column nil))))
               (weight
-               (if (cic:full-string-p (elt row 9))
+               (if (cic:full-string-p (elt row otdb-recipe-database-serving-weight-column))
                    (ignore-errors
-                     (otdb-recipe-calories-protein-fat-weight row quantity 9 nil))
+                     (otdb-recipe-calories-protein-fat-weight row quantity otdb-recipe-database-serving-weight-column nil))
                  (when (cic:full-string-p (elt row 4))
                    (ignore-errors
-                     (otdb-recipe-calories-protein-fat-weight row quantity 4 nil)))))
+                     (otdb-recipe-calories-protein-fat-weight row quantity quantity otdb-recipe-database-serving-weight-column nil)))))
               (volume
-               (when (cic:full-string-p (elt row 10))
+               (when (cic:full-string-p (elt row otdb-recipe-database-serving-volume-column))
                  (ignore-errors
-                   (otdb-recipe-calories-protein-fat-weight row quantity 10 nil))))
+                   (otdb-recipe-calories-protein-fat-weight row quantity otdb-recipe-database-serving-volume-column nil))))
               (tags
-               (when (cic:full-string-p (elt row 13))
+               (when (cic:full-string-p (elt row otdb-recipe-database-serving-tags-column))
                  (elt row 13)))
               (cost (ignore-errors
                       (otdb-recipe-cost-row row quantity))))
           (push (list (car row-alist)
-                      calories
-                      protein
-                      fat
-                      weight
-                      volume
-                      cost
-                      tags)
+                      (list 'calories calories)
+                      (list 'protein protein)
+                      (list 'fat fat)
+                      (list 'weight weight)
+                      (list 'volume volume)
+                      (list 'cost cost)
+                      (list 'tags tags))
                 calories-protein-fat-weight-volume-cost-list))))
     (append recipe-calories-protein-fat-weight-volume-cost-list calories-protein-fat-weight-volume-cost-list)))
 
@@ -664,45 +713,38 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
 into a recipe.  The recipe is RECIPE-HEADING in RECIPE-FILENAME
 with information to be inserted of
 CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST."
-  (let (new-ingredient
-        new-calories
-        new-protein
-        new-weight
-        new-volume
-        new-cost
-        new-tags
-        (count 1))
+  (let ((count 1))
     (do-org-table-rows recipe-filename recipe-heading row
                        (setq new-ingredient (s-trim-full-no-properties (elt row otdb-recipe-item-column)))
                        (unless (equal count 1)
-                         (setq new-calories (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 1)
-                               new-protein  (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 2)
-                               new-fat      (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 3)
-                               new-weight   (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 4)
-                               new-volume   (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 5)
-                               new-cost     (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 6)
-                               new-tags     (elt (assoc new-ingredient calories-protein-fat-weight-volume-cost-list) 7))
-                         (if (not new-calories)
-                             (org-table-put count 4 "")
-                           (org-table-put count 4 (format "%.1f" new-calories)))
-                         (if (not new-protein)
-                             (org-table-put count 5 "")
-                           (org-table-put count 5 (format "%.1f" new-protein)))
-                         (if (not new-fat)
-                             (org-table-put count 6 "")
-                           (org-table-put count 6 (format "%.1f" new-fat)))
-                         (if (not new-weight)
-                             (org-table-put count 13 "")
-                           (org-table-put count 13 (format "%.3f" new-weight)))
-                         (if (not new-volume)
-                             (org-table-put count 14 "")
-                           (org-table-put count 14 (format "%.3f" new-volume)))
-                         (if (not new-cost)
-                             (org-table-put count 7 "")
-                           (org-table-put count 7 (format "%.3f" new-cost)))
-                         (if (not new-tags)
-                             (org-table-put count 15 "")
-                           (org-table-put count 15 new-tags)))
+                         (let ((new-calories (cadr (assoc 'calories (assoc new-ingredient calories-protein-fat-weight-volume-cost-list))))
+                               (new-protein  (cadr (assoc 'protein  (assoc new-ingredient calories-protein-fat-weight-volume-cost-list))))
+                               (new-fat      (cadr (assoc 'fat      (assoc new-ingredient calories-protein-fat-weight-volume-cost-list))))
+                               (new-weight   (cadr (assoc 'weight   (assoc new-ingredient calories-protein-fat-weight-volume-cost-list))))
+                               (new-volume   (cadr (assoc 'volume   (assoc new-ingredient calories-protein-fat-weight-volume-cost-list))))
+                               (new-cost     (cadr (assoc 'cost     (assoc new-ingredient calories-protein-fat-weight-volume-cost-list))))
+                               (new-tags     (cadr (assoc 'tags     (assoc new-ingredient calories-protein-fat-weight-volume-cost-list)))))
+                           (if (not new-calories)
+                               (org-table-put count (+ otdb-recipe-calories-column 1) "" )
+                             (org-table-put count (+ otdb-recipe-calories-column 1) (format "%.1f" new-calories)))
+                           (if (not new-protein)
+                               (org-table-put count (+ otdb-recipe-protein-column 1) "")
+                             (org-table-put count (+ otdb-recipe-protein-column 1) (format "%.1f" new-protein)))
+                           (if (not new-fat)
+                               (org-table-put count (+ otdb-recipe-fat-column 1) "")
+                             (org-table-put count (+ otdb-recipe-fat-column 1) (format "%.1f" new-fat)))
+                           (if (not new-weight)
+                               (org-table-put count (+ otdb-recipe-weight-column 1) "")
+                             (org-table-put count (+ otdb-recipe-weight-column 1) (format "%.3f" new-weight)))
+                           (if (not new-volume)
+                               (org-table-put count (+ otdb-recipe-volume-column 1) "")
+                             (org-table-put count (+ otdb-recipe-volume-column 1)(format "%.3f" new-volume)))
+                           (if (not new-cost)
+                               (org-table-put count (+ otdb-recipe-cost-column 1) "")
+                             (org-table-put count (+ otdb-recipe-cost-column 1) (format "%.3f" new-cost)))
+                           (if (not new-tags)
+                               (org-table-put count (+ otdb-recipe-tags-column 1) "")
+                             (org-table-put count (+ otdb-recipe-tags-column 1) new-tags))))
                        (setq count (1+ count)))
     (tblel-eval)))
 
@@ -945,29 +987,29 @@ LISP-TABLE-NO-SEPERATORS corresponding to a recipe."
     (dolist (lisp-row (butlast (cdr lisp-table-no-seperators)))
       ;; only skip non-intermediate calculations
       (unless (otdb-table-check-invalid-current-row-lisp lisp-row char-columns)
-        (setq calories (+ calories (otdb-table-lisp-row-float lisp-row 3))
-              protein  (+ protein (otdb-table-lisp-row-float lisp-row 4))
-              fat      (+ fat (otdb-table-lisp-row-float lisp-row 5))
-              cost     (+ cost (otdb-table-lisp-row-float lisp-row 6))
+        (setq calories (+ calories (otdb-table-lisp-row-float lisp-row otdb-recipe-calories-column))
+              protein  (+ protein (otdb-table-lisp-row-float lisp-row otdb-recipe-protein-column))
+              fat      (+ fat (otdb-table-lisp-row-float lisp-row otdb-recipe-fat-column))
+              cost     (+ cost (otdb-table-lisp-row-float lisp-row otdb-recipe-cost-column))
               ;; do the appropriate sums from the added up columns
               ;; control for case when calories are zero
-              weight   (+ weight (otdb-table-lisp-row-float lisp-row 12))
-              volume   (+ volume (otdb-table-lisp-row-float lisp-row 13))))
-      (if (otdb-table-lisp-row-check lisp-row 6)
+              weight   (+ weight (otdb-table-lisp-row-float lisp-row otdb-recipe-weight-column))
+              volume   (+ volume (otdb-table-lisp-row-float lisp-row otdb-recipe-volume-column))))
+      (if (otdb-table-lisp-row-check lisp-row otdb-recipe-cost-column)
           (progn
-            (if (otdb-table-lisp-row-check lisp-row 3)
-                (push (/ (otdb-table-lisp-row-float lisp-row 6) (/ (otdb-table-lisp-row-float lisp-row 3) 1000.0)) cost-calories-column)
+            (if (otdb-table-lisp-row-check lisp-row otdb-recipe-calories-column)
+                (push (/ (otdb-table-lisp-row-float lisp-row otdb-recipe-cost-column) (/ (otdb-table-lisp-row-float lisp-row otdb-recipe-calories-column) 1000.0)) cost-calories-column)
               (push nil cost-calories-column))
-            (if (otdb-table-lisp-row-check lisp-row 4)
-                (push (/ (otdb-table-lisp-row-float lisp-row 6) (/ (otdb-table-lisp-row-float lisp-row 4) 100.0)) cost-protein-column)
+            (if (otdb-table-lisp-row-check lisp-row otdb-recipe-protein-column)
+                (push (/ (otdb-table-lisp-row-float lisp-row otdb-recipe-cost-column) (/ (otdb-table-lisp-row-float lisp-row otdb-recipe-protein-column) 100.0)) cost-protein-column)
               (push nil cost-protein-column)))
         (progn
           (push nil cost-calories-column)
           (push nil cost-protein-column)))
       (if (otdb-table-lisp-row-check lisp-row 3)
-          (let ((row-calories (otdb-table-lisp-row-float lisp-row 3))
-                (row-protein (otdb-table-lisp-row-float lisp-row 4))
-                (row-fat (otdb-table-lisp-row-float lisp-row 5)))
+          (let ((row-calories (otdb-table-lisp-row-float lisp-row otdb-recipe-calories-column))
+                (row-protein (otdb-table-lisp-row-float lisp-row otdb-recipe-protein-column))
+                (row-fat (otdb-table-lisp-row-float lisp-row otdb-recipe-fat-column)))
             (push (* 100.0 (/ (- row-calories (+ (* 4.0 row-protein) (* 9.0 row-fat))) row-calories)) percent-carb-column)
             (push (* 100.0 (/ (* 4.0 row-protein) row-calories)) percent-protein-column)
             (push (* 100.0 (/ (* 9.0 row-fat) row-calories)) percent-fat-column))
@@ -1137,13 +1179,13 @@ different than 1 and filtered by CALCULATION-TYPE."
   "Table tblel function for TBLFM to calculate cost per 1000
 calories in the database and cost per 100g protein."
   (dolist (therow (nthcdr 1 lisp-table-no-seperators))
-    (let* ((package-weight   (elt therow 1))
-           (package-volume   (elt therow 2))
-           (package-cost     (elt therow 3))
-           (serving-weight   (elt therow 4))
-           (serving-volume   (elt therow 5))
-           (serving-calories (elt therow 6))
-           (serving-protein  (elt therow 7))
+    (let* ((package-weight   (elt therow otdb-recipe-database-package-weight-column))
+           (package-volume   (elt therow otdb-recipe-database-package-volume-column))
+           (package-cost     (elt therow otdb-recipe-database-cost-column))
+           (serving-weight   (elt therow otdb-recipe-database-serving-weight-column))
+           (serving-volume   (elt therow otdb-recipe-database-serving-volume-column))
+           (serving-calories (elt therow otdb-recipe-database-serving-calories-column))
+           (serving-protein  (elt therow otdb-recipe-database-serving-protein-column))
            ;; see comments in otdb-recipe-database-calorie-costs
            (calorie-cost (cic:number-to-string-nan (ignore-errors (cond ((and (cic:full-string-p package-weight) (cic:full-string-p serving-weight))
                                                                          (let ((factor (otdb-table-unit-conversion 'weight (otdb-table-unit package-weight) (otdb-table-unit serving-weight))))

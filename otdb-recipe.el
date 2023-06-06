@@ -392,8 +392,6 @@ point or entered item."
       (cic:mpp-echo (concat "Duplicate groceries: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
     (nreverse shopping-list)))
 
-
-
 (defun otdb-recipe-get-calories-protein-fat-weight-volume-cost (recipe)
   "Get the totals from a particular RECIPE. Generally to use in a
 another recipe."
@@ -404,8 +402,8 @@ another recipe."
       ;; (cic:org-table-last-row)
       (let* ((table-lisp (cic:org-table-to-lisp-no-separators))
              (last-row (mapcar 'substring-no-properties (car (last table-lisp)))))
-        (mapcar (lamba (e)
-                       (list (car e) (string-to-number (nth last-row (cdr e)))))
+        (mapcar (lambda (e)
+                  (list (car e) (string-to-number (nth (cdr e) last-row))))
                 ;; TODO can probably refactor into a constant "column pairs"
                 (list (cons 'calories otdb-recipe-calories-column)
                       (cons 'protein otdb-recipe-protein-column)
@@ -471,7 +469,17 @@ right thing based on information available."
          (serving-weight-p (cic:full-string-p ingredient-serving-weight))
          ;; used to convert within servings
          ;; TODO: should to-quantity be called to-servings
-         (unit-type (otdb-table-unit-type (otdb-table-unit quantity)))
+         (package-volume-number (otdb-table-number ingredient-package-volume))
+         (package-volume-unit (otdb-table-unit ingredient-package-volume))
+         (package-weight-number (otdb-table-number ingredient-package-weight))
+         (package-weight-unit (otdb-table-unit ingredient-package-weight))
+         (quantity-number (otdb-table-number quantity))
+         (quantity-unit (otdb-table-unit quantity))
+         (serving-volume-number (otdb-table-number ingredient-serving-volume))
+         (serving-volume-unit (otdb-table-unit ingredient-serving-volume))
+         (serving-weight-number (otdb-table-number ingredient-serving-weight))
+         (serving-weight-unit (otdb-table-unit ingredient-serving-weight))
+         (unit-type (otdb-table-unit-type quantity-unit))
          (to-quantity (cond ((eq unit-type 'weight)
                              ingredient-serving-weight)
                             ((eq unit-type 'volume)
@@ -486,17 +494,17 @@ right thing based on information available."
       ;; dimensionless units are volume
       (*
        (/
-        (otdb-table-number quantity)
-        (otdb-table-number ingredient-serving-volume))
+        quantity-number
+        serving-volume-number)
        (cic:string-to-float (nth column ingredient-row))))
      ((and (not unit-type)
            package-volume-p
            serving-volume-p
            (otdb-table-unit-type ingredient-serving-volume))
-      (* (/ (* (otdb-table-number quantity)
-               (otdb-table-number ingredient-package-volume))
-            (otdb-table-number ingredient-serving-volume))
-         (otdb-table-unit-conversion 'volume (otdb-table-unit ingredient-package-volume) (otdb-table-unit ingredient-serving-volume))
+      (* (/ (* quantity-number
+               package-volume-number)
+            serving-volume-number)
+         (otdb-table-unit-conversion 'volume package-volume-unit serving-volume-unit)
          (cic:string-to-float (nth column ingredient-row))))
      ((and (not unit-type)
            package-weight-p
@@ -504,26 +512,26 @@ right thing based on information available."
            (otdb-table-unit-type ingredient-serving-weight)
            package-volume-p
            (not (otdb-table-unit-type ingredient-package-volume)))
-      (* (otdb-table-number quantity)
-         (/ (/ (otdb-table-number ingredient-package-weight)
-               (otdb-table-number ingredient-package-volume))
-            (otdb-table-number ingredient-serving-weight))
-         (otdb-table-unit-conversion 'weight (otdb-table-unit ingredient-package-weight) (otdb-table-unit ingredient-serving-weight))
+      (* quantity-number
+         (/ (/ package-weight-number
+               package-volume-number)
+            serving-weight-number)
+         (otdb-table-unit-conversion 'weight package-weight-unit serving-weight-unit)
          (cic:string-to-float (nth column ingredient-row))))
      ((and (not unit-type)
            package-weight-p
            serving-weight-p
            (otdb-table-unit-type ingredient-serving-weight))
-      (* (/ (* (otdb-table-number quantity)
-               (otdb-table-number ingredient-package-weight))
-            (otdb-table-number ingredient-serving-weight))
-         (otdb-table-unit-conversion 'weight (otdb-table-unit ingredient-package-weight) (otdb-table-unit ingredient-serving-weight))
+      (* (/ (* quantity-number
+               package-weight-number)
+            serving-weight-number)
+         (otdb-table-unit-conversion 'weight package-weight-unit serving-weight-unit)
          (cic:string-to-float (nth column ingredient-row))))
      (t
       (*
-       (/ (otdb-table-number quantity)
+       (/ quantity-number
           (otdb-table-number to-quantity))
-       (otdb-table-unit-conversion unit-type (otdb-table-unit quantity) (otdb-table-unit to-quantity))
+       (otdb-table-unit-conversion unit-type quantity-unit (otdb-table-unit to-quantity))
        (cic:string-to-float (nth column ingredient-row)))))))
 
 (defun otdb-recipe-cost-row (ingredient-row quantity)
@@ -534,106 +542,117 @@ Tries to do the right thing with different types of units."
          (ingredient-cost           (nth otdb-recipe-database-cost-column ingredient-row))
          (ingredient-serving-weight (nth otdb-recipe-database-serving-weight-column ingredient-row))
          (ingredient-serving-volume (nth otdb-recipe-database-serving-volume-column ingredient-row))
-         (unit-type (otdb-table-unit-type (otdb-table-unit quantity)))
          (package-volume-p (cic:full-string-p ingredient-package-volume))
          (package-weight-p (cic:full-string-p ingredient-package-weight))
-         (serving-weight-p (cic:full-string-p ingredient-serving-weight)))
+         (serving-weight-p (cic:full-string-p ingredient-serving-weight))
+         (cost-number (otdb-table-number ingredient-cost))
+         (package-volume-number (otdb-table-number ingredient-package-volume))
+         (package-volume-unit (otdb-table-unit ingredient-package-volume))
+         (package-weight-number (otdb-table-number ingredient-package-weight))
+         (package-weight-unit (otdb-table-unit ingredient-package-weight))
+         (quantity-number (otdb-table-number quantity))
+         (quantity-unit (otdb-table-unit quantity))
+         (serving-volume-number (otdb-table-number ingredient-serving-volume))
+         (serving-volume-unit (otdb-table-unit ingredient-serving-volume))
+         (serving-weight-number (otdb-table-number ingredient-serving-weight))
+         (serving-weight-unit (otdb-table-unit ingredient-serving-weight))
+         (unit-type (otdb-table-unit-type quantity-unit)))
     ;; figure out if we have both weight units for cost or not
     (cond ((eq unit-type 'weight)
            (cond ((not package-weight-p)
                   (*
                    ;; quantity
-                   (otdb-table-number quantity)
-                   ;; cost-units / quantity-units
+                   quantity-number
+                   ;; cost-numbers / quantity-units
                    (otdb-table-unit-conversion
                     'volume
-                    (otdb-table-unit quantity)
-                    (otdb-table-unit ingredient-package-weight))
+                    quantity-unit
+                    package-weight-unit)
                    ;; cost-quantity / cost)
-                   (/ (otdb-table-number ingredient-cost)
-                      (otdb-table-number ingredient-package-weight))))
+                   (/ cost-number
+                      package-weight-number)))
                  ;; all weight
                  ((and package-weight-p
                        serving-weight-p)
                   (*
                    (/
-                    (otdb-table-number quantity)
-                    (otdb-table-number ingredient-package-weight))
+                    quantity-number
+                    package-weight-number)
                    (otdb-table-unit-conversion
                     'weight
-                    (otdb-table-unit quantity)
-                    (otdb-table-unit ingredient-package-weight))
-                   (otdb-table-number ingredient-cost)))
+                    quantity-unit
+                    package-weight-unit)
+                   cost-number))
                  (t
                   ;; quantity / serving-quantity
                   (*
                    (/
-                    (otdb-table-number quantity)
-                    (otdb-table-number ingredient-serving-weight))
+                    quantity-number
+                    serving-weight-number)
                    ;;  serving-units / quantity-units
                    (otdb-table-unit-conversion
                     'volume
-                    (otdb-table-unit quantity)
-                    (otdb-table-unit ingredient-serving-weight))
+                    quantity-unit
+                    serving-weight-unit)
                    ;; serving-quantity(alt)
-                   (otdb-table-number ingredient-serving-volume)
-                   ;;  serving-units(alt)/cost-units
+                   serving-volume-number
+                   ;;  serving-units(alt)/cost-numbers
                    (otdb-table-unit-conversion
                     'weight
-                    (otdb-table-unit ingredient-serving-volume)
-                    (otdb-table-unit ingredient-package-volume))
+                    serving-volume-unit
+                    package-volume-unit)
                    ;;  cost-quantity/cost
                    (/
                     (cic:string-to-float ingredient-cost)
-                    (otdb-table-number ingredient-package-volume))))))
+                    package-volume-number)))))
           ((eq unit-type 'volume)
            (cond (package-volume-p
                   (*
                    ;; quantity
-                   (otdb-table-number quantity)
-                   ;; cost-units / quantity-units
+                   quantity-number
+                   ;; cost-numbers / quantity-units
                    (otdb-table-unit-conversion
                     'volume
-                    (otdb-table-unit quantity)
-                    (otdb-table-unit ingredient-package-volume))
+                    quantity-unit
+                    package-volume-unit)
                    ;; cost-quantity / cost)
-                   (/ (otdb-table-number ingredient-cost)
-                      (otdb-table-number ingredient-package-volume))))
+                   (/ cost-number
+                      package-volume-number)))
                  (t
                   (*
                    ;; quantity / serving-quantity
                    (/
-                    (otdb-table-number quantity)
-                    (otdb-table-number ingredient-serving-volume))
+                    quantity-number
+                    serving-volume-number)
                    ;;  serving-units / quantity-units
                    (otdb-table-unit-conversion
                     'volume
-                    (otdb-table-unit quantity)
-                    (otdb-table-unit ingredient-serving-volume))
+                    quantity-unit
+                    serving-volume-unit)
                    ;; serving-quantity(alt)/serving-quantity
-                   (otdb-table-number ingredient-serving-weight)
-                   ;;  serving-units(alt)/cost-units
+                   serving-weight-number
+                   ;;  serving-units(alt)/cost-numbers
                    (otdb-table-unit-conversion
                     'weight
-                    (otdb-table-unit ingredient-serving-weight)
-                    (otdb-table-unit ingredient-package-weight))
+                    serving-weight-unit
+                    package-weight-unit)
                    ;;  cost-quantity/cost
                    (/
                     (cic:string-to-float ingredient-cost)
-                    (otdb-table-number ingredient-package-weight))))))
+                    package-weight-number)))))
           (t
-           (cond ((not (cic:full-string-p (otdb-table-unit ingredient-package-volume)))
+           (cond ((not (cic:full-string-p package-volume-unit))
                   (if (and (not unit-type) (not package-volume-p))
-                      (otdb-table-number ingredient-cost)
+                      cost-number
                     (*
                      (/
-                      (otdb-table-number quantity)
-                      (otdb-table-number ingredient-package-volume))
-                     (otdb-table-number ingredient-cost))))
+                      quantity-number
+                      package-volume-number)
+                     cost-number)))
                  (t
                   (*
-                   (otdb-table-number quantity)
-                   (otdb-table-number ingredient-cost))))))))
+                   quantity-number
+                   cost-number)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tables
@@ -1195,22 +1214,33 @@ calories in the database and cost per 100g protein."
            (serving-volume   (nth otdb-recipe-database-serving-volume-column therow))
            (serving-calories (nth otdb-recipe-database-serving-calories-column therow))
            (serving-protein  (nth otdb-recipe-database-serving-protein-column therow))
+           (package-cost-number (otdb-table-number package-cost))
+           (package-volume-number (otdb-table-number package-volume))
+           (package-volume-unit (otdb-table-unit package-volume))
+           (package-weight-number (otdb-table-number package-weight))
+           (package-weight-unit (otdb-table-unit package-weight))
+           (serving-calories-number (otdb-table-number serving-calories))
+           (serving-protein-number (otdb-table-number serving-protein))
+           (serving-volume-number (otdb-table-number serving-volume))
+           (serving-volume-unit (otdb-table-unit serving-volume))
+           (serving-weight-number (otdb-table-number serving-weight))
+           (serving-weight-unit (otdb-table-unit serving-weight))
            ;; see comments in otdb-recipe-database-calorie-costs
            (calorie-cost (cic:number-to-string-nan (ignore-errors (cond ((and (cic:full-string-p package-weight) (cic:full-string-p serving-weight))
-                                                                         (let ((factor (otdb-table-unit-conversion 'weight (otdb-table-unit package-weight) (otdb-table-unit serving-weight))))
-                                                                           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-weight) (otdb-table-number serving-weight)) (otdb-table-number serving-calories))) 1000)))
+                                                                         (let ((factor (otdb-table-unit-conversion 'weight package-weight-unit serving-weight-unit)))
+                                                                           (* (/ package-cost-number (* factor (/ package-weight-number serving-weight-number) serving-calories-number)) 1000)))
                                                                         ((and (cic:full-string-p package-volume) (cic:full-string-p serving-volume))
-                                                                         (let ((factor (otdb-table-unit-conversion 'volume (otdb-table-unit package-volume) (otdb-table-unit serving-volume))))
-                                                                           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-volume) (otdb-table-number serving-volume)) (otdb-table-number serving-calories))) 1000)))
+                                                                         (let ((factor (otdb-table-unit-conversion 'volume package-volume-unit serving-volume-unit)))
+                                                                           (* (/ package-cost-number (* factor (/ package-volume-number serving-volume-number) serving-calories-number)) 1000)))
                                                                         (t
                                                                          nil)))))
            ;; see comments in otdb-recipe-database-protein-costs
            (protein-cost (cic:number-to-string-nan (ignore-errors (cond ((and (cic:full-string-p package-weight) (cic:full-string-p serving-weight))
-                                                                         (let ((factor (otdb-table-unit-conversion 'weight (otdb-table-unit package-weight) (otdb-table-unit serving-weight))))
-                                                                           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-weight) (otdb-table-number serving-weight)) (otdb-table-number serving-protein))) 100)))
+                                                                         (let ((factor (otdb-table-unit-conversion 'weight package-weight-unit serving-weight-unit)))
+                                                                           (* (/ package-cost-number (* factor (/ package-weight-number serving-weight-number) serving-protein-number)) 100)))
                                                                         ((and (cic:full-string-p package-volume) (cic:full-string-p serving-volume))
-                                                                         (let ((factor (otdb-table-unit-conversion 'volume (otdb-table-unit package-volume) (otdb-table-unit serving-volume))))
-                                                                           (* (/ (otdb-table-number package-cost) (* factor (/ (otdb-table-number package-volume) (otdb-table-number serving-volume)) (otdb-table-number serving-protein))) 100)))
+                                                                         (let ((factor (otdb-table-unit-conversion 'volume package-volume-unit serving-volume-unit)))
+                                                                           (* (/ package-cost-number (* factor (/ package-volume-number serving-volume-number) serving-protein-number)) 100)))
                                                                         (t
                                                                          nil))))))
       ;; add to row

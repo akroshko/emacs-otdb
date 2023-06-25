@@ -151,13 +151,14 @@
         (hl-line-mode 1)))
 (add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-hook--init)
 
-(defun otdb-recipe-get-variable (lookup-variable)
+(defun otdb-recipe-get-variable (recipe-context lookup-variable)
   "Helper function to lookup different otdb-recipe variables
 depending on context."
   (let ((current-filename (ignore-errors buffer-file-name)))
     ;; use the standard version
-    (let ((normal-recipe-files otdb-recipe-normal-alist))
+    (let ((normal-recipe-files recipe-context))
       (cdr (assoc lookup-variable normal-recipe-files)))))
+;; otdb-recipe-normal-alist
 
 (defun otdb-recipe-reset-filters ()
   "Reset all specified filters."
@@ -204,14 +205,14 @@ otdb-recipe-item-pattern."
 databases."
   (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections)              (cons "Recipe files" (make-sparse-keymap "recipe files")))
   (when (boundp 'otdb-recipe-normal-alist)
-    (dolist (collection (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-files)))
+    (dolist (collection (cic:ensure-list (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-files)))
       (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-collections (make-symbol collection)) (cons collection (cic:make-file-finder collection)))))
   ;; https://stackoverflow.com/questions/9966279/how-to-dynamically-define-a-menu-item-what-is-the-thing-in-square-braces
   ;; TODO: hope this always works out properly, might have issue if databases change
   ;;       does not update dynamically at the moment
   (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases)                (cons "Recipe databases" (make-sparse-keymap "recipe databases")))
   (when (boundp 'otdb-recipe-normal-alist)
-    (dolist (database (cic:ensure-list (otdb-recipe-get-variable 'otdb-recipe-database)))
+    (dolist (database (cic:ensure-list (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)))
       (define-key map (vector 'menu-bar otdb-recipe-menu 'recipe-databases (make-symbol database)) (cons database (cic:make-file-finder database))))))
 
 (defun otdb-menu-bar-update-hook--recipe-update-menu ()
@@ -268,15 +269,15 @@ databases."
   "The keymap for otdb-recipe-mode.")
 
 ;; check and add to shopping list
-(defun otdb-recipe-add-check ()
+(defun otdb-recipe-add-check (recipe-context)
   "Check a box in the shopping list based on current item near
 point or entered item."
   ;; TODO want to be able to insert item without checking, best way???
   ;; TODO want to sort groceries
   (interactive)
   (let* ((default-item (ignore-errors (otdb-table-get-key-at-point)))
-         (shopping-list-checked (otdb-recipe-get-shopping 'checked))
-         (shopping-list-unchecked (otdb-recipe-get-shopping 'unchecked))
+         (shopping-list-checked (otdb-recipe-get-shopping recipe-context 'checked))
+         (shopping-list-unchecked (otdb-recipe-get-shopping recipe-context 'unchecked))
          ;; XXXX not all of these may be
          (full-list (append shopping-list-checked shopping-list-unchecked))
          shopping-headlines
@@ -291,12 +292,12 @@ point or entered item."
     (unless (cic:full-string-p (s-trim-full selected-item))
       (setq selected-item default-item))
     (cond ((member selected-item shopping-list-checked)
-           (cic:mpp-echo (format "Grocery item %s already checked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
+           (cic:mpp-echo (format "Grocery item %s already checked!" selected-item) (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
           ((member selected-item shopping-list-unchecked)
            ;; uncheck
            ;; TODO: make sure only one appropriate box is checked
            ;;       reset any things needed by save-excursion, etc.
-           (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
+           (do-org-headlines (otdb-recipe-get-variable recipe-context 'otdb-recipe-agenda) headline-name headline-subtree
                              (when (string-match-p "^Grocery.*" headline-name)
                                ;; find in subtree
                                (save-excursion
@@ -305,9 +306,9 @@ point or entered item."
                                  (when (re-search-forward (concat cic:checkbox-regexp " " selected-item) nil t)
                                    (org-toggle-checkbox))
                                  (widen))))
-           (cic:mpp-echo (format "Grocery item %s successfully checked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
+           (cic:mpp-echo (format "Grocery item %s successfully checked!" selected-item) (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
           (t
-           (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
+           (do-org-headlines (otdb-recipe-get-variable recipe-context 'otdb-recipe-agenda) headline-name headline-subtree
                              (when (string-match-p "^Grocery.*" headline-name)
                                (push headline-name shopping-headlines)))
            (setq shopping-headlines (nreverse shopping-headlines))
@@ -325,7 +326,7 @@ point or entered item."
            ;; add a checkbox if necessary
            (cond ((not (string-match-p "[A-Za-z]" (char-to-string unmatched-item)))
                   ;; find headline and add at the end
-                  (with-current-file-transient-headline (otdb-recipe-get-variable 'otdb-recipe-agenda) (nth shopping-headlines (- unmatched-item 48))
+                  (with-current-file-transient-headline (otdb-recipe-get-variable recipe-context 'otdb-recipe-agenda) (nth shopping-headlines (- unmatched-item 48))
                                                         (outline-hide-subtree)
                                                         (org-show-subtree)
                                                         (org-end-of-subtree)
@@ -336,13 +337,13 @@ point or entered item."
                   ;; just finish
                   ))))))
 
-(defun otdb-recipe-uncheck ()
+(defun otdb-recipe-uncheck (recipe-context)
   "Uncheck a box in the shopping list based on current item near
 point or entered item."
   (interactive)
   (let* ((default-item (ignore-errors (otdb-table-get-key-at-point)))
-         (shopping-list-checked (otdb-recipe-get-shopping 'checked))
-         (shopping-list-unchecked (otdb-recipe-get-shopping 'unchecked))
+         (shopping-list-checked (otdb-recipe-get-shopping recipe-context 'checked))
+         (shopping-list-unchecked (otdb-recipe-get-shopping recipe-context 'unchecked))
          (full-list (append shopping-list-checked shopping-list-unchecked))
          selected-item
          prompt)
@@ -353,9 +354,9 @@ point or entered item."
     (unless (cic:full-string-p (s-trim-full selected-item))
       (setq selected-item default-item))
     (cond ((not (member selected-item full-list))
-           (cic:mpp-echo (format "Shopping item %s not found.  Nothing to remove!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
+           (cic:mpp-echo (format "Shopping item %s not found.  Nothing to remove!" selected-item) (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
           ((member selected-item shopping-list-checked)
-           (do-org-headlines (otdb-recipe-get-variable 'otdb-recipe-agenda) headline-name headline-subtree
+           (do-org-headlines (otdb-recipe-get-variable recipe-context 'otdb-recipe-agenda) headline-name headline-subtree
                              (when (string-match-p "^Grocery.*" headline-name)
                                ;; find in subtree
                                (save-excursion
@@ -364,16 +365,16 @@ point or entered item."
                                  (when (ignore-errors (re-search-forward (concat cic:checkbox-regexp " " selected-item)))
                                    (org-toggle-checkbox))
                                  (widen))))
-           (cic:mpp-echo (format "Shopping item %s successfully unchecked!" selected-item) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
+           (cic:mpp-echo (format "Shopping item %s successfully unchecked!" selected-item) (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
           ((member selected-supply supply-list-unchecked)
-           (cic:mpp-echo (format "Shopping item %s already unchecked!" selected-supply) (otdb-recipe-get-variable 'otdb-recipe-message-buffer))))))
+           (cic:mpp-echo (format "Shopping item %s already unchecked!" selected-supply) (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer))))))
 
-(defun otdb-recipe-get-shopping (&optional checktype)
+(defun otdb-recipe-get-shopping (&optional recipe-context checktype)
   "Get the list of items to shop for, optionally with CHECKTYPE."
   (let (line
         matched-text
         shopping-list
-        (shopping-file (otdb-recipe-get-variable 'otdb-recipe-agenda)))
+        (shopping-file (otdb-recipe-get-variable recipe-context 'otdb-recipe-agenda)))
     (cond ((eq checktype 'checked)
            (setq checkbox-regexp cic:checkbox-checked-regexp))
           ((eq checktype 'unchecked)
@@ -389,13 +390,13 @@ point or entered item."
                                                (push (s-trim-full-no-properties matched-text) shopping-list))))))
     (setq dups (cic:get-list-duplicates shopping-list))
     (when (> (length dups) 0)
-      (cic:mpp-echo (concat "Duplicate groceries: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
+      (cic:mpp-echo (concat "Duplicate groceries: " (pp-to-string dups)) (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
     (nreverse shopping-list)))
 
-(defun otdb-recipe-get-calories-protein-fat-weight-volume-cost (recipe)
+(defun otdb-recipe-get-calories-protein-fat-weight-volume-cost (recipe-context recipe)
   "Get the totals from a particular RECIPE. Generally to use in a
 another recipe."
-  (let ((recipe-location (otdb-recipe-find recipe)))
+  (let ((recipe-location (otdb-recipe-find recipe-context recipe)))
     (with-current-file-transient (car recipe-location)
       (goto-char (cadr recipe-location))
       (cic:org-find-table)
@@ -413,12 +414,12 @@ another recipe."
                       (cons 'cost otdb-recipe-cost-column)))))))
 
 ;; find recipes
-(defun otdb-recipe-find (recipe)
+(defun otdb-recipe-find (recipe-context recipe)
   "Find RECIPE and return the location.
 TODO return location at beginning of line"
   ;; have an "exact" way of doing this
   (let (location)
-    (dolist (recipe-file (otdb-recipe-get-variable 'otdb-recipe-files))
+    (dolist (recipe-file (otdb-recipe-get-variable recipe-context 'otdb-recipe-files))
       (with-current-file-transient-min recipe-file
         (let ((found (when  (re-search-forward (concat "^\* " recipe " :recipe:") nil t)
                        (beginning-of-line)
@@ -427,14 +428,14 @@ TODO return location at beginning of line"
             (setq location (list recipe-file found))))))
     location))
 
-(defun otdb-recipe-get-recipes ()
+(defun otdb-recipe-get-recipes (recipe-context)
   "Get the full list of recipes."
   (if otdb-table-collections-cache
       otdb-table-collections-cache
     (let (table
           table-name
           recipe-list)
-      (dolist (recipe-file (otdb-recipe-get-variable 'otdb-recipe-files))
+      (dolist (recipe-file (otdb-recipe-get-variable recipe-context 'otdb-recipe-files))
         (do-org-tables recipe-file table-name table
                        (save-match-data
                          (when (string-match "\\(.*\\) :recipe:" table-name)
@@ -442,12 +443,12 @@ TODO return location at beginning of line"
       (setq otdb-table-collections-cache recipe-list)
       recipe-list)))
 
-(defun otdb-recipe-complete ()
+(defun otdb-recipe-complete (recipe-context)
   "Select and complete a recipe name, then go to it."
   (interactive)
-  (let* ((recipe-list (otdb-recipe-get-recipes))
+  (let* ((recipe-list (otdb-recipe-get-recipes recipe-context))
          (recipe (ido-completing-read "Recipe: " recipe-list nil t))
-         (recipe-location (otdb-recipe-find recipe)))
+         (recipe-location (otdb-recipe-find recipe-context recipe)))
     (find-file (car recipe-location))
     (goto-char (cadr recipe-location))
     (show-subtree)))
@@ -657,7 +658,7 @@ Tries to do the right thing with different types of units."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tables
 
-(defun otdb-recipe-lookup-function (row-list)
+(defun otdb-recipe-lookup-function (recipe-context row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular recipe.
 Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp-no-separators))"
@@ -666,7 +667,7 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
         key-list
         quantity-alist
         recipe-calories-protein-fat-weight-volume-cost-list
-        (recipe-list (otdb-recipe-get-recipes)))
+        (recipe-list (otdb-recipe-get-recipes recipe-context)))
     ;; get list of keys to lookup
     (dolist (row (cdr row-list))
       ;; get the key if applicable
@@ -674,7 +675,7 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
           (setq recipe-calories-protein-fat-weight-volume-cost-list
                 (let* ((row-quantity (nth otdb-recipe-quantity-column row))
                        (row-item (nth otdb-recipe-item-column row))
-                       (ccl (otdb-recipe-get-calories-protein-fat-weight-volume-cost row-item)))
+                       (ccl (otdb-recipe-get-calories-protein-fat-weight-volume-cost recipe-context row-item)))
                   (push (append
                          (list (s-trim-full-no-properties row-item))
                          (mapcar (lambda (e)
@@ -689,8 +690,8 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
           (push (s-trim-full-no-properties (nth otdb-recipe-item-column row)) key-list))))
     ;; get the database rows
     (setq database-row-alist (otdb-table-item-row-multiple
-                              (otdb-recipe-get-variable 'otdb-recipe-database)
-                              (otdb-recipe-get-variable 'otdb-recipe-database-headline)
+                              (otdb-recipe-get-variable recipe-context 'otdb-recipe-database)
+                              (otdb-recipe-get-variable recipe-context 'otdb-recipe-database-headline)
                               key-list 1))
     ;; calculate both cost and other things
     (dolist (row-alist database-row-alist)
@@ -735,7 +736,7 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
                 calories-protein-fat-weight-volume-cost-list))))
     (append recipe-calories-protein-fat-weight-volume-cost-list calories-protein-fat-weight-volume-cost-list)))
 
-(defun otdb-recipe-insert-function (recipe-filename recipe-heading calories-protein-fat-weight-volume-cost-list)
+(defun otdb-recipe-insert-function (recipe-context recipe-filename recipe-heading calories-protein-fat-weight-volume-cost-list)
   "Helper function for otdb-table-update to insert information
 into a recipe.  The recipe is RECIPE-HEADING in RECIPE-FILENAME
 with information to be inserted of
@@ -777,41 +778,41 @@ CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST."
     (tblel-eval)))
 
 ;; TODO: appears broken
-(defun otdb-recipe-find-ingredient (ingredient)
+(defun otdb-recipe-find-ingredient (recipe-context ingredient)
   "Find the location of INGREDIENT ingredient in database (or
 recipe)."
   ;; TODO this will probably become a pretty general table lookup function for databases
-  (if (member ingredient (otdb-recipe-get-recipes))
-      (otdb-recipe-find ingredient)
-    (cic:org-table-lookup-location (otdb-recipe-get-variable 'otdb-recipe-database)
-                                   (otdb-recipe-get-variable 'otdb-recipe-database-headline)
+  (if (member ingredient (otdb-recipe-get-recipes recipe-context))
+      (otdb-recipe-find recipe-context ingredient)
+    (cic:org-table-lookup-location (otdb-recipe-get-variable recipe-context 'otdb-recipe-database)
+                                   (otdb-recipe-get-variable recipe-context 'otdb-recipe-database-headline)
                                    ingredient 1)))
 
 ;; TODO: appears to only be called from other broken functions
-(defun otdb-recipe-get-ingredients ()
+(defun otdb-recipe-get-ingredients (recipe-context)
   "Get list of all ingredients from the database."
   ;; TODO: will need to be modified for multiple files
   (let ((ingredients)
         (dups))
-    (dolist (database (otdb-recipe-get-variable 'otdb-recipe-database))
-      (setq ingredients (append ingredients (cic:org-table-get-keys database (otdb-recipe-get-variable 'otdb-recipe-database-headline)))))
+    (dolist (database (otdb-recipe-get-variable recipe-context 'otdb-recipe-database))
+      (setq ingredients (append ingredients (cic:org-table-get-keys database (otdb-recipe-get-variable recipe-context 'otdb-recipe-database-headline)))))
     (setq dups (cic:get-list-duplicates ingredients))
     (when (> (length dups) 0)
-      (cic:mpp-echo (concat "Duplicate ingredients: " (pp-to-string dups)) (otdb-recipe-get-variable 'otdb-recipe-message-buffer)))
+      (cic:mpp-echo (concat "Duplicate ingredients: " (pp-to-string dups)) (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
     ingredients))
 
 ;; TODO: will need to modified for multiple files
 ;; TODO: does not appear to be used....
-(defun otdb-recipe-ingredient-row (ingredient)
+(defun otdb-recipe-ingredient-row (recipe-context ingredient)
   "Look up row of INGREDIENT ingredient in the database."
   ;; XXXX assume on top of table
   ;; XXXX assume Ingredient.... etc. header is first
-  (cic:org-table-lookup-row (otdb-recipe-get-variable 'otdb-recipe-database)
+  (cic:org-table-lookup-row (otdb-recipe-get-variable recipe-context 'otdb-recipe-database)
                             ;; TODO: this variable will have to be modified for multiple files
-                            (otdb-recipe-get-variable 'otdb-recipe-database-headline)
+                            (otdb-recipe-get-variable recipe-context 'otdb-recipe-database-headline)
                             ingredient))
 
-(defun otdb-recipe-export-multiple (&optional otdb-recipe-temp-directory)
+(defun otdb-recipe-export-multiple (&optional recipe-context otdb-recipe-temp-directory)
   "Export each component recipe in a table containing recipes to a pdf file in ~/tmp/otdb-recipes"
   (interactive)
   (require 'ox-publish)
@@ -838,7 +839,7 @@ recipe)."
                                (when (cic:is-not-empty-string-nil (nth otdb-recipe-item-column current-row))
                                  ;; lookup recipe and get subtree from there
                                  ;; do process to add one recipe to buffer, get this into a function
-                                 (let ((recipe-location (otdb-recipe-find (nth otdb-recipe-item-column current-row))))
+                                 (let ((recipe-location (otdb-recipe-find recipe-context (nth otdb-recipe-item-column current-row))))
                                    (with-current-file-transient (car recipe-location)
                                      (goto-char (cadr recipe-location))
                                      (org-mark-subtree)
@@ -1152,7 +1153,7 @@ CALCULATION-TYPE."
       (goto-char (point-min)))
     (switch-to-buffer the-new-buffer)))
 
-(defun otdb-recipe-calc-special (lisp-table current-temporary-buffer &optional quantity calculation-type)
+(defun otdb-recipe-calc-special (recipe-context lisp-table current-temporary-buffer &optional quantity calculation-type)
   "Do a special calculation on the current recipe specified by
 LISP-TABLE in CURRENT-TEMPORARY-BUFFER with QUANTITY potentially
 different than 1 and filtered by CALCULATION-TYPE."
@@ -1164,7 +1165,7 @@ different than 1 and filtered by CALCULATION-TYPE."
       (setq quantity 1))
     ;; find all the current rows
     (dolist (lisp-row (butlast (cdr lisp-table)))
-      (let ((recipe-location (otdb-recipe-find (nth otdb-recipe-item-column lisp-row))))
+      (let ((recipe-location (otdb-recipe-find recipe-context (nth otdb-recipe-item-column lisp-row))))
         (cond (recipe-location
                (unless (otdb-table-check-invalid-current-row-lisp lisp-row char-columns)
                  (with-current-file-transient-min (car recipe-location)

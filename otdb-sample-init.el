@@ -1,12 +1,12 @@
 ;;; otdb-sample-init.el --- A sample init file I used for testing
 ;;; this library in isolation from my main Emacs installation.
 ;;
-;; Copyright (C) 2015-2019, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
-;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
+;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20191209
+;; Version: 20230801
 ;; URL:
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -46,19 +46,14 @@
 (require 'org-table)
 
 (add-to-list 'load-path ".")
-(add-to-list 'load-path "../cic-emacs-common/")
 ;; TODO: replace this
-(load "../cic-emacs-common/cic-emacs-config.el")
 (requiring-package (cic-emacs-common-aliases))
 (requiring-package (cic-emacs-patterns))
-(requiring-package (cic-emacs-functions))
 (requiring-package (cic-emacs-macros))
-(requiring-package (cic-emacs-org-mode))
 (requiring-package (cic-emacs-passwords))
 (requiring-package (cic-emacs-strings))
 (requiring-package (tblel))
 ;; XXXX: uncomment to use my other keys
-;; (cic-emacs-keys-mode t)
 ;; (cic-emacs-keys-non-term-mode t)
 ;; (cic-emacs-keys-org-mode t)
 ;; TODO put these in an accessible place

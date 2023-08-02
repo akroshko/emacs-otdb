@@ -1,11 +1,11 @@
 ;;; otdb-gear.el --- For calculating the weights of backpacking (or other) gear.
 ;;
-;; Copyright (C) 2015-2019, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
-;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
+;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr 5, 2015
-;; Version: 20191209
+;; Version: 20130801
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -33,7 +33,6 @@
 ;; Features that might be required by this library:
 ;;
 ;; Standard Emacs features, to be documented specifically later.  Also
-;; requires features from https://github.com/akroshko/cic-emacs-common,
 ;; using (require 'cic-emacs-common) is sufficient.
 ;;
 ;;; Code:
@@ -119,53 +118,52 @@ databases."
     (dolist (database (cic:ensure-list otdb-gear-database))
       (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases (make-symbol database)) (cons database (cic:make-file-finder database))))))
 
-(defun otdb-gear-mode-map ()
-  "Function to make the menu map for otdb-gear-mode."
-  (let ((map (make-sparse-keymap)))
-    (setq map (otdb-table-skeleton-map map))
-    (define-key map [menu-bar otdb-gear-menu]                              (cons "otdb-gear" (make-sparse-keymap "otdb-gear")))
-    (define-key map [menu-bar otdb-gear-menu reset-filters]                '("Reset gear filters" . otdb-gear-reset-filters))
-    ;; TODO: generate these from alist
-    (otdb-gear-menu-files map)
-    (define-key map [menu-bar otdb-gear-menu separator2] '("--"))
-    ;; put these in reverse order they are displayed
-    ;; TODO: menu to jump to database(s)
-    (define-key map [menu-bar otdb-gear-menu item-patterns]                (cons "Gear item patterns" (make-sparse-keymap "gear item patterns")))
-    ;; TODO: make these actually work
-    (define-key map [menu-bar otdb-gear-menu item-patterns clothing]       (cons "Clothing"  'nil-command))
-    (define-key map [menu-bar otdb-gear-menu item-patterns packaging]      (cons "Packaging" 'nil-command))
-    (define-key map [menu-bar otdb-gear-menu item-pattern]                 (otdb-gear-menu-item-pattern))
-    (define-key map [menu-bar otdb-gear-menu item-tags]                    (cons "Gear tags"   (make-sparse-keymap "gear tags patterns")))
-    (define-key map [menu-bar otdb-gear-menu item-tags clothing]           (cons "Clothing"    (command-with-args 'set otdb-gear-item-tags "clothing")))
-    (define-key map [menu-bar otdb-gear-menu item-tags consumable]         (cons "Consumable"  (command-with-args 'set otdb-gear-item-tags "consumable")))
-    (define-key map [menu-bar otdb-gear-menu item-tags electronics]        (cons "Electronics" (command-with-args 'set otdb-gear-item-tags "electronics")))
-    (define-key map [menu-bar otdb-gear-menu item-tags container]          (cons "Container"   (command-with-args 'set otdb-gear-item-tags "container")))
-    (define-key map [menu-bar otdb-gear-menu item-tag]                     (otdb-gear-menu-tags))
-    (define-key map [menu-bar otdb-gear-menu separator3] '("--"))
-    (define-key map [menu-bar otdb-gear-menu toggle-check-invalid]         '("Toggle column X as invalid" . otdb-table-invalid-toggle-check-line))
-    (define-key map [menu-bar otdb-gear-menu toggle-check-cost]            '("Toggle column X as \"C\""   . otdb-table-set-toggle-cost-line))
-    (define-key map [menu-bar otdb-gear-menu toggle-check]                 '("Toggle column X"            . otdb-table-set-toggle-check-line))
-    (define-key map [menu-bar otdb-gear-menu calc-special-command-pattern] '("Use special buffer for calculating specified pattern" . otdb-gear-calc-in-special-buffer-pattern))
-    (define-key map [menu-bar otdb-gear-menu calc-special-command-tagged]  '("Use special buffer for calculating selected tags"     . otdb-gear-calc-in-special-buffer-tag))
-    (define-key map [menu-bar otdb-gear-menu calc-special-command-cost]    '("Use special buffer for calculating cost"              . otdb-gear-calc-in-special-buffer-cost))
-    (define-key map [menu-bar otdb-gear-menu calc-special-command-checked] '("Use special buffer for calculating checked"           . otdb-gear-calc-in-special-buffer-checked))
-    (define-key map [menu-bar otdb-gear-menu calc-special-command-all]     '(menu-item "Use special buffer for calculating all"     otdb-gear-calc-in-special-buffer-all
-                                                                                       :keys "s-d s"))
-    map))
-(setq otdb-gear-mode-map (otdb-gear-mode-map))
+;; (defun otdb-gear-mode-map ()
+;;   "Function to make the menu map for otdb-gear-mode."
+;;   (let ((map (make-sparse-keymap)))
+;;     (setq map (otdb-table-skeleton-map map))
+;;     (define-key map [menu-bar otdb-gear-menu]                              (cons "otdb-gear" (make-sparse-keymap "otdb-gear")))
+;;     (define-key map [menu-bar otdb-gear-menu reset-filters]                '("Reset gear filters" . otdb-gear-reset-filters))
+;;     ;; TODO: generate these from alist
+;;     (otdb-gear-menu-files map)
+;;     (define-key map [menu-bar otdb-gear-menu separator2] '("--"))
+;;     ;; put these in reverse order they are displayed
+;;     ;; TODO: menu to jump to database(s)
+;;     (define-key map [menu-bar otdb-gear-menu item-patterns]                (cons "Gear item patterns" (make-sparse-keymap "gear item patterns")))
+;;     ;; TODO: make these actually work
+;;     (define-key map [menu-bar otdb-gear-menu item-patterns clothing]       (cons "Clothing"  'nil-command))
+;;     (define-key map [menu-bar otdb-gear-menu item-patterns packaging]      (cons "Packaging" 'nil-command))
+;;     (define-key map [menu-bar otdb-gear-menu item-pattern]                 (otdb-gear-menu-item-pattern))
+;;     (define-key map [menu-bar otdb-gear-menu item-tags]                    (cons "Gear tags"   (make-sparse-keymap "gear tags patterns")))
+;;     (define-key map [menu-bar otdb-gear-menu item-tags clothing]           (cons "Clothing"    (command-with-args 'set otdb-gear-item-tags "clothing")))
+;;     (define-key map [menu-bar otdb-gear-menu item-tags consumable]         (cons "Consumable"  (command-with-args 'set otdb-gear-item-tags "consumable")))
+;;     (define-key map [menu-bar otdb-gear-menu item-tags electronics]        (cons "Electronics" (command-with-args 'set otdb-gear-item-tags "electronics")))
+;;     (define-key map [menu-bar otdb-gear-menu item-tags container]          (cons "Container"   (command-with-args 'set otdb-gear-item-tags "container")))
+;;     (define-key map [menu-bar otdb-gear-menu item-tag]                     (otdb-gear-menu-tags))
+;;     (define-key map [menu-bar otdb-gear-menu separator3] '("--"))
+;;     (define-key map [menu-bar otdb-gear-menu toggle-check-invalid]         '("Toggle column X as invalid" . otdb-table-invalid-toggle-check-line))
+;;     (define-key map [menu-bar otdb-gear-menu toggle-check-cost]            '("Toggle column X as \"C\""   . otdb-table-set-toggle-cost-line))
+;;     (define-key map [menu-bar otdb-gear-menu toggle-check]                 '("Toggle column X"            . otdb-table-set-toggle-check-line))
+;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-pattern] '("Use special buffer for calculating specified pattern" . otdb-gear-calc-in-special-buffer-pattern))
+;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-tagged]  '("Use special buffer for calculating selected tags"     . otdb-gear-calc-in-special-buffer-tag))
+;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-cost]    '("Use special buffer for calculating cost"              . otdb-gear-calc-in-special-buffer-cost))
+;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-checked] '("Use special buffer for calculating checked"           . otdb-gear-calc-in-special-buffer-checked))
+;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-all]     '(menu-item "Use special buffer for calculating all"     otdb-gear-calc-in-special-buffer-all
+;;                                                                                        :keys "s-d s"))
+;;     map))
+;; (setq otdb-gear-mode-map (otdb-gear-mode-map))
 
-(defun otdb-gear-update-menu ()
+(defun otdb-menu-bar-update-hook--update-menu ()
   "Run from a hook to update the otdb-gear-mode menu."
   (when (derived-mode-p 'otdb-gear-mode)
     (define-key otdb-gear-mode-map [menu-bar otdb-gear-menu item-pattern] (otdb-gear-menu-item-pattern))
     (define-key otdb-gear-mode-map [menu-bar otdb-gear-menu item-tag]     (otdb-gear-menu-tags))))
+(add-hook 'menu-bar-update-hook 'otdb-menu-bar-update-hook--update-menu)
 
-(add-hook 'menu-bar-update-hook 'otdb-gear-update-menu)
-
-(defvar otdb-gear-mode-map
-  (let ((map (make-sparse-keymap)))
-    (otdb-table-skeleton-map map))
-  "The key map for otdb-recipe-mode.")
+;; (defvar otdb-gear-mode-map
+;;   (let ((map (make-sparse-keymap)))
+;;     (otdb-table-skeleton-map map))
+;;   "The key map for otdb-gear-mode.")
 
 (define-derived-mode otdb-gear-mode org-mode "org-table database gear mode"
   (make-local-variable 'otdb-table-tablet-mode)
@@ -173,15 +171,15 @@ databases."
   (make-local-variable 'otdb-old-modeline-color-inactive)
   (setq-local otdb-table-tablet-mode nil))
 
-(add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-init)
-(defun otdb-gear-mode-init ()
+
+(defun otdb-gear-mode-hook--init ()
   (when (and (derived-mode-p 'otdb-gear-mode) (functionp 'hl-line-mode))
     (hl-line-mode 1)))
+(add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-hook--init)
 
 (defun otdb-gear-lookup-function (row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular collection."
-  (mpp row-list)
   (let (key-list
         database-row-alist
         weight-cost-list
@@ -200,7 +198,6 @@ for ROW-LIST from a particular collection."
                   quantity-alist)
             (push (s-trim-full-no-properties current-item)
                   key-list)))))
-    (mpp collection-weight-cost-list)
     (setq database-row-alist (otdb-table-item-row-multiple otdb-gear-database otdb-gear-database-headline key-list 1))
     ;; calculate cost and weight
     (dolist (row-alist database-row-alist)
@@ -261,7 +258,6 @@ WEIGHT-COST-LIST."
         new-cost
         new-tags
         (count 1))
-    ;; (mpp weight-cost-list)
     ;; TODO: this could be generalized a bit better
     ;;       headings are good, but so are standards
     (do-org-table-rows collection-filename collection-heading row
@@ -385,8 +381,7 @@ DATABASE-ROW."
     (dolist (collection-file otdb-gear-collection-files)
       (with-current-file-transient-min collection-file
         (let ((found (when (re-search-forward (concat "^\* " collection " :gear:") nil t)
-                       (beginning-of-line)
-                       (point))))
+                       (line-beginning-position))))
           (when found
             (setq location (list collection-file found))))))
     location))
@@ -400,8 +395,9 @@ DATABASE-ROW."
           collection-list)
       (dolist (gear-file otdb-gear-collection-files)
         (do-org-tables gear-file table-name table
-                       (when (string-match "\\(.*\\) :gear:" table-name)
-                         (push (match-string 1 table-name) collection-list))))
+                       (save-match-data
+                         (when (string-match "\\(.*\\) :gear:" table-name)
+                           (push (match-string 1 table-name) collection-list)))))
       (setq otdb-table-collections-cache collection-list)
       collection-list)))
 
@@ -462,7 +458,7 @@ corresponding to a gear collection."
                ;; TODO: clear out anything already in brackets
                (let ((item-weight (elt lisp-row otdb-gear-weight-column)))
                  (push (nconc
-                        (subseq lisp-row 0 3)
+                        (cl-subseq lisp-row 0 3)
                         (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
                                      (setq last-cummulative t)
                                      (concat
@@ -476,7 +472,7 @@ corresponding to a gear collection."
                                     (t
                                      (setq last-cummulative nil)
                                      (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight)))))
-                        (subseq lisp-row 4 7))
+                        (cl-subseq lisp-row 4 7))
                        new-lisp-table))))))
     ;; TODO: go through and make new version of table, but with cummulative...
     ;; insert into last row
@@ -583,7 +579,7 @@ CURRENT-TEMPORARY-BUFFER and filter by CALCULATION-TYPE."
                 (and (eq calculation-type 'check)   (otdb-table-check-current-row-lisp lisp-row char-columns "X"))
                 (and (eq calculation-type 'cost)    (otdb-table-check-current-row-lisp lisp-row char-columns "C"))
                 (and (eq calculation-type 'tag)     (and otdb-gear-item-tags (otdb-table-tag-pattern-match otdb-gear-item-tags (elt lisp-row otdb-gear-tags-column)))  )
-                (and (eq calculation-type 'pattern) (and otdb-gear-item-pattern (string-match otdb-gear-item-pattern (elt lisp-row otdb-gear-item-column)))))
+                (and (eq calculation-type 'pattern) (and otdb-gear-item-pattern (string-match-p otdb-gear-item-pattern (elt lisp-row otdb-gear-item-column)))))
                (with-current-buffer current-temporary-buffer
                  (insert (concat " | " (mapconcat 'identity lisp-row " | ") "\n")))))))))
 

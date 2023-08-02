@@ -1,12 +1,12 @@
 ;;; otdb-table.el --- Create a database using an org-mode table and
 ;;; calculate similar to a spreadsheet.
 ;;
-;; Copyright (C) 2015-2021, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20200928
+;; Version: 20230801
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@
 ;;
 ;;; Code:
 
-(require 'xml)
+;; (require 'xml)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; database/table keys
@@ -516,9 +516,7 @@ TODO: probably want an error if not at proper table"
         (line (cic:get-current-line))
         (column 2)
         (fname-nondirectory (file-name-nondirectory buffer-file-name)))
-    (when (or
-           (equal fname-nondirectory "food-database.org")
-           (equal fname-nondirectory "gear-database.org"))
+    (when (member '("food-database.org" "gear-database.org"))
       (setq column 1))
     (cond ((org-at-table-p)
            ;; get first column of current row
@@ -863,7 +861,7 @@ LISP-TABLE."
   (let (invalid)
     (dolist (char-column char-columns)
       (when (and (equal (s-trim-full (cadr char-column)) "X")
-                 (equal (s-trim-full (elt  lisp-row (car char-column))) "-"))
+                 (equal (s-trim-full (elt lisp-row (car char-column))) "-"))
         (setq invalid t)))
     invalid))
 
@@ -874,7 +872,7 @@ Match if all tags in TAGS-PATTERN are present or do not match if
 one or more tags in TAGS-PATTERN indicated by !<tag...> is
 present."
   (let* ((tag-pattern-list (split-string (s-trim-full tags-pattern) ","))
-         (tag-pattern-list-false (remove-if-not (lambda (e) (and (string-match-p "^!" e) e)) tag-pattern-list))
+         (tag-pattern-list-false (cl-remove-if-not (lambda (e) (and (string-match-p "^!" e) e)) tag-pattern-list))
          (tag-pattern-list-false-strip (mapcar (lambda (e) (substring e 1)) tag-pattern-list-false))
          (tag-pattern-list-true (cl-set-difference tag-pattern-list tag-pattern-list-false))
          (tag-list (split-string (s-trim-full tags) ",")))

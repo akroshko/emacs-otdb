@@ -2,12 +2,12 @@
 ;;; into org-mode tables and calculation of costs and macronutrient
 ;;; amounts.
 ;;
-;; Copyright (C) 2015-2021, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20191209
+;; Version: 20230801
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -422,8 +422,7 @@ TODO return location at beginning of line"
     (dolist (recipe-file (otdb-recipe-get-variable recipe-context 'otdb-recipe-files))
       (with-current-file-transient-min recipe-file
         (let ((found (when  (re-search-forward (concat "^\* " recipe " :recipe:") nil t)
-                       (beginning-of-line)
-                       (point))))
+                       (line-beginning-position))))
           (when found
             (setq location (list recipe-file found))))))
     location))
@@ -924,7 +923,7 @@ deletes volume, weights, and any comments."
     (setq table-elisp (mapcar (lambda (e)
                                 (if (eq e 'hline)
                                     e
-                                  (append (subseq e 0 12) (subseq e 14))))
+                                  (append (cl-subseq e 0 12) (subseq e 14))))
                               table-elisp))
     (with-temp-buffer
       (setq new-header (with-temp-buffer
@@ -1062,7 +1061,7 @@ LISP-TABLE-NO-SEPERATORS corresponding to a recipe."
     (dolist (current-lisp-row (cdr (butlast lisp-table-no-seperators)))
       ;; TODO: this nconc can probably be eliminated
       (push (nconc
-             (subseq current-lisp-row 0 7)
+             (cl-subseq current-lisp-row 0 7)
              (list
               (otdb-table-format-number-nil (pop cost-calories-column) 3)
               (otdb-table-format-number-nil (pop cost-protein-column) 3)

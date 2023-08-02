@@ -1,12 +1,12 @@
 ;;; otdb-sample-config.el --- A sample config file I used for
 ;;; testing this library in isolation from my main Emacs installation.
 ;;
-;; Copyright (C) 2015-2019, Andrew Kroshko, all rights reserved.
+;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
-;; Maintainer: Andrew Kroshko <akroshko.public+devel@gmail.com>
+;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Fri Apr 10, 2015
-;; Version: 20191209
+;; Version: 20230801
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or

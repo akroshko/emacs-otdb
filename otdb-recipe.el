@@ -6,8 +6,8 @@
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
-;; Created: Sun Apr  5, 2015
-;; Version: 20230801
+;; Created: Sun Apr 5, 2015
+;; Version: 20231105
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -142,13 +142,47 @@
   13
   "The table column in the database that contains the tags.")
 
+(defconst calories-decimal-places
+  1)
+
+(defconst protein-precision
+  1)
+
+(defconst fat-precision
+  1)
+
+(defconst cost-precision
+  2)
+
+(defconst cost-calories-precision
+  3)
+
+(defconst cost-protein-precision
+  3)
+
+(defconst percent-carb-precision
+  3)
+
+(defconst percent-protein-precision
+  3)
+
+(defconst percent-fat-precision
+  3)
+
+(defconst weight-precision
+  2)
+
+(defconst volume-precision
+  2)
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general functions for different collections of recipe files
 
 (defun otdb-recipe-mode-hook--init ()
   "Initialize otdb-recipe-mode with some extra functionality."
-  (when (derived-mode-p 'otdb-recipe-mode) (functionp 'hl-line-mode)
-        (hl-line-mode 1)))
+  (when (and (derived-mode-p 'otdb-recipe-mode) (functionp 'hl-line-mode))
+    (hl-line-mode 1)))
 (add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-hook--init)
 
 (defun otdb-recipe-get-variable (recipe-context lookup-variable)
@@ -446,11 +480,11 @@ TODO return location at beginning of line"
   "Select and complete a recipe name, then go to it."
   (interactive)
   (let* ((recipe-list (otdb-recipe-get-recipes recipe-context))
-         (recipe (ido-completing-read "Recipe: " recipe-list nil t))
+         (recipe (completing-read "Recipe: " recipe-list nil t))
          (recipe-location (otdb-recipe-find recipe-context recipe)))
     (find-file (car recipe-location))
     (goto-char (cadr recipe-location))
-    (show-subtree)))
+    (outline-show-subtree)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; recipes
@@ -791,8 +825,8 @@ recipe)."
 (defun otdb-recipe-get-ingredients (recipe-context)
   "Get list of all ingredients from the database."
   ;; TODO: will need to be modified for multiple files
-  (let ((ingredients)
-        (dups))
+  (let (ingredients
+        dups)
     (dolist (database (otdb-recipe-get-variable recipe-context 'otdb-recipe-database))
       (setq ingredients (append ingredients (cic:org-table-get-keys database (otdb-recipe-get-variable recipe-context 'otdb-recipe-database-headline)))))
     (setq dups (cic:get-list-duplicates ingredients))
@@ -1063,29 +1097,31 @@ LISP-TABLE-NO-SEPERATORS corresponding to a recipe."
       (push (nconc
              (cl-subseq current-lisp-row 0 7)
              (list
-              (otdb-table-format-number-nil (pop cost-calories-column) 3)
-              (otdb-table-format-number-nil (pop cost-protein-column) 3)
-              (otdb-table-format-number-nil (pop percent-carb-column) 3)
-              (otdb-table-format-number-nil (pop percent-protein-column) 3)
-              (otdb-table-format-number-nil (pop percent-fat-column) 3))
+              (otdb-table-format-number-nil (pop cost-calories-column) cost-calories-precision)
+              (otdb-table-format-number-nil (pop cost-protein-column) cost-protein-precision)
+              (otdb-table-format-number-nil (pop percent-carb-column) percent-carb-precision)
+              (otdb-table-format-number-nil (pop percent-protein-column) percent-protein-precision)
+              (otdb-table-format-number-nil (pop percent-fat-column) percent-fat-precision))
+             ;; TODO: fix this 12
              (nthcdr 12 current-lisp-row))
             new-lisp-table))
     (push (list
            (caar (last lisp-table-no-seperators))
            ""
            ""
-           (otdb-table-format-number-zero calories 1)
-           (otdb-table-format-number-zero protein 1)
-           (otdb-table-format-number-zero fat 1)
-           (otdb-table-format-number-zero cost 2)
-           (otdb-table-format-number-zero cost-calories 3)
-           (otdb-table-format-number-zero cost-protein 3)
-           (otdb-table-format-number-zero percent-carb 3)
-           (otdb-table-format-number-zero percent-protein 3)
-           (otdb-table-format-number-zero percent-fat 3)
-           (otdb-table-format-number-zero weight 2)
-           (otdb-table-format-number-zero volume 2))
+           (otdb-table-format-number-zero calories calories-decimal-places)
+           (otdb-table-format-number-zero protein protein-precision)
+           (otdb-table-format-number-zero fat fat-precision)
+           (otdb-table-format-number-zero cost cost-precision)
+           (otdb-table-format-number-zero cost-calories cost-calories-precision)
+           (otdb-table-format-number-zero cost-protein cost-protein-precision)
+           (otdb-table-format-number-zero percent-carb percent-carb-precision)
+           (otdb-table-format-number-zero percent-protein percent-protein-precision)
+           (otdb-table-format-number-zero percent-fat percent-fat-precision)
+           (otdb-table-format-number-zero weight weight-precision)
+           (otdb-table-format-number-zero volume volume-precision))
           new-lisp-table)
+    ;; TODO: fix this 13
     (push (nthcdr 13 (last lisp-table-no-seperators)) new-lisp-table)
     (setq new-lisp-table (nreverse new-lisp-table))))
 

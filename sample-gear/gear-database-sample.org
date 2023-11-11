@@ -1,0 +1,15 @@
+# -*- org-image-actual-width: 64; -*-
+* Gear
+ |-------------------------------------------+--------+-------+------------------------+------+--------+--------|
+ | Item                                      | Weight |  Cost | Tags                   | Note | Images | Labels |
+ |-------------------------------------------+--------+-------+------------------------+------+--------+--------|
+ | Osprey Xenith 88 pack                     | 2510g  |       |                        |      |        |        |
+ | North Face sleeping bag                   | 1193g  |       |                        |      |        |        |
+ | Scarpa boots                              | 1708g  |       |                        |      |        |        |
+ | Redhead heavy socks                       | 149g   |       | clothing               |      |        |        |
+ | 20ml toothpaste                           | 31g    |  1.49 | consumable             |      |        |        |
+ | 3 lithium AAA batteries                   | 23g    | 19.49 | electronics,consumable |      |        |        |
+ | 20 AA battery                             | 460g   | 12.99 | electronics,consumable |      |        |        |
+ | 50 Red bird matches + strikers from 1 box | 14g    |       |                        |      |        |        |
+ | 2 tbsp salt + 1 tbsp pepper               | 24g    |       | consumable             |      |        |        |
+ |-------------------------------------------+--------+-------+------------------------+------+--------+--------|

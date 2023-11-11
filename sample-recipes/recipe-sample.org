@@ -1,0 +1,90 @@
+# -*- org-image-actual-width: 64; -*-
+* Bread :recipe:
+  :PROPERTIES:
+  :DESCRIPTION:
+  :END:
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+---------+-------+---|
+  | Quantity | Ingredient            | Note        |    Cal |  Pro |  Fat |     $ | $/kCal | $/100g pro |  % carb |  % pro |   % fat |  Weight |  Volume | Tags  | X |
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+---------+-------+---|
+  | 2        | Proofed yeast mixture |             |   32.0 |  0.6 |  0.0 | 0.580 | 18.125 |     96.667 |  92.500 |  7.500 |   0.000 |  24.000 |   0.000 |       |   |
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+---------+-------+---|
+  | 4 cup    | bread flour           |             | 1600.0 | 64.0 |  4.8 | 0.861 |  0.538 |      1.345 |  81.300 | 16.000 |   2.700 | 480.000 |  16.000 |       |   |
+  | 3 tbsp   | white sugar           |             |  144.0 |  0.0 |  0.0 | 0.047 |  0.326 |            | 100.000 |  0.000 |   0.000 |  36.000 |   3.000 |       |   |
+  | 1 tsp    | salt                  |             |    0.0 |  0.0 |  0.0 | 0.012 |        |            |         |        |         |   4.000 |   4.000 | spice |   |
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+---------+-------+---|
+  | 3 tbsp   | margarine             |             |  315.0 |  0.0 | 36.0 | 0.115 |  0.365 |            |  -2.857 |  0.000 | 102.857 |  45.000 |   9.000 |       |   |
+  | 1 cup    | water                 | about 115°F |    0.0 |      |      | 0.000 |        |            |         |        |         |         | 240.000 |       |   |
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+---------+-------+---|
+  | 1        |                       |             | 2091.0 | 64.6 | 40.8 |  1.61 |  0.772 |      2.500 |  70.081 | 12.358 |  17.561 |  589.00 |  272.00 |       |   |
+  |----------+-----------------------+-------------+--------+------+------+-------+--------+------------+---------+--------+---------+---------+---------+-------+---|
+  #+TBLEL: otdb-recipe-calc-recipe
+  1) Follow instructions for [[recipe:Proofed yeast mixture]].
+  2) Warm the mixing bowl by filling with warm water (close to 115°F
+     but the exact temperature is not important).
+  3) Mix together dry ingredients.
+  4) Melt the margarine and mix with the water.
+  5) Add the liquids to the bowl and add the flour while mixing. Add
+     additional flour 1/4 cup at a time until the dough is only
+     slightly sticky and it cleans the sides of bowl.
+  6) Knead for 5-10 minutes.
+  7) Form dough into a ball and put covered into a large bowl and let
+     rise for 60-90 minutes.
+  8) Preheat oven to 400°F.
+  9) Divide the dough into two equal parts. Flatten it out into two
+     rectangles with the short side the size of the breads pans. Roll
+     these up and tuck in the ends.  Put the dough into two greased
+     bread pans and let rise for another hour.
+  10) Bake for 30 minutes. Let cool for 5 minutes after baking.
+  #+BEGIN_COMMENT
+  TODO: fix up firstrise instructions
+  TOOD: bread flour different
+  TODO: do I want the flour to clean sides of bowl?
+  TODO: does sugar go with water or flour? not sure about original instructions
+  #+END_COMMENT
+* Biscuits :recipe:
+  :PROPERTIES:
+  :DESCRIPTION: Based on the Crisco recipe.
+  :END:
+  |----------+-------------------+---------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+-------+---|
+  | Quantity | Ingredient        | Note                      |    Cal |  Pro |   Fat |     $ | $/kCal | $/100g pro |  % carb |  % pro |   % fat |  Weight | Volume | Tags  | X |
+  |----------+-------------------+---------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+-------+---|
+  | 2 cup    | all-purpose flour | Can use 1/2 pastry flour. |  880.0 | 32.0 |   4.0 | 0.192 |  0.218 |      0.600 |  81.364 | 14.545 |   4.091 | 240.000 |        |       |   |
+  | 1 tbsp   | baking powder     |                           |    0.0 |  0.0 |   0.0 | 0.160 |        |            |         |        |         |  12.000 |        |       |   |
+  | 2 tbsp   | white sugar       |                           |   96.0 |  0.0 |   0.0 | 0.032 |  0.333 |            | 100.000 |  0.000 |   0.000 |  24.000 |        |       |   |
+  | 1/2 tsp  | salt              |                           |    0.0 |  0.0 |   0.0 | 0.006 |        |            |         |        |         |   2.000 |        | spice |   |
+  |----------+-------------------+---------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+-------+---|
+  | 1/2 cup  | shortening        | 3.5oz or 100g or lard     |  840.0 |  0.0 |  96.0 | 0.484 |  0.576 |            |  -2.857 |  0.000 | 102.857 |  96.000 |        |       |   |
+  |----------+-------------------+---------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+-------+---|
+  | 3/4 cup  | water             | start with 2 tbsp extra   |    0.0 |      |       | 0.000 |        |            |         |        |         |         |        |       |   |
+  |----------+-------------------+---------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+-------+---|
+  | 1        |                   |                           | 1816.0 | 32.0 | 100.0 |  0.87 |  0.481 |      2.731 |  43.392 |  7.048 |  49.559 |  374.00 |   0.00 |       |   |
+  |----------+-------------------+---------------------------+--------+------+-------+-------+--------+------------+---------+--------+---------+---------+--------+-------+---|
+  #+TBLEL: otdb-recipe-calc-recipe
+  1) Preheat oven to a 450°F.
+  2) Mix together dry ingredients.
+  3) With pastry blender or fork, cut in shortening until mixture resembles coarse crumbs.
+  4) Stirring with fork, add enough water until mixture leaves sides
+     of bowl and forms a soft, moist dough.
+  5) Toss the dough lightly on floured surface until no longer sticky.
+  6) Roll or press dough to 1/2-inch thickness.
+  7) Cut with floured 2-inch round cutter.
+  8) Place on ungreased cookie sheet.
+  9) Bake on an ungreased sheet for 12 minutes, optionally brush the
+     tops with melted margarine to brown.
+** other
+   TODO: Find sources for this.
+* Proofed yeast mixture :recipe:
+  |-----------+-------------------+-------------+------+-----+-----+-------+--------+------------+---------+-------+-------+--------+--------+------+---|
+  | Quantity  | Ingredient        | Note        |  Cal | Pro | Fat |     $ | $/kCal | $/100g pro |  % carb | % pro | % fat | Weight | Volume | Tags | X |
+  |-----------+-------------------+-------------+------+-----+-----+-------+--------+------------+---------+-------+-------+--------+--------+------+---|
+  | 2 1/4 tsp | traditional yeast |             |  0.0 | 0.3 | 0.0 | 0.281 |        |     93.667 |         |       |       |  8.000 |        |      |   |
+  | 1/4 cup   | water             | about 115°F |  0.0 |     |     | 0.000 |        |            |         |       |       |        |        |      |   |
+  | 1 tsp     | white sugar       |             | 16.0 | 0.0 | 0.0 | 0.005 |  0.312 |            | 100.000 | 0.000 | 0.000 |  4.000 |        |      |   |
+  |-----------+-------------------+-------------+------+-----+-----+-------+--------+------------+---------+-------+-------+--------+--------+------+---|
+  | 1         |                   |             | 16.0 | 0.3 | 0.0 |  0.29 | 17.875 |     95.333 |  92.500 | 7.500 | 0.000 |  12.00 |   0.00 |      |   |
+  |-----------+-------------------+-------------+------+-----+-----+-------+--------+------------+---------+-------+-------+--------+--------+------+---|
+  #+TBLEL: otdb-recipe-calc-recipe
+  1) Combine ingredients.
+  2) Wait 10 minutes or until yeast mixture is foaming (proofed).
+  #+BEGIN_COMMENT
+  #+END_COMMENT

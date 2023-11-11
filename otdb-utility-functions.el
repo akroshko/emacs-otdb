@@ -5,7 +5,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Tue Aug 1, 2023
-;; Version: 20230801
+;; Version: 20231111
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -52,7 +52,10 @@ for every line."
 (defun cic:org-table-to-lisp-no-separators ()
   "Convert the org-table at point to Emacs Lisp representation
 and eliminate seperators."
-  (cl-remove-if-not (lambda (x) (if (eq x 'hline) nil x)) (org-table-to-lisp)))
+  (cl-remove-if-not (lambda (x)
+                      (unless (eq x 'hline)
+                        x))
+                    (org-table-to-lisp)))
 
 (defun cic:get-headline-text (headline-line)
   "Get only the clean headline text from HEADLINE-LINE
@@ -96,7 +99,8 @@ of this macro, just in case."
          (save-excursion
            (forward-line 1)
            (setq ,table nil)
-           (while (not (or (and (cic:org-headline-p (cic:get-current-line)) (= (org-outline-level) 1)) (org-at-table-p) (eobp)))
+           (while (not (or (and (cic:org-headline-p (cic:get-current-line)) (= (org-outline-level) 1))
+                           (org-at-table-p) (eobp)))
              (forward-line 1))
            (when (org-at-table-p)
              (setq ,table (cic:org-table-to-lisp-no-separators))))
@@ -119,8 +123,7 @@ keep going."
   (let ((line-no (line-number-at-pos)))
     (save-excursion
       (org-forward-heading-same-level 1 nil)
-      (if (equal line-no (line-number-at-pos))
-          nil
+      (unless (equal line-no (line-number-at-pos))
         t))))
 
 (defmacro with-current-file-transient (filename &rest body)
@@ -227,7 +230,8 @@ function equal."
 
 (defun cic:full-string-p (thing-or-string)
   "Determine if something is nil or an empty string."
-  (if (or (not thing-or-string) (equal (s-trim-full thing-or-string) ""))
+  (if (or (not thing-or-string)
+          (equal (s-trim-full thing-or-string) ""))
       nil
     t))
 
@@ -273,12 +277,12 @@ ROW contains the current row converted into elisp."
       ;; get elisp function to run
       (save-excursion
         (unless (tblel-line-p)
-            (goto-char (org-table-end)))
+          (goto-char (org-table-end)))
         (beginning-of-line)
         ;; TODO: eventually get forms
         (let ((split-tblel-line (split-string (cic:get-current-line))))
-          (setq lisp-function (substring-no-properties (elt split-tblel-line 1)))
-          (setq lisp-function-args (cl-subseq split-tblel-line 2))))
+          (setq lisp-function (substring-no-properties (elt split-tblel-line 1))
+                lisp-function-args (cl-subseq split-tblel-line 2))))
       (save-excursion
         (when (tblel-line-p)
           (forward-line -1)
@@ -367,5 +371,26 @@ string."
   "Check if STR is an empty string (no characters or all
 whitespace) or a nil."
   (and str (not (string= (s-trim-full str) ""))))
+
+(defun cic:org-table-last-row ()
+  "Goto the last non-seperator row of the next table in the
+buffer."
+  (let (table-next
+        seperator-next
+        table-next-next
+        (keep-going t))
+    (while keep-going
+      (save-excursion
+        (forward-line 1)
+        (setq table-next     (org-at-table-p)
+              ;; TODO: make sure seperator next goes into a function of its own
+              seperator-next (string-match-p "|[-+]+\\+" (cic:get-current-line)))
+        (forward-line 1)
+        (setq table-next-next (and (org-at-table-p) (not (string-match-p "|[-+]+\\+" (cic:get-current-line))))))
+      (if (or
+           (and table-next (not seperator-next))
+           (and table-next seperator-next table-next-next))
+          (forward-line)
+        (setq keep-going nil)))))
 
 (provide 'otdb-utility-functions)

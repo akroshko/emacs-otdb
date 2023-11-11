@@ -1,12 +1,12 @@
-;;; otdb-sample-config.el --- A sample config file I used for
-;;; testing this library in isolation from my main Emacs installation.
+;;; otdb-test-config.el --- Create a database using an org-mode table and
+;;; calculate similar to a spreadsheet.
 ;;
 ;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
-;; Created: Fri Apr 10, 2015
-;; Version: 20230801
+;; Created: Sun Apr  5, 2015
+;; Version: 20231111
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -28,54 +28,19 @@
 ;;
 ;; Commentary:
 ;;
-;; Use this file with the command "emacs -q --load
-;; otdb-sample-init.el".  See the included README.md file for more
-;; information on this package.
-;;
-;; Features that might be required by this library:
-;;
-;; Standard Emacs features, to be documented specificly later.  Also
-;; requires features from https://github.com/akroshko/cic-emacs-common,
-;; using (require 'cic-emacs-common) is sufficient.
-;;
-;;; Code:
+;; A configuration used for testing that can be freely moved anywhere.
 
-(defvar otdb-root
-  (when load-file-name
-    (file-name-directory load-file-name))
-  "The filename to use.")
-
-;; TODO use alists here
-
-;; TODO: make sure I can use lists
-(defvar otdb-gear-database
-  (cic:join-paths otdb-root "gear/gear-database.org")
-  "The main location of the gear database.")
-
-(defvar otdb-gear-database-headline
-  "Gear")
-
-(defvar otdb-gear-collection-files
-  (list (cic:join-paths otdb-root "gear/gear-collections.org")))
-
-(defvar otdb-gear-message-buffer
-  "*Backpacking messages*")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; normal recipes
-
-(defvar otdb-recipe-normal-alist
-  (list
-   ;; The main location of the database
-   (cons 'otdb-recipe-database (cic:join-paths otdb-root "recipes/food-database.org"))
-   (cons 'otdb-recipe-database-headline "Ingredients")
-   ;; The main location of the agenda, should be re-re-factored out of code.
-   (cons 'otdb-recipe-agenda (cic:join-paths otdb-root "recipes/sample-agenda.org"))
-   (cons 'otdb-recipe-files (mapcar (lambda (f)
-                                      (cic:join-paths otdb-root f))
-                                    '("recipes/recipes.org"
-                                      "recipes/meals.org"
-                                      "recipes/slowcooker-recipes.org")))
-   (cons 'otdb-recipe-message-buffer "*Recipe messages*")))
-
-(provide 'otdb-sample-config)
+(add-to-list 'load-path (expand-file-name "."))
+(require 'otdb-utility-functions)
+(require 'otdb-table)
+(require 'otdb-recipe)
+(require 'otdb-gear)
+(put 'org-image-actual-width 'safe-local-variable #'numberp)
+(setq otdb-recipe-normal-alist `((otdb-recipe-database ,(expand-file-name "./sample-recipes/food-database-test.org"))
+                                 (otdb-recipe-database-headline . "Ingredients")
+                                 (otdb-recipe-files ,(expand-file-name "./sample-recipes/recipe-test.org"))
+                                 (otdb-recipe-message-buffer . "*Recipe messages*")))
+(setq otdb-gear-normal-alist `((otdb-gear-database ,(expand-file-name "./sample-gear/gear-database-sample.org"))
+                               (otdb-gear-database-headline . "Gear")
+                               (otdb-gear-files ,(expand-file-name "./sample-gear/gear-collections-sample.org"))
+                               (otdb-gear-message-buffer . "*Gear messages*")))

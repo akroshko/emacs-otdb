@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20230801
+;; Version: 20231111
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -50,11 +50,11 @@
   "Detect whether we are in a buffer with otdb-tables.  Users should modify this file to meet their file structure.
 May eventually be generalized a little better."
   (let (;; (current-directory (file-name-base (directory-file-name default-directory)))
-        (current-buffer (current-buffer)))
-    (cond ((with-current-buffer-min current-buffer
+        )
+    (cond ((with-current-buffer-min (current-buffer)
              (re-search-forward "^\\*.*:recipe:" nil t))
            'recipe)
-          ((with-current-buffer-min current-buffer
+          ((with-current-buffer-min (current-buffer)
              (re-search-forward "^\\*.*:gear:" nil t))
            'backpacking)
           (t
@@ -361,7 +361,8 @@ to be updated."
   (otdb-table-reset-cache)
   (otdb-table-inhibit-read-only
    (let ((table-detect (otdb-table-detect))
-         (recipe-context otdb-recipe-normal-alist))
+         (recipe-context otdb-recipe-normal-alist)
+         (gear-context otdb-gear-normal-alist))
      (cond ((eq table-detect 'recipe)
             (otdb-table-update arg
                                recipe-context
@@ -373,12 +374,13 @@ to be updated."
                                (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
            ((eq table-detect 'backpacking)
             (otdb-table-update arg
-                               otdb-gear-database
-                               otdb-gear-database-headline
-                               otdb-gear-collection-files
+                               gear-context
+                               (otdb-gear-get-variable gear-context 'otdb-gear-database)
+                               (otdb-gear-get-variable gear-context 'otdb-gear-database-headline)
+                               (otdb-gear-get-variable gear-context 'otdb-gear-collection-files)
                                'otdb-gear-lookup-function
                                'otdb-gear-insert-function
-                               otdb-gear-message-buffer))
+                               (otdb-gear-get-variable gear-context 'otdb-gear-message-buffer)))
            (t
             (error "Not in valid file!"))))))
 
@@ -537,22 +539,25 @@ TODO: document further and remove hardcoding."
   (let ((table-detect (otdb-table-detect)))
     (cond ((eq table-detect 'recipe)
            ;; TODO: will need to change for multiple files
-           (with-current-file-transient-org-table (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
-                                                  (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
-                                                  ;; go to last row
-                                                  (cic:org-table-last-row)
-                                                  ;; insert the new key
-                                                  (org-table-insert-row '(4))
-                                                  (insert new-key)
-                                                  (org-table-align)))
+           (with-current-file-transient-org-table
+               (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
+             (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
+             ;; go to last row
+             (cic:org-table-last-row)
+             ;; insert the new key
+             (org-table-insert-row '(4))
+             (insert new-key)
+             (org-table-align)))
           ((eq table-detect 'backpacking)
-           (with-current-file-transient-org-table otdb-gear-database otdb-gear-database-headline
-                                                  ;; go to last row
-                                                  (cic:org-table-last-row)
-                                                  ;; insert the new key
-                                                  (org-table-insert-row '(4))
-                                                  (insert new-key)
-                                                  (org-table-align)))
+           (with-current-file-transient-org-table
+               (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database)
+             (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database-headline)
+             ;; go to last row
+             (cic:org-table-last-row)
+             ;; insert the new key
+             (org-table-insert-row '(4))
+             (insert new-key)
+             (org-table-align)))
           (t
            (error "Not in valid file!")))))
 
@@ -631,7 +636,7 @@ TODO: Document usage further."
      (cond ((eq table-detect 'recipe)
             (let* ((line (cic:get-current-line))
                    (completion-list (if (equal arg '(4))
-                                        (otdb-recipe-get-ingredients otdb-recipe-normal-alistw)
+                                        (otdb-recipe-get-ingredients otdb-recipe-normal-alist)
                                       (append (otdb-recipe-get-ingredients otdb-recipe-normal-alist) (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
                    (ingredient (ido-completing-read "Ingredient: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))
               (cond ((derived-mode-p 'org-mode)
@@ -643,7 +648,7 @@ TODO: Document usage further."
             (let* ((line (cic:get-current-line))
                    (completion-list (if (equal arg '(4))
                                         (otdb-gear-get-items)
-                                      (append (otdb-gear-get-items) (otdb-gear-get-collections))))
+                                      (append (otdb-gear-get-items) (otdb-gear-get-collections otdb-gear-normal-alist))))
                    (item (ido-completing-read "Items: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))
               (cond ((derived-mode-p 'org-mode)
                      (otdb-table-insert-key-at-point item))
@@ -787,7 +792,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (cond ((eq table-detect 'recipe)
            (setq message-buffer (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))
           ((eq table-detect 'backpacking)
-           (setq message-buffer otdb-gear-message-buffer)))
+           (setq message-buffer (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer))))
     (setq database-files (cic:ensure-list database))
     (dolist (database-file database-files)
       ;; TODO: heading not found? do I need it at all?
@@ -811,7 +816,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (cond ((eq table-detect 'recipe)
            (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
           ((eq table-detect 'backpacking)
-           (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-gear-get-collections)))))
+           (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-gear-get-collections otdb-gear-normal-alist)))))
     (setq dups (cic:get-list-duplicates collection-keys))
     (when (> (length dups) 0)
       (error (concat "Duplicate collection keys: " (pp-to-string dups)) message-buffer))

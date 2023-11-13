@@ -30,12 +30,13 @@
 ;;
 ;; A configuration used for testing that can be freely moved anywhere.
 
+(put 'org-image-actual-width 'safe-local-variable #'numberp)
+
 (add-to-list 'load-path (expand-file-name "."))
 (require 'otdb-utility-functions)
 (require 'otdb-table)
 (require 'otdb-recipe)
 (require 'otdb-gear)
-(put 'org-image-actual-width 'safe-local-variable #'numberp)
 (setq otdb-recipe-normal-alist `((otdb-recipe-database ,(expand-file-name "./sample-recipes/food-database-test.org"))
                                  (otdb-recipe-database-headline . "Ingredients")
                                  (otdb-recipe-files ,(expand-file-name "./sample-recipes/recipe-test.org"))

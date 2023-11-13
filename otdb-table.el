@@ -42,6 +42,91 @@
 
 ;; (require 'xml)
 
+(require 'cl)
+(require 'cl-lib)
+(require 'cl-generic)
+(require 'eieio)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; basic CLOS-like definitions
+
+(defclass otdb-precision-class ()
+  ((calories :initform 1)
+   (protein :initform 1)
+   (fat :initform 1)
+   (cost :initform 2)
+   (cost-calories :initform 3)
+   (cost-protein :initform 3)
+   (cost-carb :initform 3)
+   (percent-carb :initform 3)
+   (percent-protein :initform 3)
+   (percent-fat :initform 3)
+   (weight :initform 2)
+   (volume :initform 2))
+  "A class to hold precision for various types.")
+
+(defclass otdb-recipe-database-columns-class ()
+  ((item :initform 0)
+   (package-weight :initform 1)
+   (package-volume :initform 2)
+   (cost :initform 3)
+   (serving-weight :initform 4)
+   (serving-volume :initform 5)
+   (serving-calories :initform 6)
+   (serving-protein :initform 7)
+   (serving-fat :initform 8)
+   (serving-tags :initform 13))
+  "A class that holds database column numbers")
+
+(defclass otdb-recipe-columns-class ()
+  ((quantity :initform 0)
+   (item :initform 1)
+   (note :initform 2)
+   (calories :initform 3)
+   (protein :initform 4)
+   (fat :initform 5)
+   (cost :initform 6)
+   (weight :initform 12)
+   (volume :initform 13)
+   (tags :initform 14))
+  "A class that holds collection column numbers.")
+
+(defclass otdb-gear-database-columns-class ()
+  ((weight :initform 1)
+   (cost :initform 2)
+   (tags :initform 3))
+  "A class that holds database column numbers")
+
+(defclass otdb-gear-columns-class ()
+  ((quantity :initform 0)
+   (item :initform 1)
+   (weight :initform 3)
+   (cost :initform 4)
+   (tags :initform 5))
+  "A class that holds collection column numbers.")
+
+(defclass otdb-ctx-class ()
+  ((database :initarg :database)
+   (database-headline :initarg :database-headline)
+   (collection-files :initarg :collection-files)
+   (message-buffer :initarg :message-buffer)
+   (precision :initarg :precision)
+   (database-columns :initarg :database-columns)
+   (columns :initarg :columns))
+  "A class to hold a context for a particular database/collection.")
+
+(cl-defmethod otdb-ctx (ctx data-type)
+  (slot-value ctx data-type))
+
+(cl-defmethod otdb-precision (ctx precision-type)
+  (slot-value (slot-value ctx 'precision) precision-type))
+
+(cl-defmethod otdb-column (ctx column-type)
+  (slot-value (slot-value ctx 'columns) column-type))
+
+(cl-defmethod otdb-database-column (ctx column-type)
+  (slot-value (slot-value ctx 'database-columns) column-type))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; database/table keys
 ;; modes, macros, and utility commands
@@ -52,10 +137,10 @@ May eventually be generalized a little better."
   (let (;; (current-directory (file-name-base (directory-file-name default-directory)))
         )
     (cond ((with-current-buffer-min (current-buffer)
-             (re-search-forward "^\\*.*:recipe:" nil t))
+                                    (re-search-forward "^\\*.*:recipe:" nil t))
            'recipe)
           ((with-current-buffer-min (current-buffer)
-             (re-search-forward "^\\*.*:gear:" nil t))
+                                    (re-search-forward "^\\*.*:gear:" nil t))
            'backpacking)
           (t
            nil))))
@@ -156,35 +241,37 @@ at the beginning of commands."
   (setq otdb-table-collections-cache nil
         otdb-table-database-cache    nil))
 
-(defun otdb-table-update (arg table-context database heading collection-files lookup-function insert-function message-buffer)
+(defun otdb-table-update (arg ctx lookup-function insert-function)
   "Update otdb tables in current context.
 
-DATABASE and HEADING gives the database.  COLLECTION-FILES gives
-the files representing collections.  LOOKUP-FUNCTION and
-INSERT-FUNCTION are helper functions.  MESSAGE-BUFFER is the
-buffer where messages are put."
+LOOKUP-FUNCTION and INSERT-FUNCTION are helper functions.
+MESSAGE-BUFFER is the buffer where messages are put."
   (otdb-table-inhibit-read-only
    (cond ((equal arg '(4))
           (save-excursion
             (point-min)
-            (org-table-map-tables (lambda () (otdb-table-update nil database heading collection-files lookup-function insert-function message-buffer)))))
+            (org-table-map-tables (lambda () (otdb-table-update
+                                              nil
+                                              ctx
+                                              lookup-function
+                                              insert-function)))))
          ((equal arg '(16))
-          (dolist (collection-file collection-files)
+          (dolist (collection-file (otdb-ctx 'collection-files))
             (with-current-file-transient-min collection-file
-              (otdb-table-update '(4) database heading collection-files lookup-function insert-function message-buffer))))
+              (otdb-table-update '(4) ctx lookup-function insert-function))))
          ((equal arg '(64))
-          (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)
-          (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer)
-          (otdb-table-update '(16) database heading collection-files lookup-function insert-function message-buffer))
+          (otdb-table-update '(16) ctx lookup-function insert-function)
+          (otdb-table-update '(16) ctx lookup-function insert-function)
+          (otdb-table-update '(16) ctx lookup-function insert-function))
          (t
           (let ((table-filename buffer-file-name)
                 (table-lisp (cic:org-table-to-lisp-no-separators))
                 (table-heading (save-excursion (org-back-to-heading) (cic:get-headline-text (cic:get-current-line))))
                 looked-up)
             ;; writing table-lookup functions is good
-            (setq looked-up (funcall lookup-function table-context table-lisp))
+            (setq looked-up (funcall lookup-function ctx table-lisp))
             ;; get columns from org-table-lisp
-            (funcall insert-function table-context table-filename table-heading looked-up))))))
+            (funcall insert-function ctx table-filename table-heading looked-up))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some commands and associated functions for dealing with the check column
@@ -361,26 +448,29 @@ to be updated."
   (otdb-table-reset-cache)
   (otdb-table-inhibit-read-only
    (let ((table-detect (otdb-table-detect))
-         (recipe-context otdb-recipe-normal-alist)
-         (gear-context otdb-gear-normal-alist))
+         (recipe-context (otdb-ctx-class :database (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
+                                         :database-headline (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
+                                         :collection-files (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-files)
+                                         :message-buffer (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)
+                                         :precision (otdb-precision-class)
+                                         :database-columns (otdb-recipe-database-columns-class)
+                                         :columns (otdb-recipe-columns-class)))
+         (gear-context (otdb-ctx-class :database (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-database)
+                                       :database-headline (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-database-headline)
+                                       :collection-files (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-files)
+                                       :message-buffer (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer)
+                                       :database-columns (otdb-gear-database-columns-class)
+                                       :columns (otdb-gear-columns-class))))
      (cond ((eq table-detect 'recipe)
             (otdb-table-update arg
                                recipe-context
-                               (otdb-recipe-get-variable recipe-context 'otdb-recipe-database)
-                               (otdb-recipe-get-variable recipe-context 'otdb-recipe-database-headline)
-                               (otdb-recipe-get-variable recipe-context 'otdb-recipe-files)
                                'otdb-recipe-lookup-function
-                               'otdb-recipe-insert-function
-                               (otdb-recipe-get-variable recipe-context 'otdb-recipe-message-buffer)))
+                               'otdb-recipe-insert-function))
            ((eq table-detect 'backpacking)
             (otdb-table-update arg
                                gear-context
-                               (otdb-gear-get-variable gear-context 'otdb-gear-database)
-                               (otdb-gear-get-variable gear-context 'otdb-gear-database-headline)
-                               (otdb-gear-get-variable gear-context 'otdb-gear-collection-files)
                                'otdb-gear-lookup-function
-                               'otdb-gear-insert-function
-                               (otdb-gear-get-variable gear-context 'otdb-gear-message-buffer)))
+                               'otdb-gear-insert-function))
            (t
             (error "Not in valid file!"))))))
 

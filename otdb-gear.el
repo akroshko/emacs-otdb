@@ -37,6 +37,11 @@
 ;;
 ;;; Code:
 
+(require 'cl)
+(require 'cl-lib)
+(require 'cl-generic)
+(require 'eieio)
+
 ;; XXXX: I'm Canadian and like small weights in grams and large
 ;; weights in pounds.
 (defvar otdb-gear-weight-units
@@ -111,11 +116,11 @@ databases."
   ;; TODO: does not update dynamically at the moment
   ;; TODO: check new stuff
   (when (boundp 'otdb-gear-collection-files)
-    (dolist (collection (cic:ensure-list (otdb-gear-get-variable gear-context 'otdb-gear-files)))
+    (dolist (collection (cic:ensure-list (otdb-ctx ctx 'collection-files)))
       (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections (make-symbol collection)) (cons collection (cic:make-file-finder collection)))))
   (define-key map [menu-bar otdb-gear-menu gear-databases]          (cons "Gear database files" (make-sparse-keymap "gear database files")))
   (when (boundp 'otdb-gear-database)
-    (dolist (database (cic:ensure-list (otdb-gear-get-variable gear-context 'otdb-gear-database)))
+    (dolist (database (cic:ensure-list (otdb-ctx ctx 'database)))
       (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases (make-symbol database)) (cons database (cic:make-file-finder database))))))
 
 ;; (defun otdb-gear-mode-map ()
@@ -176,29 +181,29 @@ databases."
     (hl-line-mode 1)))
 (add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-hook--init)
 
-(defun otdb-gear-get-variable (gear-context lookup-variable)
+(defun otdb-gear-get-variable (ctx lookup-variable)
   "Helper function to lookup different otdb-gear variables
 depending on context."
   (let ((current-filename (ignore-errors buffer-file-name)))
     ;; use the standard version
-    (let ((normal-gear-files gear-context))
+    (let ((normal-gear-files ctx))
       (cdr (assoc lookup-variable normal-gear-files)))))
 ;; otdb-gear-normal-alist
 
-(defun otdb-gear-lookup-function (gear-context row-list)
+(defun otdb-gear-lookup-function (ctx row-list)
   "Helper function for otdb-table-update to lookup information
 for ROW-LIST from a particular collection."
   (let (key-list
         database-row-alist
         weight-cost-list
         quantity-alist
-        (collection-list (otdb-gear-get-collections gear-context))
+        (collection-list (otdb-gear-get-collections ctx))
         collection-weight-cost-list)
     (dolist (row (cdr row-list))
       (let ((current-item (elt row otdb-gear-item-column))
             (current-quantity (elt row otdb-gear-quantity-column)))
         (if (member (s-trim-full-no-properties current-item) collection-list)
-            (let ((wcl (otdb-gear-get-collection-weight-cost gear-context current-item (string-to-number current-quantity))))
+            (let ((wcl (otdb-gear-get-collection-weight-cost ctx current-item (string-to-number current-quantity))))
               (push (list (s-trim-full-no-properties current-item) (car wcl) (cadr wcl)) collection-weight-cost-list))
           (progn
             (push (list (s-trim-full-no-properties current-item)
@@ -207,8 +212,8 @@ for ROW-LIST from a particular collection."
             (push (s-trim-full-no-properties current-item)
                   key-list)))))
     (setq database-row-alist (otdb-table-item-row-multiple
-                              (otdb-gear-get-variable gear-context 'otdb-gear-database)
-                              (otdb-gear-get-variable gear-context 'otdb-gear-database-headline)
+                              (otdb-ctx ctx 'database)
+                              (otdb-ctx ctx 'database-headline)
                               key-list 1))
     ;; calculate cost and weight
     (dolist (row-alist database-row-alist)
@@ -227,39 +232,7 @@ for ROW-LIST from a particular collection."
                 weight-cost-list))))
     (append collection-weight-cost-list weight-cost-list)))
 
-(defconst otdb-gear-quantity-column
-  0
-  "The table column that contains the quantity.")
-
-(defconst otdb-gear-item-column
-  1
-  "The table column that contains the item.")
-
-(defconst otdb-gear-weight-column
-  3
-  "The table column that contains weight.")
-
-(defconst otdb-gear-cost-column
-  4
-  "The table column that contains cost")
-
-(defconst otdb-gear-tags-column
-  5
-  "The table column that contains tags.")
-
-(defconst otdb-gear-database-weight-column
-  1
-  "The table column in the database that contains the item weight.")
-
-(defconst otdb-gear-database-cost-column
-  2
-  "The table column in the database that contains the item cost.")
-
-(defconst otdb-gear-database-tags-column
-  3
-  "The table column in the database that contains the item tags.")
-
-(defun otdb-gear-insert-function (gear-context collection-filename collection-heading weight-cost-list)
+(defun otdb-gear-insert-function (ctx collection-filename collection-heading weight-cost-list)
   "Helper function for otdb-table-update to insert information
 into a recipe.  The recipe is COLLECTION-HEADING in
 COLLECTION-FILENAME with information to be inserted of
@@ -274,20 +247,20 @@ WEIGHT-COST-LIST."
     (do-org-table-rows collection-filename collection-heading row
                        ;; XXXX: for some reason do-org-table-rows pops a null row at the end
                        (when row
-                         (setq new-item (s-trim-full-no-properties (elt row otdb-gear-item-column)))
+                         (setq new-item (s-trim-full-no-properties (elt row (otdb-column ctx 'item))))
                          (unless (equal count 1)
                            (setq new-weight (elt (assoc new-item weight-cost-list) 1)
                                  new-cost   (elt (assoc new-item weight-cost-list) 2)
                                  new-tags   (elt (assoc new-item weight-cost-list) 3))
                            (if (not new-weight)
-                               (org-table-put count (+ otdb-gear-weight-column 1) "")
-                             (org-table-put count (+ otdb-gear-weight-column 1) (otdb-gear-weight-string new-weight)))
+                               (org-table-put count (+ (otdb-column ctx 'weight) 1) "")
+                             (org-table-put count (+ (otdb-column ctx 'weight) 1) (otdb-gear-weight-string new-weight)))
                            (if (not new-cost)
-                               (org-table-put count (+ otdb-gear-cost-column 1) "")
-                             (org-table-put count (+ otdb-gear-cost-column 1) (otdb-gear-cost-string new-cost)))
+                               (org-table-put count (+ (otdb-column ctx 'cost) 1) "")
+                             (org-table-put count (+ (otdb-column ctx 'cost) 1) (otdb-gear-cost-string new-cost)))
                            (if (not new-tags)
-                               (org-table-put count (+ otdb-gear-tags-column 1) "")
-                             (org-table-put count (+ otdb-gear-tags-column 1) new-tags)))
+                               (org-table-put count (+ (otdb-column ctx 'tags) 1) "")
+                             (org-table-put count (+ (otdb-column ctx 'tags) 1) new-tags)))
                          (setq count (1+ count))))
     (tblel-eval)))
 
@@ -312,13 +285,13 @@ WEIGHT-COST-LIST."
       (format "$%.3f" (float cost))
     ""))
 
-(defun otdb-gear-get-weight (gear-context row)
+(defun otdb-gear-get-weight (ctx row)
   "Get the weight of key in the ROW."
-  (let* ((current-item (elt row otdb-gear-item-column))
-         (current-quantity (elt row otdb-gear-quantity-column))
-         (collection-list (otdb-gear-get-collections gear-context)))
+  (let* ((current-item (elt row (otdb-column ctx 'item)))
+         (current-quantity (elt row (otdb-column ctx 'quantity)))
+         (collection-list (otdb-gear-get-collections ctx)))
     (if (member (s-trim-full current-item) collection-list)
-        (/ (car (otdb-gear-get-collection-weight-cost gear-context current-item (string-to-number current-quantity))) (otdb-table-number current-quantity))
+        (/ (car (otdb-gear-get-collection-weight-cost ctx current-item (string-to-number current-quantity))) (otdb-table-number current-quantity))
       (otdb-gear-get-weight-database current-item current-quantity))))
 
 (defun otdb-gear-get-weight-database (item quantity)
@@ -328,7 +301,7 @@ WEIGHT-COST-LIST."
 
 (defun otdb-gear-get-weight-database-row (database-row quantity)
   "Get the weight of QUANTITY from database row DATABASE-ROW."
-  (let ((item-weight (elt database-row otdb-gear-database-weight-column)))
+  (let ((item-weight (elt database-row (otdb-database-column ctx 'weight))))
    (* (otdb-table-number quantity)
       (otdb-table-number item-weight)
       (cond ((eq otdb-gear-weight-units 'kg)
@@ -338,26 +311,26 @@ WEIGHT-COST-LIST."
             ((eq otdb-gear-weight-units 'lb-g)
              (otdb-table-unit-conversion 'weight (otdb-table-unit item-weight) "g"))))))
 
-(defun otdb-gear-get-cost (gear-context row)
+(defun otdb-gear-get-cost (ctx row)
   "Get the cost of the item.  No idea if this is actually a valid thing."
-  (let* ((collection-list (otdb-gear-get-collections gear-context)))
-    (if (member (s-trim-full (elt row otdb-gear-item-column)) collection-list)
-        (/ (cadr (otdb-gear-get-collection-weight-cost gear-context (elt row otdb-gear-item-column) (string-to-number (elt row otdb-gear-quantity-column)))) (otdb-table-number (elt row otdb-gear-quantity-column)))
-      (otdb-gear-get-cost-database (elt row otdb-gear-item-column) (elt row otdb-gear-quantity-column)))))
+  (let* ((collection-list (otdb-gear-get-collections ctx)))
+    (if (member (s-trim-full (elt row (otdb-column ctx 'item))) collection-list)
+        (/ (cadr (otdb-gear-get-collection-weight-cost ctx (elt row (otdb-column ctx 'item)) (string-to-number (elt row (otdb-column ctx 'quantity))))) (otdb-table-number (elt row (otdb-column ctx 'quantity))))
+      (otdb-gear-get-cost-database (elt row (otdb-column ctx 'item)) (elt row (otdb-column ctx 'quantity))))))
 
 (defun otdb-gear-get-cost-database (item quantity)
   "Get the cost of QUANITTY of ITEM from the database."
   (let* ((database-row (otdb-gear-database-row item)))
-    (* (otdb-table-number quantity) (otdb-table-number (elt database-row otdb-gear-database-cost-column)))))
+    (* (otdb-table-number quantity) (otdb-table-number (elt database-row (otdb-database-column ctx 'cost))))))
 
 (defun otdb-gear-get-cost-database-row (database-row quantity)
   "Get the cost of the QUANTITY of the item from the database row
 DATABASE-ROW."
-  (* (otdb-table-number quantity) (otdb-table-number (elt database-row otdb-gear-database-cost-column))))
+  (* (otdb-table-number quantity) (otdb-table-number (elt database-row (otdb-database-column ctx 'cost)))))
 
-(defun otdb-gear-get-collection-weight-cost (gear-context collection quantity)
+(defun otdb-gear-get-collection-weight-cost (ctx collection quantity)
   "Get the weight and cost from gear collection COLLECTION."
-  (let ((collection-location (otdb-gear-find-collection gear-context collection)))
+  (let ((collection-location (otdb-gear-find-collection ctx collection)))
     (with-current-file-transient (car collection-location)
       (goto-char (cadr collection-location))
       (cic:org-find-table)
@@ -365,37 +338,37 @@ DATABASE-ROW."
       (list
        (*
         quantity
-        (string-to-number (org-table-get nil (+ otdb-gear-weight-column 1)))
+        (string-to-number (org-table-get nil (+ (otdb-column ctx 'weight) 1)))
         (cond ((eq otdb-gear-weight-units 'kg)
-               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ otdb-gear-weight-column 1))) "kg"))
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ (otdb-column ctx 'weight) 1))) "kg"))
               ((eq otdb-gear-weight-units 'lb)
-               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ otdb-gear-weight-column 1))) "lb"))
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ (otdb-column ctx 'weight) 1))) "lb"))
               ((eq otdb-gear-weight-units 'lb-g)
-               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ otdb-gear-weight-column 1))) "g"))))
-       (* quantity (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil (+ otdb-gear-cost-column 1)))))))))
+               (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ (otdb-column ctx 'weight) 1))) "g"))))
+       (* quantity (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil (+ (otdb-column ctx 'cost) 1)))))))))
 
-(defun otdb-gear-find-item (gear-context item)
+(defun otdb-gear-find-item (ctx item)
   "Find the location of the ITEM."
   (cic:org-table-lookup-location
-   (otdb-gear-get-variable gear-context 'otdb-gear-database)
-   (otdb-gear-get-variable gear-context 'otdb-gear-database-headline)
+   (otdb-ctx ctx 'database)
+   (otdb-ctx ctx 'database-headline)
    item 1))
 
-(defun otdb-gear-get-items (gear-context)
+(defun otdb-gear-get-items (ctx)
   "Get list of all gear items from the database."
   ;; TODO: where is this used???
   (let (items)
-    (dolist (database (otdb-gear-get-variable gear-context 'otdb-gear-database))
+    (dolist (database (otdb-ctx ctx 'database))
       (setq items (append items (cic:org-table-get-keys
                                  database
-                                 (otdb-gear-get-variable gear-context 'otdb-gear-database-headline)))))
+                                 (otdb-ctx ctx 'database-headline)))))
     items))
 
-;; otdb-gear-collection-files (otdb-gear-get-variable gear-context 'otdb-gear-files)
-(defun otdb-gear-find-collection (gear-context collection)
+;; otdb-gear-collection-files (otdb-gear-get-variable ctx 'otdb-gear-files)
+(defun otdb-gear-find-collection (ctx collection)
   "Get the location of gear collection COLLECTION."
   (let (location)
-    (dolist (collection-file (otdb-gear-get-variable gear-context 'otdb-gear-files))
+    (dolist (collection-file (otdb-ctx ctx 'collection-files))
       (with-current-file-transient-min collection-file
         (let ((found (when (re-search-forward (concat "^\* " collection " :gear:") nil t)
                        (line-beginning-position))))
@@ -403,14 +376,14 @@ DATABASE-ROW."
             (setq location (list collection-file found))))))
     location))
 
-(defun otdb-gear-get-collections (gear-context)
+(defun otdb-gear-get-collections (ctx)
   "Get list of all gear collections."
   (if otdb-table-collections-cache
       otdb-table-collections-cache
     (let (table
           table-name
           collection-list)
-      (dolist (gear-file (otdb-gear-get-variable gear-context 'otdb-gear-files))
+      (dolist (gear-file (otdb-ctx ctx 'collection-files))
         (do-org-tables gear-file table-name table
                        (save-match-data
                          (when (string-match "\\(.*\\) :gear:" table-name)
@@ -418,10 +391,10 @@ DATABASE-ROW."
       (setq otdb-table-collections-cache collection-list)
       collection-list)))
 
-(defun otdb-gear-database-row (gear-context item)
+(defun otdb-gear-database-row (ctx item)
   "Get the database row corresponding to gear item ITEM."
-  (cic:org-table-lookup-row (otdb-gear-get-variable gear-context 'otdb-gear-database)
-                            (otdb-gear-get-variable gear-context 'otdb-gear-database-headline)
+  (cic:org-table-lookup-row (otdb-ctx ctx 'database)
+                            (otdb-ctx ctx 'database-headline)
                             item))
 
 ;; (otdb-gear-calc-gear (org-table-to-lisp) (cic:org-table-to-lisp-no-separators))
@@ -451,20 +424,20 @@ corresponding to a gear collection."
                (cond ((or (eq otdb-gear-weight-units 'lb)
                           (eq otdb-gear-weight-units 'kg))
                       ;; TODO: add here too....
-                      (let* ((current-weight (otdb-table-lisp-row-float lisp-row otdb-gear-weight-column))
+                      (let* ((current-weight (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'weight)))
                              (current-weight-converted (* current-weight
-                                                          (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row (- otdb-gear-weight-column 1))) "g"))))
+                                                          (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row (- (otdb-column ctx 'weight) 1))) "g"))))
                         (setq weight                  (+ weight current-weight)
                               cummulative-weight      (+ current-weight-converted cummulative-weight)
                               cummulative-weight-list (append cummulative-weight-list (cons nil nil)))))
                      ((eq otdb-gear-weight-units 'lb-g)
                       ;; otherwise make sure weight is in grams
-                      (let ((current-weight (* (otdb-table-lisp-row-float lisp-row otdb-gear-weight-column)
-                                               (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row otdb-gear-weight-column)) "g"))))
+                      (let ((current-weight (* (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'weight))
+                                               (otdb-table-unit-conversion 'weight (otdb-table-unit (elt lisp-row (otdb-column ctx 'weight))) "g"))))
                         (setq weight                  (+ weight current-weight)
                               cummulative-weight      (+ current-weight cummulative-weight)
                               cummulative-weight-list (append cummulative-weight-list (cons nil nil))))))
-               (setq cost (+ cost (otdb-table-lisp-row-float lisp-row otdb-gear-cost-column)))))))
+               (setq cost (+ cost (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'cost))))))))
     (pop cummulative-weight-list)
     (when (<= (length (cl-remove-if 'null cummulative-weight-list)) 1)
       (setq cummulative-ignore t))
@@ -475,7 +448,7 @@ corresponding to a gear collection."
             (t
              (let ((the-cummulative (pop cummulative-weight-list)))
                ;; TODO: clear out anything already in brackets
-               (let ((item-weight (elt lisp-row otdb-gear-weight-column)))
+               (let ((item-weight (elt lisp-row (otdb-column ctx 'weight))))
                  (push (nconc
                         (cl-subseq lisp-row 0 3)
                         (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
@@ -497,13 +470,13 @@ corresponding to a gear collection."
     ;; insert into last row
     (setq new-last-row (nconc
                         (list
-                         (elt last-row otdb-gear-quantity-column)
-                         (elt last-row otdb-gear-item-column)
+                         (elt last-row (otdb-column ctx 'quantity))
+                         (elt last-row (otdb-column ctx 'item))
                          ""
                          (otdb-gear-weight-string weight)
                          (otdb-gear-cost-string cost))
                         ;; TODO: not great, really want only do for single character headers
-                        (mapcar (lambda (e) "") (nthcdr otdb-gear-tags-column last-row))))
+                        (mapcar (lambda (e) "") (nthcdr (otdb-column ctx 'tags) last-row))))
     ;; TODO: add in text indicating char-column if necessary
     (push new-last-row new-lisp-table)
     (setq new-lisp-table (nreverse new-lisp-table))))
@@ -581,7 +554,7 @@ CURRENT-TEMPORARY-BUFFER and filter by CALCULATION-TYPE."
       ;; find buffer location of the referenced collection in LISP-TABLE
       ;; a nil if things are not good
       ;; TODO: raise error if totally invalid
-      (let ((collection-location (otdb-gear-find-collection (elt lisp-row otdb-gear-item-column))))
+      (let ((collection-location (otdb-gear-find-collection (elt lisp-row (otdb-column ctx 'item)))))
         ;; if current row is a collection-location, everything else falls through
         (cond (collection-location
                ;; TODO: figure this out, make sure I'm really only checking for invalid, ???
@@ -597,8 +570,8 @@ CURRENT-TEMPORARY-BUFFER and filter by CALCULATION-TYPE."
                 (eq calculation-type 'all)
                 (and (eq calculation-type 'check)   (otdb-table-check-current-row-lisp lisp-row char-columns "X"))
                 (and (eq calculation-type 'cost)    (otdb-table-check-current-row-lisp lisp-row char-columns "C"))
-                (and (eq calculation-type 'tag)     (and otdb-gear-item-tags (otdb-table-tag-pattern-match otdb-gear-item-tags (elt lisp-row otdb-gear-tags-column)))  )
-                (and (eq calculation-type 'pattern) (and otdb-gear-item-pattern (string-match-p otdb-gear-item-pattern (elt lisp-row otdb-gear-item-column)))))
+                (and (eq calculation-type 'tag)     (and otdb-gear-item-tags (otdb-table-tag-pattern-match otdb-gear-item-tags (elt lisp-row (otdb-column ctx 'tags))))  )
+                (and (eq calculation-type 'pattern) (and otdb-gear-item-pattern (string-match-p otdb-gear-item-pattern (elt lisp-row (otdb-column ctx 'item))))))
                (with-current-buffer current-temporary-buffer
                  (insert (concat " | " (mapconcat 'identity lisp-row " | ") "\n")))))))))
 

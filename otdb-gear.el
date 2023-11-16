@@ -5,7 +5,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr 5, 2015
-;; Version: 20231111
+;; Version: 20231116
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -75,95 +75,6 @@
         otdb-gear-item-pattern nil
         otdb-gear-item-last-tags nil
         otdb-gear-item-tags nil))
-
-(defun otdb-gear-menu-tags ()
-  "Create dynamic menus to reflect the current value of
-otdb-gear-item-tags."
-  (cons (cond (otdb-gear-item-tags
-               (concat "Disable (otdb-gear-item-tags): "   (pp-to-string otdb-gear-item-tags)))
-              (otdb-gear-item-last-tags
-               (concat "Re-enable (otdb-gear-item-tags): " (pp-to-string otdb-gear-item-last-tags)))
-              (t
-               "Empty (otdb-gear-item-tags): "))
-        (lambda ()
-          (interactive)
-          (if otdb-gear-item-tags
-              (progn
-                (setq otdb-gear-item-last-tags otdb-gear-item-tags
-                      otdb-gear-item-tags      nil))
-            (setq otdb-gear-item-tags otdb-gear-item-last-tags)))))
-
-(defun otdb-gear-menu-item-pattern ()
-  "Create dynamic menus to reflect the current value of
-otdb-gear-item-pattern."
-  (cons (cond (otdb-gear-item-pattern
-               (concat "Disable (otdb-gear-item-pattern): "   (pp-to-string otdb-gear-item-pattern)))
-              (otdb-gear-item-last-pattern
-               (concat "Re-enable (otdb-gear-item-pattern): " (pp-to-string otdb-gear-item-last-pattern)))
-              (t
-               "Empty (otdb-gear-item-pattern): "))
-        (lambda ()
-          (interactive)
-          (if otdb-gear-item-pattern
-              (setq otdb-gear-item-last-pattern otdb-gear-item-pattern
-                    otdb-gear-item-pattern      nil)
-            (setq otdb-gear-item-pattern otdb-gear-item-last-pattern)))))
-
-(defun otdb-gear-menu-files (map)
-  "Create dynamic menus pointing to the gear files and
-databases."
-  (define-key map [menu-bar otdb-gear-menu gear-collections]        (cons "Gear collection files" (make-sparse-keymap "gear collection files")))
-  ;; TODO: does not update dynamically at the moment
-  ;; TODO: check new stuff
-  (when (boundp 'otdb-gear-collection-files)
-    (dolist (collection (cic:ensure-list (otdb-ctx ctx 'collection-files)))
-      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-collections (make-symbol collection)) (cons collection (cic:make-file-finder collection)))))
-  (define-key map [menu-bar otdb-gear-menu gear-databases]          (cons "Gear database files" (make-sparse-keymap "gear database files")))
-  (when (boundp 'otdb-gear-database)
-    (dolist (database (cic:ensure-list (otdb-ctx ctx 'database)))
-      (define-key map (vector 'menu-bar 'otdb-gear-menu 'gear-databases (make-symbol database)) (cons database (cic:make-file-finder database))))))
-
-;; (defun otdb-gear-mode-map ()
-;;   "Function to make the menu map for otdb-gear-mode."
-;;   (let ((map (make-sparse-keymap)))
-;;     (setq map (otdb-table-skeleton-map map))
-;;     (define-key map [menu-bar otdb-gear-menu]                              (cons "otdb-gear" (make-sparse-keymap "otdb-gear")))
-;;     (define-key map [menu-bar otdb-gear-menu reset-filters]                '("Reset gear filters" . otdb-gear-reset-filters))
-;;     ;; TODO: generate these from alist
-;;     (otdb-gear-menu-files map)
-;;     (define-key map [menu-bar otdb-gear-menu separator2] '("--"))
-;;     ;; put these in reverse order they are displayed
-;;     ;; TODO: menu to jump to database(s)
-;;     (define-key map [menu-bar otdb-gear-menu item-patterns]                (cons "Gear item patterns" (make-sparse-keymap "gear item patterns")))
-;;     ;; TODO: make these actually work
-;;     (define-key map [menu-bar otdb-gear-menu item-patterns clothing]       (cons "Clothing"  'nil-command))
-;;     (define-key map [menu-bar otdb-gear-menu item-patterns packaging]      (cons "Packaging" 'nil-command))
-;;     (define-key map [menu-bar otdb-gear-menu item-pattern]                 (otdb-gear-menu-item-pattern))
-;;     (define-key map [menu-bar otdb-gear-menu item-tags]                    (cons "Gear tags"   (make-sparse-keymap "gear tags patterns")))
-;;     (define-key map [menu-bar otdb-gear-menu item-tags clothing]           (cons "Clothing"    (command-with-args 'set otdb-gear-item-tags "clothing")))
-;;     (define-key map [menu-bar otdb-gear-menu item-tags consumable]         (cons "Consumable"  (command-with-args 'set otdb-gear-item-tags "consumable")))
-;;     (define-key map [menu-bar otdb-gear-menu item-tags electronics]        (cons "Electronics" (command-with-args 'set otdb-gear-item-tags "electronics")))
-;;     (define-key map [menu-bar otdb-gear-menu item-tags container]          (cons "Container"   (command-with-args 'set otdb-gear-item-tags "container")))
-;;     (define-key map [menu-bar otdb-gear-menu item-tag]                     (otdb-gear-menu-tags))
-;;     (define-key map [menu-bar otdb-gear-menu separator3] '("--"))
-;;     (define-key map [menu-bar otdb-gear-menu toggle-check-invalid]         '("Toggle column X as invalid" . otdb-table-invalid-toggle-check-line))
-;;     (define-key map [menu-bar otdb-gear-menu toggle-check-cost]            '("Toggle column X as \"C\""   . otdb-table-set-toggle-cost-line))
-;;     (define-key map [menu-bar otdb-gear-menu toggle-check]                 '("Toggle column X"            . otdb-table-set-toggle-check-line))
-;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-pattern] '("Use special buffer for calculating specified pattern" . otdb-gear-calc-in-special-buffer-pattern))
-;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-tagged]  '("Use special buffer for calculating selected tags"     . otdb-gear-calc-in-special-buffer-tag))
-;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-cost]    '("Use special buffer for calculating cost"              . otdb-gear-calc-in-special-buffer-cost))
-;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-checked] '("Use special buffer for calculating checked"           . otdb-gear-calc-in-special-buffer-checked))
-;;     (define-key map [menu-bar otdb-gear-menu calc-special-command-all]     '(menu-item "Use special buffer for calculating all"     otdb-gear-calc-in-special-buffer-all
-;;                                                                                        :keys "s-d s"))
-;;     map))
-;; (setq otdb-gear-mode-map (otdb-gear-mode-map))
-
-(defun otdb-menu-bar-update-hook--update-menu ()
-  "Run from a hook to update the otdb-gear-mode menu."
-  (when (derived-mode-p 'otdb-gear-mode)
-    (define-key otdb-gear-mode-map [menu-bar otdb-gear-menu item-pattern] (otdb-gear-menu-item-pattern))
-    (define-key otdb-gear-mode-map [menu-bar otdb-gear-menu item-tag]     (otdb-gear-menu-tags))))
-(add-hook 'menu-bar-update-hook 'otdb-menu-bar-update-hook--update-menu)
 
 ;; (defvar otdb-gear-mode-map
 ;;   (let ((map (make-sparse-keymap)))

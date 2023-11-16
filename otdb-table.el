@@ -6,7 +6,7 @@
 ;; Author: Andrew Kroshko
 ;; Maintainer: Andrew Kroshko <boreal6502@gmail.com>
 ;; Created: Sun Apr  5, 2015
-;; Version: 20231111
+;; Version: 20231116
 ;; URL: https://github.com/akroshko/emacs-otdb
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -153,25 +153,6 @@ May eventually be generalized a little better."
          (otdb-gear-calc-in-special-buffer-all))
         ((eq (otdb-table-detect) 'recipe)
          (otdb-recipe-calc-in-special-buffer-all))))
-
-(defun otdb-toggle-tablet-mode ()
-  "A mode where the otdb-table-mode buffer is read-only, except
-for the effects of certain commands. These special commands are
-generally for checking off items."
-  (interactive)
-  (when (otdb-table-buffer-p)
-    (if otdb-table-tablet-mode
-        (progn
-          (face-remap-remove-relative otdb-old-modeline-color)
-          (face-remap-remove-relative otdb-old-modeline-color-inactive)
-          (setq otdb-table-tablet-mode nil)
-          ;; TODO: want to make sure buffer stays read-only if it has been made so for other reasons?
-          (read-only-mode -1))
-      (progn
-        (setq-local otdb-old-modeline-color          (face-remap-add-relative 'mode-line          :background "green"))
-        (setq-local otdb-old-modeline-color-inactive (face-remap-add-relative 'mode-line-inactive :background "red"))
-        (setq otdb-table-tablet-mode t)
-        (read-only-mode t)))))
 
 (defun otdb-table-buffer-p ()
   "Check if we are in an buffer otdb-table can be functional."

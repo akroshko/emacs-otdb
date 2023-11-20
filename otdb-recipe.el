@@ -79,10 +79,9 @@
 (defun otdb-recipe-get-variable (ctx lookup-variable)
   "Helper function to lookup different otdb-recipe variables
 depending on context."
-  (let ((current-filename (ignore-errors buffer-file-name)))
-    ;; use the standard version
-    (let ((normal-recipe-files ctx))
-      (cdr (assoc lookup-variable normal-recipe-files)))))
+  (let ((current-filename (ignore-errors buffer-file-name))
+        (normal-recipe-files ctx))
+    (cdr (assoc lookup-variable normal-recipe-files))))
 ;; otdb-recipe-normal-alist
 
 (defun otdb-recipe-reset-filters ()
@@ -191,13 +190,14 @@ right thing based on information available."
          (serving-weight-number (otdb-table-number ingredient-serving-weight))
          (serving-weight-unit (otdb-table-unit ingredient-serving-weight))
          (unit-type (otdb-table-unit-type quantity-unit))
-         (to-quantity (cond ((eq unit-type 'weight)
-                             ingredient-serving-weight)
-                            ((eq unit-type 'volume)
-                             ingredient-serving-volume)
-                            ;; TODO want to know what to do when quantity is dimensionless, e.g., KD has no volume serving
-                            (t
-                             ingredient-serving-volume))))
+         (to-quantity (cl-case unit-type
+                        (weight
+                         ingredient-serving-weight)
+                        (volume
+                         ingredient-serving-volume)
+                        ;; TODO want to know what to do when quantity is dimensionless, e.g., KD has no volume serving
+                        (t
+                         ingredient-serving-volume))))
     (cond
      ((and (not unit-type)
            (cic:full-string-p (nth (otdb-database-column ctx 'serving-volume) ingredient-row))
@@ -269,101 +269,102 @@ Tries to do the right thing with different types of units."
          (serving-weight-unit (otdb-table-unit ingredient-serving-weight))
          (unit-type (otdb-table-unit-type quantity-unit)))
     ;; figure out if we have both weight units for cost or not
-    (cond ((eq unit-type 'weight)
-           (cond ((not package-weight-p)
-                  (*
-                   ;; quantity
-                   quantity-number
-                   ;; cost-numbers / quantity-units
-                   (otdb-table-unit-conversion
-                    'volume
-                    quantity-unit
-                    package-weight-unit)
-                   ;; cost-quantity / cost)
-                   (/ cost-number
-                      package-weight-number)))
-                 ;; all weight
-                 ((and package-weight-p
-                       serving-weight-p)
-                  (*
-                   (/
-                    quantity-number
-                    package-weight-number)
-                   (otdb-table-unit-conversion
-                    'weight
-                    quantity-unit
-                    package-weight-unit)
-                   cost-number))
-                 (t
-                  ;; quantity / serving-quantity
-                  (*
-                   (/
-                    quantity-number
-                    serving-weight-number)
-                   ;;  serving-units / quantity-units
-                   (otdb-table-unit-conversion
-                    'volume
-                    quantity-unit
-                    serving-weight-unit)
-                   ;; serving-quantity(alt)
-                   serving-volume-number
-                   ;;  serving-units(alt)/cost-numbers
-                   (otdb-table-unit-conversion
-                    'weight
-                    serving-volume-unit
-                    package-volume-unit)
-                   ;;  cost-quantity/cost
-                   (/
-                    (cic:string-to-float ingredient-cost)
-                    package-volume-number)))))
-          ((eq unit-type 'volume)
-           (cond (package-volume-p
-                  (*
-                   ;; quantity
-                   quantity-number
-                   ;; cost-numbers / quantity-units
-                   (otdb-table-unit-conversion
-                    'volume
-                    quantity-unit
-                    package-volume-unit)
-                   ;; cost-quantity / cost)
-                   (/ cost-number
-                      package-volume-number)))
-                 (t
-                  (*
-                   ;; quantity / serving-quantity
-                   (/
-                    quantity-number
-                    serving-volume-number)
-                   ;;  serving-units / quantity-units
-                   (otdb-table-unit-conversion
-                    'volume
-                    quantity-unit
-                    serving-volume-unit)
-                   ;; serving-quantity(alt)/serving-quantity
-                   serving-weight-number
-                   ;;  serving-units(alt)/cost-numbers
-                   (otdb-table-unit-conversion
-                    'weight
-                    serving-weight-unit
-                    package-weight-unit)
-                   ;;  cost-quantity/cost
-                   (/
-                    (cic:string-to-float ingredient-cost)
-                    package-weight-number)))))
-          (t
-           (cond ((not (cic:full-string-p package-volume-unit))
-                  (if (and (not unit-type) (not package-volume-p))
-                      cost-number
-                    (*
-                     (/
-                      quantity-number
-                      package-volume-number)
-                     cost-number)))
-                 (t
-                  (*
-                   quantity-number
-                   cost-number)))))))
+    (cl-case unit-type
+      (weight
+       (cond ((not package-weight-p)
+              (*
+               ;; quantity
+               quantity-number
+               ;; cost-numbers / quantity-units
+               (otdb-table-unit-conversion
+                'volume
+                quantity-unit
+                package-weight-unit)
+               ;; cost-quantity / cost)
+               (/ cost-number
+                  package-weight-number)))
+             ;; all weight
+             ((and package-weight-p
+                   serving-weight-p)
+              (*
+               (/
+                quantity-number
+                package-weight-number)
+               (otdb-table-unit-conversion
+                'weight
+                quantity-unit
+                package-weight-unit)
+               cost-number))
+             (t
+              ;; quantity / serving-quantity
+              (*
+               (/
+                quantity-number
+                serving-weight-number)
+               ;;  serving-units / quantity-units
+               (otdb-table-unit-conversion
+                'volume
+                quantity-unit
+                serving-weight-unit)
+               ;; serving-quantity(alt)
+               serving-volume-number
+               ;;  serving-units(alt)/cost-numbers
+               (otdb-table-unit-conversion
+                'weight
+                serving-volume-unit
+                package-volume-unit)
+               ;;  cost-quantity/cost
+               (/
+                (cic:string-to-float ingredient-cost)
+                package-volume-number)))))
+      (volume
+       (cond (package-volume-p
+              (*
+               ;; quantity
+               quantity-number
+               ;; cost-numbers / quantity-units
+               (otdb-table-unit-conversion
+                'volume
+                quantity-unit
+                package-volume-unit)
+               ;; cost-quantity / cost)
+               (/ cost-number
+                  package-volume-number)))
+             (t
+              (*
+               ;; quantity / serving-quantity
+               (/
+                quantity-number
+                serving-volume-number)
+               ;;  serving-units / quantity-units
+               (otdb-table-unit-conversion
+                'volume
+                quantity-unit
+                serving-volume-unit)
+               ;; serving-quantity(alt)/serving-quantity
+               serving-weight-number
+               ;;  serving-units(alt)/cost-numbers
+               (otdb-table-unit-conversion
+                'weight
+                serving-weight-unit
+                package-weight-unit)
+               ;;  cost-quantity/cost
+               (/
+                (cic:string-to-float ingredient-cost)
+                package-weight-number)))))
+      (t
+       (cond ((not (cic:full-string-p package-volume-unit))
+              (if (and (not unit-type) (not package-volume-p))
+                  cost-number
+                (*
+                 (/
+                  quantity-number
+                  package-volume-number)
+                 cost-number)))
+             (t
+              (*
+               quantity-number
+               cost-number)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tables

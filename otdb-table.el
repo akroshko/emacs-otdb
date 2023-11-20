@@ -48,7 +48,7 @@
 (require 'eieio)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; basic CLOS-like definitions
+;; basic CLOS-like definitions for the data structures
 
 (defclass otdb-precision-class ()
   ((calories :initform 1)
@@ -134,25 +134,24 @@
 (defun otdb-table-detect ()
   "Detect whether we are in a buffer with otdb-tables.  Users should modify this file to meet their file structure.
 May eventually be generalized a little better."
-  (let (;; (current-directory (file-name-base (directory-file-name default-directory)))
-        )
-    (cond ((with-current-buffer-min (current-buffer)
-                                    (re-search-forward "^\\*.*:recipe:" nil t))
-           'recipe)
-          ((with-current-buffer-min (current-buffer)
-                                    (re-search-forward "^\\*.*:gear:" nil t))
-           'backpacking)
-          (t
-           nil))))
+  (cond ((with-current-buffer-min (current-buffer)
+                                  (re-search-forward "^\\*.*:recipe:" nil t))
+         'recipe)
+        ((with-current-buffer-min (current-buffer)
+                                  (re-search-forward "^\\*.*:gear:" nil t))
+         'backpacking)
+        (t
+         nil)))
 
 (defun otdb-table-calc-in-special-buffer ()
   "Calculate in a special buffer."
   ;; TODO: try this out
   (interactive)
-  (cond ((eq (otdb-table-detect) 'backpacking)
-         (otdb-gear-calc-in-special-buffer-all))
-        ((eq (otdb-table-detect) 'recipe)
-         (otdb-recipe-calc-in-special-buffer-all))))
+  (cl-case (otdb-table-detect)
+      (backpacking
+       (otdb-gear-calc-in-special-buffer-all))
+      (recipe
+       (otdb-recipe-calc-in-special-buffer-all))))
 
 (defun otdb-table-buffer-p ()
   "Check if we are in an buffer otdb-table can be functional."
@@ -169,10 +168,11 @@ detected."
   (when (otdb-table-buffer-p)
     (let ((otdb-detect (otdb-table-detect))
           (current-filename (ignore-errors buffer-file-name)))
-      (cond ((eq otdb-detect 'backpacking)
-             (otdb-gear-mode))
-            ((eq otdb-detect 'recipe)
-             (otdb-recipe-mode))))))
+      (cl-case otdb-detect
+        (backpacking
+         (otdb-gear-mode))
+        (recipe
+         (otdb-recipe-mode))))))
 (add-hook 'find-file-hook 'otdb-find-file-hook--setup-hook)
 
 ;; TODO: is there a better way to do this?
@@ -264,14 +264,16 @@ Works even in otdb-table table mode."
   (unless the-char
     (setq the-char "X"))
   (otdb-table-inhibit-read-only
-   (when (otdb-table-buffer-p)
-     (when (and (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
-       (let ((the-column (otdb-table-find-column-by-name the-column)))
-         ;; find appropraite column in header and record
-         (when the-column
-           (org-table-put nil the-column the-char)))
-       ;; TODO: only align if interactive
-       (org-table-align)))))
+   (when (and
+          (otdb-table-buffer-p)
+          (org-table-check-inside-data-field t)
+          (> (org-table-current-line) 1))
+     (let ((the-column (otdb-table-find-column-by-name the-column)))
+       ;; find appropraite column in header and record
+       (when the-column
+         (org-table-put nil the-column the-char)))
+     ;; TODO: only align if interactive
+     (org-table-align))))
 
 (defun otdb-table-set-check-line ()
   "Mark the check column of the current table row.  Works even
@@ -411,9 +413,8 @@ name COLUMN-CHAR exists in the org-table at point."
           (current-column 1)
           found-column)
       (dolist (lisp-element (car lisp-table))
-        (when (and
-               (not found-column)
-               (string= column-char (s-trim-full-no-properties lisp-element)))
+        (when (and (not found-column)
+                   (string= column-char (s-trim-full-no-properties lisp-element)))
           (setq found-column current-column))
         (setq current-column (1+ current-column)))
       found-column)))
@@ -442,47 +443,47 @@ to be updated."
                                        :message-buffer (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer)
                                        :database-columns (otdb-gear-database-columns-class)
                                        :columns (otdb-gear-columns-class))))
-     (cond ((eq table-detect 'recipe)
-            (otdb-table-update arg
-                               recipe-context
-                               'otdb-recipe-lookup-function
-                               'otdb-recipe-insert-function))
-           ((eq table-detect 'backpacking)
-            (otdb-table-update arg
-                               gear-context
-                               'otdb-gear-lookup-function
-                               'otdb-gear-insert-function))
-           (t
-            (error "Not in valid file!"))))))
+     (cl-case table-detect
+       (recipe
+        (otdb-table-update arg
+                           recipe-context
+                           'otdb-recipe-lookup-function
+                           'otdb-recipe-insert-function))
+       (backpacking
+        (otdb-table-update arg
+                           gear-context
+                           'otdb-gear-lookup-function
+                           'otdb-gear-insert-function))
+       (t
+        (error "Not in valid file!"))))))
 
 (defun otdb-table-number (value)
   "Read from string VALUE and convert it to a number.  This
 function trims whitespace and excludes things such as units."
   ;; match numbers, trim whitespace
-  (when value
+  (when (and value (string-match-p "[0-9.]" value))
     ;; deal with fractions
-    (when (string-match-p "[0-9.]" value)
-      (if (string-match-p "/" value)
-          (let ((space-split (split-string value " "))
-                (slash-part nil)
-                (slash-split nil)
-                first
-                second)
-            ;; find the part with the slash
-            (dolist (part space-split)
-              (when (or (not slash-part) (string-match-p "/" part))
-                (when first
-                  (setq second t))
-                (unless second
-                  (setq first t))
-                (setq slash-part part)))
-            (setq slash-split (split-string slash-part "/"))
-            (if second
-                (+ (string-to-float (elt space-split 0)) (/ (cic:string-to-float (elt slash-split 0))
-                                                            (cic:string-to-float (elt slash-split 1))))
-              (/ (cic:string-to-float (elt slash-split 0))
-                 (cic:string-to-float (elt slash-split 1)))))
-        (cic:string-to-float value)))))
+    (if (string-match-p "/" value)
+        (let ((space-split (split-string value " "))
+              slash-part
+              slash-split
+              first
+              second)
+          ;; find the part with the slash
+          (dolist (part space-split)
+            (when (or (not slash-part) (string-match-p "/" part))
+              (when first
+                (setq second t))
+              (unless second
+                (setq first t))
+              (setq slash-part part)))
+          (setq slash-split (split-string slash-part "/"))
+          (if second
+              (+ (string-to-float (nth 0 space-split)) (/ (cic:string-to-float (nth 0 slash-split))
+                                                          (cic:string-to-float (nth 1 slash-split))))
+            (/ (cic:string-to-float (nth 0 slash-split))
+               (cic:string-to-float (nth 1 slash-split)))))
+      (cic:string-to-float value))))
 
 (defun otdb-table-unit (value)
   "Read from string VALUE and get the unit as a string."
@@ -498,21 +499,20 @@ function trims whitespace and excludes things such as units."
 QUANTITY-ENTRY."
   ;; TODO: need exact word string match to avoid l<-->lb confusion
   ;; TODO: use the weight and volume tables instead
-  (if quantity-entry
-      (cond ((or
-              (string-match-p "kg" quantity-entry)
-              (string-match-p "lb" quantity-entry)
-              (string-match-p "g" quantity-entry))
-             'weight)
-            ((or
-              (string-match-p "L" quantity-entry)
-              (string-match-p "oz" quantity-entry)
-              (string-match-p "cup" quantity-entry)
-              (string-match-p "tbsp" quantity-entry)
-              (string-match-p "tsp" quantity-entry)
-              (string-match-p "ml" quantity-entry))
-             'volume))
-    nil))
+  (when quantity-entry
+    (cond ((or
+            (string-match-p "kg" quantity-entry)
+            (string-match-p "lb" quantity-entry)
+            (string-match-p "g" quantity-entry))
+           'weight)
+          ((or
+            (string-match-p "L" quantity-entry)
+            (string-match-p "oz" quantity-entry)
+            (string-match-p "cup" quantity-entry)
+            (string-match-p "tbsp" quantity-entry)
+            (string-match-p "tsp" quantity-entry)
+            (string-match-p "ml" quantity-entry))
+           'volume))))
 
 (defun otdb-table-unit-conversion (unit-type ingredient-unit to-unit)
   "Convert units of type UNIT-TYPE from INGREDIEINT-UNIT units to
@@ -608,29 +608,29 @@ TODO: document further and remove hardcoding."
   ;; XXXX assumes proper checks have already been made before it
   ;; modifies database
   (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           ;; TODO: will need to change for multiple files
-           (with-current-file-transient-org-table
-               (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
-             (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
-             ;; go to last row
-             (cic:org-table-last-row)
-             ;; insert the new key
-             (org-table-insert-row '(4))
-             (insert new-key)
-             (org-table-align)))
-          ((eq table-detect 'backpacking)
-           (with-current-file-transient-org-table
-               (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database)
-             (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database-headline)
-             ;; go to last row
-             (cic:org-table-last-row)
-             ;; insert the new key
-             (org-table-insert-row '(4))
-             (insert new-key)
-             (org-table-align)))
-          (t
-           (error "Not in valid file!")))))
+    (cl-case (recipe
+              ;; TODO: will need to change for multiple files
+              (with-current-file-transient-org-table
+                  (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
+                (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
+                ;; go to last row
+                (cic:org-table-last-row)
+                ;; insert the new key
+                (org-table-insert-row '(4))
+                (insert new-key)
+                (org-table-align)))
+      (backpacking
+       (with-current-file-transient-org-table
+           (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database)
+         (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database-headline)
+         ;; go to last row
+         (cic:org-table-last-row)
+         ;; insert the new key
+         (org-table-insert-row '(4))
+         (insert new-key)
+         (org-table-align)))
+      (t
+       (error "Not in valid file!")))))
 
 (defun otdb-table-insert-key-at-point (new-key)
   "Insert a key at point.
@@ -664,13 +664,14 @@ TODO: document further and remove hardcoding."
   (interactive)
   (otdb-table-reset-cache)
   (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           ;; check context to determine, or select if context cannot be determined
-           (otdb-recipe-add-check otdb-recipe-normal-alist))
-          ((eq table-detect 'backpacking)
-           (error "Not in valid file!"))
-          (t
-           (error "Not in valid file!")))))
+    (cl-case table-detect
+      (recipe
+       ;; check context to determine, or select if context cannot be determined
+       (otdb-recipe-add-check otdb-recipe-normal-alist))
+      (backpacking
+       (error "Not in valid file!"))
+      (t
+       (error "Not in valid file!")))))
 
 ;; TODO: appears broken
 (defun otdb-table-goto-key-in-database (&optional arg)
@@ -679,23 +680,24 @@ XXXX: ARG does nothing for now."
   (interactive "P")
   (otdb-table-reset-cache)
   (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           (let ((ingredient-list (append
-                                   (otdb-recipe-get-ingredients otdb-recipe-normal-alist)
-                                   (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
-             (cic:goto-location
-              ;; TODO want to find recipes too
-              (otdb-recipe-find-ingredient
-               otdb-recipe-normal-alist
-               (ido-completing-read "Ingredient: " ingredient-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))))
-          ((eq table-detect 'backpacking)
-           (let ((item-list (otdb-gear-get-items)))
-             (cic:goto-location
-              ;; TODO want to find collections too
-              (otdb-gear-find-item
-               (ido-completing-read "Item: " item-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))))
-          (t
-           (error "Not in valid file!")))))
+    (cl-case table-detect
+      (recipe
+       (let ((ingredient-list (append
+                               (otdb-recipe-get-ingredients otdb-recipe-normal-alist)
+                               (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
+         (cic:goto-location
+          ;; TODO want to find recipes too
+          (otdb-recipe-find-ingredient
+           otdb-recipe-normal-alist
+           (ido-completing-read "Ingredient: " ingredient-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))))
+      (backpacking
+       (let ((item-list (otdb-gear-get-items)))
+         (cic:goto-location
+          ;; TODO want to find collections too
+          (otdb-gear-find-item
+           (ido-completing-read "Item: " item-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))))
+      (t
+       (error "Not in valid file!")))))
 
 (defun otdb-table-insert-key (&optional arg)
   "Insert a key into a database.
@@ -704,27 +706,28 @@ TODO: Document usage further."
   (otdb-table-reset-cache)
   (otdb-table-inhibit-read-only
    (let ((table-detect (otdb-table-detect)))
-     (cond ((eq table-detect 'recipe)
-            (let* ((line (cic:get-current-line))
-                   (completion-list (if (equal arg '(4))
-                                        (otdb-recipe-get-ingredients otdb-recipe-normal-alist)
-                                      (append (otdb-recipe-get-ingredients otdb-recipe-normal-alist) (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
-                   (ingredient (ido-completing-read "Ingredient: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))
-              (cond ((derived-mode-p 'org-mode)
-                     ;; add a new checkbox
-                     (otdb-table-insert-key-at-point ingredient))
-                    (t
-                     (error "Not in valid file!")))))
-           ((eq table-detect 'backpacking)
-            (let* ((line (cic:get-current-line))
-                   (completion-list (if (equal arg '(4))
-                                        (otdb-gear-get-items)
-                                      (append (otdb-gear-get-items) (otdb-gear-get-collections otdb-gear-normal-alist))))
-                   (item (ido-completing-read "Items: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))
-              (cond ((derived-mode-p 'org-mode)
-                     (otdb-table-insert-key-at-point item))
-                    (t
-                     (error "Not in valid file!"))))))))
+     (cl-case table-detect
+       (recipe
+        (let* ((line (cic:get-current-line))
+               (completion-list (if (equal arg '(4))
+                                    (otdb-recipe-get-ingredients otdb-recipe-normal-alist)
+                                  (append (otdb-recipe-get-ingredients otdb-recipe-normal-alist) (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
+               (ingredient (ido-completing-read "Ingredient: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))
+          (cond ((derived-mode-p 'org-mode)
+                 ;; add a new checkbox
+                 (otdb-table-insert-key-at-point ingredient))
+                (t
+                 (error "Not in valid file!")))))
+       (backpacking
+        (let* ((line (cic:get-current-line))
+               (completion-list (if (equal arg '(4))
+                                    (otdb-gear-get-items)
+                                  (append (otdb-gear-get-items) (otdb-gear-get-collections otdb-gear-normal-alist))))
+               (item (ido-completing-read "Items: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))
+          (cond ((derived-mode-p 'org-mode)
+                 (otdb-table-insert-key-at-point item))
+                (t
+                 (error "Not in valid file!"))))))))
   (org-table-align))
 
 ;; TODO: select file
@@ -734,50 +737,52 @@ TODO: Document usage further."
   (interactive)
   (otdb-table-reset-cache)
   (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           ;; get the key at point, don't complete from ingredients
-           ;; this function is generally run after it is determined there are no ingredients
-           (let ((at-point (otdb-table-get-key-at-point))
-                 new-key
-                 (ingredient-list (otdb-recipe-get-ingredients otdb-recipe-normal-alist)))
-             (setq new-key (ido-completing-read "Ingredient: " ingredient-list nil nil at-point))
-             ;; TODO make sure key is not already in database
-             (if (not (member new-key ingredient-list))
-                 (progn
-                   (unless (equal new-key at-point)
-                     (otdb-table-get-key-at-point new-key))
-                   ;; adds a row to the database
-                   (otdb-table-insert-key-database new-key))
-               (cic:mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
-          ((eq table-detect 'backpacking)
-           ;;
-           ;;
-           (let ((at-point (otdb-table-get-key-at-point))
-                 new-key
-                 (item-list (otdb-gear-get-items)))
-             (setq new-key (ido-completing-read "Item: " item-list nil nil at-point))
-             ;; TODO make sure key is not already in database
-             (if (not (member new-key item-list))
-                 (progn
-                   (unless (equal new-key at-point)
-                     (otdb-table-get-key-at-point new-key))
-                   ;; add a new row to the database
-                   (otdb-table-insert-key-database new-key))
-               (cic:mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
-          (t
-           (error "Not in valid file!")))))
+    (cl-case table-detect
+      (recipe
+       ;; get the key at point, don't complete from ingredients
+       ;; this function is generally run after it is determined there are no ingredients
+       (let ((at-point (otdb-table-get-key-at-point))
+             new-key
+             (ingredient-list (otdb-recipe-get-ingredients otdb-recipe-normal-alist)))
+         (setq new-key (ido-completing-read "Ingredient: " ingredient-list nil nil at-point))
+         ;; TODO make sure key is not already in database
+         (if (not (member new-key ingredient-list))
+             (progn
+               (unless (equal new-key at-point)
+                 (otdb-table-get-key-at-point new-key))
+               ;; adds a row to the database
+               (otdb-table-insert-key-database new-key))
+           (cic:mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
+      (backpacking
+       ;;
+       ;;
+       (let ((at-point (otdb-table-get-key-at-point))
+             new-key
+             (item-list (otdb-gear-get-items)))
+         (setq new-key (ido-completing-read "Item: " item-list nil nil at-point))
+         ;; TODO make sure key is not already in database
+         (if (not (member new-key item-list))
+             (progn
+               (unless (equal new-key at-point)
+                 (otdb-table-get-key-at-point new-key))
+               ;; add a new row to the database
+               (otdb-table-insert-key-database new-key))
+           (cic:mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
+      (t
+       (error "Not in valid file!")))))
 
 (defun otdb-table-agenda-uncheck-key ()
   "Uncheck a database key from an agenda."
   (interactive)
   (otdb-table-reset-cache)
   (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           (otdb-recipe-uncheck otdb-recipe-normal-alist))
-          ((eq table-detect 'backpacking)
-           (error "Not in valid file!"))
-          (t
-           (error "Not in valid file!")))))
+    (cl-case table-detect
+      (recipe
+       (otdb-recipe-uncheck otdb-recipe-normal-alist))
+      (backpacking
+       (error "Not in valid file!"))
+      (t
+       (error "Not in valid file!")))))
 
 (defun otdb-table-update-key-in-database ()
   "Update a database key everywhere.
@@ -786,24 +791,25 @@ TODO: Needs further documentation."
   (otdb-table-reset-cache)
   (error)
   (let ((table-detect (otdb-table-detect)))
-    (cond ((eq table-detect 'recipe)
-           (let ((at-point (otdb-table-get-key-at-point))
-                 (ingredient-list (otdb-recipe-get-ingredients otdb-recipe-normal-alist)))
-             (otdb-table-insert-database
-              (ido-completing-read "Ingredient: " ingredient-list nil nil nil 'otdb-table-key-history))))
-          ((eq table-detect 'backpacking)
-           (error "Not in valid file!"))
-          (t
-           (error "Not in valid file!")))))
+    (cl-case table-detect
+      (recipe
+       (let ((at-point (otdb-table-get-key-at-point))
+             (ingredient-list (otdb-recipe-get-ingredients otdb-recipe-normal-alist)))
+         (otdb-table-insert-database
+          (ido-completing-read "Ingredient: " ingredient-list nil nil nil 'otdb-table-key-history))))
+      (backpacking
+       (error "Not in valid file!"))
+      (t
+       (error "Not in valid file!")))))
 
 (defun otdb-table-lisp-row-check (lisp-row index)
   "Check that the INDEX of a particular Lisp table-row LISP-ROW
 is a non-zero float"
-  (ignore-errors (/= (cic:string-to-float-empty-zero (elt lisp-row index)) 0.0)))
+  (ignore-errors (/= (cic:string-to-float-empty-zero (nth index lisp-row )) 0.0)))
 
 (defun otdb-table-lisp-row-float (lisp-row index)
   "From LISP-ROW get the float from INDEX."
-  (cic:string-to-float-empty-zero (replace-regexp-in-string "\\$" "" (elt lisp-row index))))
+  (cic:string-to-float-empty-zero (replace-regexp-in-string "\\$" "" (nth index lisp-row))))
 
 (defun otdb-table-format-number-nil (num decimal-places)
   "Format a number NUM with DECIMAL-PLACES or return an empty
@@ -839,7 +845,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
           (setq otdb-table-database-cache lisp-table))))
     (dolist (row lisp-table)
       ;; when column is a member
-      (let ((column-stripped (s-trim-full-no-properties (elt row (- column 1)))))
+      (let ((column-stripped (s-trim-full-no-properties (nth (1- column) row ))))
         (when (member column-stripped key-list)
           (push (list column-stripped (cic:org-table-assoc lisp-table column-stripped column)) found-rows-alist))))
     found-rows-alist))
@@ -860,10 +866,11 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
         message-buffer)
     (unless table-detect
       (error "Not in appropriate place!!!"))
-    (cond ((eq table-detect 'recipe)
-           (setq message-buffer (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))
-          ((eq table-detect 'backpacking)
-           (setq message-buffer (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer))))
+    (cl-case table-detect
+      (recipe
+       (setq message-buffer (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))
+      (backpacking
+       (setq message-buffer (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer))))
     (setq database-files (cic:ensure-list database))
     (dolist (database-file database-files)
       ;; TODO: heading not found? do I need it at all?
@@ -871,9 +878,9 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
                                              (setq lisp-table (org-table-to-lisp))
                                              (setq big-lisp-table (append big-lisp-table (cdr (cic:org-table-to-lisp-no-separators))))
                                              (if (and
-                                                  (eq (elt lisp-table 0) 'hline)
-                                                  (eq (elt lisp-table 2) 'hline))
-                                                 (setq column-widths (append column-widths (list (length (elt lisp-table 1)))))
+                                                  (eq (nth 0 lisp-table) 'hline)
+                                                  (eq (nth 2 lisp-table) 'hline))
+                                                 (setq column-widths (append column-widths (list (length (nth 1 lisp-table)))))
                                                (message (concat "Incorrect header in " database-file "!")))))
     ;; if column widths not equal
     (unless (equal (length (delete-dups column-widths)) 1)
@@ -884,10 +891,11 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (when (> (length dups) 0)
       (error (concat "Duplicate data keys: " (pp-to-string dups)) message-buffer))
     ;; TODO: need more universal function?, this is a stupid hack for now
-    (cond ((eq table-detect 'recipe)
-           (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
-          ((eq table-detect 'backpacking)
-           (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-gear-get-collections otdb-gear-normal-alist)))))
+    (cl-case table-detect
+      (recipe
+       (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
+      (backpacking
+       (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-gear-get-collections otdb-gear-normal-alist)))))
     (setq dups (cic:get-list-duplicates collection-keys))
     (when (> (length dups) 0)
       (error (concat "Duplicate collection keys: " (pp-to-string dups)) message-buffer))
@@ -905,7 +913,7 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
 LISP-TABLE."
   (let ((top-row (car lisp-table))
         (bottom-rows (cdr lisp-table))
-        (single-columns nil)
+        single-columns
         (count 0))
     ;; get list of single-char column
     (dolist (lisp-element top-row)
@@ -915,8 +923,8 @@ LISP-TABLE."
     (nreverse single-columns)))
 
 ;; TODO: faked for now, need to deal with numbers
-;; (otdb-table-check-current-row-lisp (elt (cic:org-table-to-lisp-no-separators) 4) "(or C X)" (otdb-table-parse-char-columns lisp-table))
-;; (otdb-table-check-current-row-lisp (elt (cic:org-table-to-lisp-no-separators) 4) "X"        (otdb-table-parse-char-columns (cic:org-table-to-lisp-no-separators)))
+;; (otdb-table-check-current-row-lisp (nth 4 (cic:org-table-to-lisp-no-separators)) "(or C X)" (otdb-table-parse-char-columns lisp-table))
+;; (otdb-table-check-current-row-lisp (nth 4 (cic:org-table-to-lisp-no-separators)) "X"        (otdb-table-parse-char-columns (cic:org-table-to-lisp-no-separators)))
 ;; (defun otdb-table-check-current-row-lisp (lisp-row eval-expression char-columns)
 ;;   (let ((let-form))
 ;;     (dolist (char-column char-columns)
@@ -929,7 +937,7 @@ LISP-TABLE."
   (let (found)
     (dolist (char-column char-columns)
       (when (and (equal (s-trim-full (cadr char-column)) "X")
-                 (equal (s-trim-full (elt  lisp-row (car char-column))) the-character))
+                 (equal (s-trim-full (nth (car char-column) lisp-row)) the-character))
         (setq found t)))
     found))
 
@@ -937,7 +945,7 @@ LISP-TABLE."
   (let (invalid)
     (dolist (char-column char-columns)
       (when (and (equal (s-trim-full (cadr char-column)) "X")
-                 (equal (s-trim-full (elt lisp-row (car char-column))) "-"))
+                 (equal (s-trim-full (nth (car char-column) lisp-row )) "-"))
         (setq invalid t)))
     invalid))
 

@@ -111,8 +111,8 @@ for ROW-LIST from a particular collection."
         (collection-list (otdb-gear-get-collections ctx))
         collection-weight-cost-list)
     (dolist (row (cdr row-list))
-      (let ((current-item (nth (otdb-column ctx 'item) row))
-            (current-quantity (nth (otdb-column ctx 'quantity) row)))
+      (let ((current-item (otdb-column-value ctx 'item row) )
+            (current-quantity (otdb-column-value ctx 'quantity row)))
         (if (member (s-trim-full-no-properties current-item) collection-list)
             (let ((wcl (otdb-gear-get-collection-weight-cost ctx current-item (string-to-number current-quantity))))
               (push (list (s-trim-full-no-properties current-item) (car wcl) (cadr wcl)) collection-weight-cost-list))
@@ -158,7 +158,7 @@ WEIGHT-COST-LIST."
     (do-org-table-rows collection-filename collection-heading row
                        ;; XXXX: for some reason do-org-table-rows pops a null row at the end
                        (when row
-                         (setq new-item (s-trim-full-no-properties (nth (otdb-column ctx 'item) row )))
+                         (setq new-item (s-trim-full-no-properties (otdb-column-value ctx 'item row)))
                          (unless (equal count 1)
                            (setq new-weight (nth 1 (assoc new-item weight-cost-list))
                                  new-cost   (nth 2 (assoc new-item weight-cost-list))
@@ -199,8 +199,8 @@ WEIGHT-COST-LIST."
 
 (defun otdb-gear-get-weight (ctx row)
   "Get the weight of key in the ROW."
-  (let* ((current-item (nth (otdb-column ctx 'item) row))
-         (current-quantity (nth (otdb-column ctx 'quantity) row))
+  (let* ((current-item (otdb-column-value ctx 'item row) )
+         (current-quantity (otdb-column-value ctx 'quantity row) )
          (collection-list (otdb-gear-get-collections ctx)))
     (if (member (s-trim-full current-item) collection-list)
         (/ (car (otdb-gear-get-collection-weight-cost ctx current-item (string-to-number current-quantity))) (otdb-table-number current-quantity))
@@ -213,7 +213,7 @@ WEIGHT-COST-LIST."
 
 (defun otdb-gear-get-weight-database-row (database-row quantity)
   "Get the weight of QUANTITY from database row DATABASE-ROW."
-  (let ((item-weight (nth (otdb-database-column ctx 'weight) database-row)))
+  (let ((item-weight (otdb-database-column-value ctx 'weight database-row) ))
     (* (otdb-table-number quantity)
        (otdb-table-number item-weight)
        (cl-case otdb-gear-weight-units
@@ -227,19 +227,23 @@ WEIGHT-COST-LIST."
 (defun otdb-gear-get-cost (ctx row)
   "Get the cost of the item.  No idea if this is actually a valid thing."
   (let ((collection-list (otdb-gear-get-collections ctx)))
-    (if (member (s-trim-full (nth (otdb-column ctx 'item) row)) collection-list)
-        (/ (cadr (otdb-gear-get-collection-weight-cost ctx (nth (otdb-column ctx 'item) row) (string-to-number (nth (otdb-column ctx 'quantity) row)))) (otdb-table-number (nth (otdb-column ctx 'quantity) row )))
-      (otdb-gear-get-cost-database (nth (otdb-column ctx 'item) row) (nth (otdb-column ctx 'quantity) row)))))
+    (if (member (s-trim-full (otdb-column ctx 'item row)) collection-list)
+        (/ (cadr (otdb-gear-get-collection-weight-cost ctx
+                                                       (otdb-column ctx 'item row)
+                                                       (string-to-number (otdb-column-value ctx 'quantity row))))
+           (otdb-table-number (otdb-column-value ctx 'quantity row)))
+      (otdb-gear-get-cost-database (otdb-column-value ctx 'item row)
+                                   (otdb-column ctx 'quantity row)))))
 
 (defun otdb-gear-get-cost-database (item quantity)
   "Get the cost of QUANITTY of ITEM from the database."
   (let ((database-row (otdb-gear-database-row item)))
-    (* (otdb-table-number quantity) (otdb-table-number (nth (otdb-database-column ctx 'cost) database-row)))))
+    (* (otdb-table-number quantity) (otdb-table-number (otdb-database-column-value ctx 'cost database-row)))))
 
 (defun otdb-gear-get-cost-database-row (database-row quantity)
   "Get the cost of the QUANTITY of the item from the database row
 DATABASE-ROW."
-  (* (otdb-table-number quantity) (otdb-table-number (nth (otdb-database-column ctx 'cost) database-row))))
+  (* (otdb-table-number quantity) (otdb-table-number (otdb-database-column-value ctx 'cost database-row) )))
 
 (defun otdb-gear-get-collection-weight-cost (ctx collection quantity)
   "Get the weight and cost from gear collection COLLECTION."
@@ -347,7 +351,7 @@ corresponding to a gear collection."
                  (lb-g
                   ;; otherwise make sure weight is in grams
                   (let ((current-weight (* (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'weight))
-                                           (otdb-table-unit-conversion 'weight (otdb-table-unit (nth (otdb-column ctx 'weight) lisp-row)) "g"))))
+                                           (otdb-table-unit-conversion 'weight (otdb-table-unit (otdb-column-value ctx 'weight lisp-row)) "g"))))
                     (setq weight                  (+ weight current-weight)
                           cummulative-weight      (+ current-weight cummulative-weight)
                           cummulative-weight-list (append cummulative-weight-list (cons nil nil))))))
@@ -361,7 +365,7 @@ corresponding to a gear collection."
              t)
             (t
              (let ((the-cummulative (pop cummulative-weight-list))
-                   (item-weight (nth (otdb-column ctx 'weight) lisp-row)))
+                   (item-weight (otdb-column-value ctx 'weight lisp-row) ))
                (push (nconc
                       (cl-subseq lisp-row 0 3)
                       (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
@@ -383,8 +387,8 @@ corresponding to a gear collection."
     ;; insert into last row
     (setq new-last-row (nconc
                         (list
-                         (nth (otdb-column ctx 'quantity) last-row)
-                         (nth (otdb-column ctx 'item) last-row)
+                         (otdb-column-value ctx 'quantity last-row)
+                         (otdb-column-value ctx 'item last-row)
                          ""
                          (otdb-gear-weight-string weight)
                          (otdb-gear-cost-string cost))
@@ -469,7 +473,7 @@ CURRENT-TEMPORARY-BUFFER and filter by CALCULATION-TYPE."
       ;; find buffer location of the referenced collection in LISP-TABLE
       ;; a nil if things are not good
       ;; TODO: raise error if totally invalid
-      (let ((collection-location (otdb-gear-find-collection (nth (otdb-column ctx 'item) lisp-row))))
+      (let ((collection-location (otdb-gear-find-collection (otdb-column-value ctx 'item lisp-row))))
         ;; if current row is a collection-location, everything else falls through
         (cond (collection-location
                ;; TODO: figure this out, make sure I'm really only checking for invalid, ???
@@ -485,8 +489,8 @@ CURRENT-TEMPORARY-BUFFER and filter by CALCULATION-TYPE."
                 (eq calculation-type 'all)
                 (and (eq calculation-type 'check)   (otdb-table-check-current-row-lisp lisp-row char-columns "X"))
                 (and (eq calculation-type 'cost)    (otdb-table-check-current-row-lisp lisp-row char-columns "C"))
-                (and (eq calculation-type 'tag)     (and otdb-gear-item-tags (otdb-table-tag-pattern-match otdb-gear-item-tags (nth (otdb-column ctx 'tags) lisp-row)))  )
-                (and (eq calculation-type 'pattern) (and otdb-gear-item-pattern (string-match-p otdb-gear-item-pattern (nth (otdb-column ctx 'item) lisp-row)))))
+                (and (eq calculation-type 'tag)     (and otdb-gear-item-tags (otdb-table-tag-pattern-match otdb-gear-item-tags (otdb-column ctx 'tags lisp-row)))  )
+                (and (eq calculation-type 'pattern) (and otdb-gear-item-pattern (string-match-p otdb-gear-item-pattern (otdb-column ctx 'item lisp-row)))))
                (with-current-buffer current-temporary-buffer
                  (insert (concat " | " (mapconcat 'identity lisp-row " | ") "\n")))))))))
 

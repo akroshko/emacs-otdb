@@ -124,8 +124,14 @@
 (cl-defmethod otdb-column (ctx column-type)
   (slot-value (slot-value ctx 'columns) column-type))
 
+(cl-defmethod otdb-column-value (ctx column-type row)
+  (nth (otdb-column ctx column-type) row))
+
 (cl-defmethod otdb-database-column (ctx column-type)
   (slot-value (slot-value ctx 'database-columns) column-type))
+
+(cl-defmethod otdb-database-column-value (ctx column-type row)
+  (nth (otdb-database-column ctx column-type) row))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; database/table keys
@@ -157,8 +163,7 @@ May eventually be generalized a little better."
   "Check if we are in an buffer otdb-table can be functional."
   (and (derived-mode-p 'org-mode)
        (save-excursion (goto-char (point-min))
-                       ;; assume two spaces in front of TBLEL
-                       (re-search-forward "^  #\\+TBLEL:" nil t))
+                       (re-search-forward "^[ ]*#\\+TBLEL:" nil t))
        t))
 
 ;; TODO: better detect here

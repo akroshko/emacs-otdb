@@ -42,7 +42,6 @@
 
 ;; (require 'xml)
 
-(require 'cl)
 (require 'cl-lib)
 (require 'cl-generic)
 (require 'eieio)
@@ -145,9 +144,7 @@ May eventually be generalized a little better."
          'recipe)
         ((with-current-buffer-min (current-buffer)
                                   (re-search-forward "^\\*.*:gear:" nil t))
-         'backpacking)
-        (t
-         nil)))
+         'backpacking)))
 
 (defun otdb-table-calc-in-special-buffer ()
   "Calculate in a special buffer."
@@ -187,9 +184,9 @@ otdb tablet mode."
   `(when (and (boundp 'otdb-table-tablet-mode) (otdb-table-buffer-p))
      (if otdb-table-tablet-mode
          (progn
-           (toggle-read-only -1)
+           (read-only-mode -1)
            ,@body
-           (toggle-read-only t))
+           (read-only-mode t))
        (progn
          ,@body))
      t))
@@ -200,9 +197,9 @@ commands when using otdb tablet mode."
   (let (return-value)
     (if (and (boundp 'otdb-table-tablet-mode) otdb-table-tablet-mode)
         (progn
-          (toggle-read-only -1)
+          (read-only-mode -1)
           (setq return-value (apply orig-fun args))
-          (toggle-read-only t))
+          (read-only-mode t))
       (setq return-value (apply orig-fun args)))
     return-value))
 
@@ -320,10 +317,13 @@ Works even in otdb-table table mode."
   (otdb-table-inhibit-read-only
    (when (otdb-table-buffer-p)
      (org-table-goto-column 1)
-     (when (and (org-at-table-p) (org-table-check-inside-data-field t) (> (org-table-current-line) 1))
+     (when (and (org-at-table-p)
+                (org-table-check-inside-data-field t)
+                (> (org-table-current-line) 1))
        ;; find X column in header and record
        (let* ((x-column (otdb-table-find-column-by-name the-column))
-              (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
+              (x-column-value (s-trim-full-no-properties
+                               (org-table-get nil x-column))))
          (when (and x-column (or (string= x-column-value the-char)
                                  (string= x-column-value "")))
            (if (string= x-column-value "")
@@ -546,42 +546,42 @@ TO-UNIT units."
 
 (defconst otdb-table-volume-table
   '(("L" (("L" 1.0)
-          ("cup" (/ 1000.0 240.0))
-          ("oz" (/ 1000.0 30.0))
-          ("tbsp" (/ 1000.0 15.0))
-          ("tsp" (/ 1000.0 5.0))
+          ("cup" (eval-when-compile (/ 1000.0 240.0)))
+          ("oz" (eval-when-compile (/ 1000.0 30.0)))
+          ("tbsp" (eval-when-compile (/ 1000.0 15.0)))
+          ("tsp" (eval-when-compile (/ 1000.0 5.0)))
           ("ml" 1000.0)))
     ;; for the purposes of otdb, oz's are volume/fluid ounces only
     ;; TODO: if weight oz's are eventually desired, use more focused units (like avoirdupois or troy ounces)
-    ("oz" (("L" (/ 30.0 1000.0))
-           ("cup" (/ 1.0 8.0))
+    ("oz" (("L" (eval-when-compile (/ 30.0 1000.0)))
+           ("cup" (eval-when-compile (/ 1.0 8.0)))
            ("oz" 1.0)
            ("tbsp" 2.0)
            ("tsp" 6.0)
            ("ml" 30.0)))
-    ("cup" (("L" (/ 240.0 1000.0))
+    ("cup" (("L" (eval-when-compile (/ 240.0 1000.0)))
             ("cup" 1.0)
             ("oz" 8.0)
             ("tbsp" 16.0)
             ("tsp" 48.0)
             ("ml" 240.0)))
-    ("tbsp" (("L" (/ 15.0 1000.0))
-             ("cup" (/ 1.0 16.0))
-             ("oz" (/ 1.0 2.0))
+    ("tbsp" (("L" (eval-when-compile (/ 15.0 1000.0)))
+             ("cup" (eval-when-compile (/ 1.0 16.0)))
+             ("oz" (eval-when-compile (/ 1.0 2.0)))
              ("tbsp" 1.0)
              ("tsp" 3.0)
              ("ml" 15.0)))
-    ("tsp" (("L" (/ 3.0 1000.0))
-            ("cup" (/ 1.0 48.0))
-            ("oz" (/ 1.0 6.0))
-            ("tbsp" (/ 1.0 3.0))
+    ("tsp" (("L" (eval-when-compile (/ 3.0 1000.0)))
+            ("cup" (eval-when-compile (/ 1.0 48.0)))
+            ("oz" (eval-when-compile (/ 1.0 6.0)))
+            ("tbsp" (eval-when-compile (/ 1.0 3.0)))
             ("tsp" 1.0)
             ("ml" 5.0)))
-    ("ml" (("L" (/ 1.0 1000.0))
-           ("cup" (/ 1.0 240.0))
-           ("oz" (/ 1.0 30.0))
-           ("tbsp" (/ 1.0 15.0))
-           ("tsp" (/ 1.0 5.0))
+    ("ml" (("L" (eval-when-compile (/ 1.0 1000.0)))
+           ("cup" (eval-when-compile (/ 1.0 240.0)))
+           ("oz" (eval-when-compile (/ 1.0 30.0)))
+           ("tbsp" (eval-when-compile (/ 1.0 15.0)))
+           ("tsp" (eval-when-compile (/ 1.0 5.0)))
            ("ml" 1.0))))
   "Conversion alist for volume units.")
 
@@ -594,7 +594,7 @@ TODO: probably want an error if not at proper table"
         (line (cic:get-current-line))
         (column 2)
         (fname-nondirectory (file-name-nondirectory buffer-file-name)))
-    (when (member '("food-database.org" "gear-database.org"))
+    (when (member key '("food-database.org" "gear-database.org"))
       (setq column 1))
     (cond ((org-at-table-p)
            ;; get first column of current row
@@ -757,7 +757,8 @@ TODO: Document usage further."
                  (otdb-table-get-key-at-point new-key))
                ;; adds a row to the database
                (otdb-table-insert-key-database new-key))
-           (cic:mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
+           (cic:mpp-echo (format "%s already in database!" new-key)
+                         (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
       (backpacking
        ;;
        ;;
@@ -772,7 +773,9 @@ TODO: Document usage further."
                  (otdb-table-get-key-at-point new-key))
                ;; add a new row to the database
                (otdb-table-insert-key-database new-key))
-           (cic:mpp-echo (concat new-key " already in database!") (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
+           (cic:mpp-echo (format  "%s already in database!"
+                                  new-key)
+                         (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)))))
       (t
        (error "Not in valid file!")))))
 
@@ -886,7 +889,8 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
                                                   (eq (nth 0 lisp-table) 'hline)
                                                   (eq (nth 2 lisp-table) 'hline))
                                                  (setq column-widths (append column-widths (list (length (nth 1 lisp-table)))))
-                                               (message (concat "Incorrect header in " database-file "!")))))
+                                               (message (format "Incorrect header in %s!"
+                                                                database-file)))))
     ;; if column widths not equal
     (unless (equal (length (delete-dups column-widths)) 1)
       (error "Incorrect column widths!"))
@@ -894,7 +898,9 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
     (setq key-list (mapcar (lambda (e) (downcase (s-trim-full (car e)))) big-lisp-table))
     (setq dups (cic:get-list-duplicates key-list))
     (when (> (length dups) 0)
-      (error (concat "Duplicate data keys: " (pp-to-string dups)) message-buffer))
+      (error (format "Duplicate data keys: %s"
+                     (pp-to-string dups))
+             message-buffer))
     ;; TODO: need more universal function?, this is a stupid hack for now
     (cl-case table-detect
       (recipe
@@ -903,11 +909,15 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
        (setq collection-keys (mapcar (lambda (e) (downcase (s-trim-full e))) (otdb-gear-get-collections otdb-gear-normal-alist)))))
     (setq dups (cic:get-list-duplicates collection-keys))
     (when (> (length dups) 0)
-      (error (concat "Duplicate collection keys: " (pp-to-string dups)) message-buffer))
+      (error (format "Duplicate collection keys: %s"
+                     (pp-to-string dups))
+             message-buffer))
     (setq all-keys (append key-list collection-keys))
     (setq dups (cic:get-list-duplicates all-keys))
     (when (> (length dups) 0)
-      (error (concat "Duplicate keys between collections and database: " (pp-to-string dups)) message-buffer))
+      (error (format "Duplicate keys between collections and database: %s"
+                     (pp-to-string dups))
+             message-buffer))
     ;; TODO: check for possibly conflicting keys in collections by checking case
     ;;       take list of keys from all collections and database, check for duplicates, downcase, duplicates should be the same
     ))

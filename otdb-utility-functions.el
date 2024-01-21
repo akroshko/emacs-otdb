@@ -196,7 +196,8 @@ last row of the table."
              (current-file-buffer (find-file-noselect (with-filename-filter ,filename))))
          (set-buffer current-file-buffer)
          (goto-char (point-min))
-         (when (re-search-forward (concat "^\* " ,table-name "$") nil t)
+         (when (re-search-forward (format "^\* %s$"
+                                          ,table-name) nil t)
            (cic:org-find-table)
            (let ((the-return (progn
                                ,@body)))
@@ -246,7 +247,9 @@ ROW contains the current row converted into elisp."
      (goto-char (point-min))
      ;; TODO replace with org-headline-goto???
      ;; XXXX: complicated regexp deals with tags
-     (when (re-search-forward (concat "^\* " ,table-name "\\([[:space:]]:.*\\)?$") nil t)
+     (when (re-search-forward (format "^\* %s\\([[:space:]]:.*\\)?$"
+                                      ,table-name)
+                              nil t)
        (cic:org-find-table)
        (let ((keep-going t)
              (lisp-table (cic:org-table-to-lisp-no-separators))

@@ -37,7 +37,6 @@
 ;;
 ;;; Code:
 
-(require 'cl)
 (require 'cl-lib)
 (require 'cl-generic)
 (require 'eieio)
@@ -188,7 +187,7 @@ WEIGHT-COST-LIST."
              (format "%.4flb" (* (otdb-table-unit-conversion 'weight "g" "lb") (float weight)))
            (format "%.1fg" (float weight))))
         (t
-         error "Unit not properly defined."))
+         (error "Unit not properly defined.")))
     ""))
 
 (defun otdb-gear-cost-string (cost)
@@ -238,12 +237,14 @@ WEIGHT-COST-LIST."
 (defun otdb-gear-get-cost-database (item quantity)
   "Get the cost of QUANITTY of ITEM from the database."
   (let ((database-row (otdb-gear-database-row item)))
-    (* (otdb-table-number quantity) (otdb-table-number (otdb-database-column-value ctx 'cost database-row)))))
+    (* (otdb-table-number quantity)
+       (otdb-table-number (otdb-database-column-value ctx 'cost database-row)))))
 
 (defun otdb-gear-get-cost-database-row (database-row quantity)
   "Get the cost of the QUANTITY of the item from the database row
 DATABASE-ROW."
-  (* (otdb-table-number quantity) (otdb-table-number (otdb-database-column-value ctx 'cost database-row) )))
+  (* (otdb-table-number quantity)
+     (otdb-table-number (otdb-database-column-value ctx 'cost database-row))))
 
 (defun otdb-gear-get-collection-weight-cost (ctx collection quantity)
   "Get the weight and cost from gear collection COLLECTION."
@@ -258,12 +259,27 @@ DATABASE-ROW."
         (string-to-number (org-table-get nil (+ (otdb-column ctx 'weight) 1)))
         (cl-case otdb-gear-weight-units
           (kg
-           (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ (otdb-column ctx 'weight) 1))) "kg"))
+           (otdb-table-unit-conversion 'weight (otdb-table-unit
+                                                (org-table-get
+                                                 nil
+                                                 (+ (otdb-column ctx 'weight) 1)))
+                                       "kg"))
           (lb
-           (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ (otdb-column ctx 'weight) 1))) "lb"))
+           (otdb-table-unit-conversion 'weight (otdb-table-unit
+                                                (org-table-get
+                                                 nil
+                                                 (+ (otdb-column ctx 'weight) 1)))
+                                       "lb"))
           (lb-g
-           (otdb-table-unit-conversion 'weight (otdb-table-unit (org-table-get nil (+ (otdb-column ctx 'weight) 1))) "g"))))
-       (* quantity (string-to-number (replace-regexp-in-string "\\$" "" (org-table-get nil (+ (otdb-column ctx 'cost) 1)))))))))
+           (otdb-table-unit-conversion 'weight (otdb-table-unit
+                                                (org-table-get
+                                                 nil
+                                                 (+ (otdb-column ctx 'weight) 1)))
+                                       "g"))))
+       (* quantity (string-to-number (replace-regexp-in-string
+                                      "\\$"
+                                      ""
+                                      (org-table-get nil (+ (otdb-column ctx 'cost) 1)))))))))
 
 (defun otdb-gear-find-item (ctx item)
   "Find the location of the ITEM."
@@ -288,7 +304,7 @@ DATABASE-ROW."
   (let (location)
     (dolist (collection-file (otdb-ctx ctx 'collection-files))
       (with-current-file-transient-min collection-file
-        (let ((found (when (re-search-forward (concat "^\* " collection " :gear:") nil t)
+        (let ((found (when (re-search-forward (format "^\* %s :gear:" collection) nil t)
                        (line-beginning-position))))
           (when found
             (setq location (list collection-file found))))))
@@ -370,11 +386,9 @@ corresponding to a gear collection."
                       (cl-subseq lisp-row 0 3)
                       (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
                                    (setq last-cummulative t)
-                                   (concat
+                                   (format "%s (%s)"
                                     (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight))
-                                    " ("
-                                    (otdb-gear-weight-string the-cummulative)
-                                    ")"))
+                                    (otdb-gear-weight-string the-cummulative)))
                                   ((and (not cummulative-ignore) last-cummulative the-cummulative)
                                    (setq last-cummulative t)
                                    (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight)))
@@ -436,11 +450,16 @@ temporary buffer and filter by CALCULATION-TYPE."
            (when (eq (otdb-table-detect) 'backpacking)
              (cl-case calculation-type
                (pattern
-                (setq the-new-buffer-2 (generate-new-buffer (concat "*otdb-gear-pattern--" otdb-gear-item-pattern "--" (cic:datestamp-current-time) "*"))))
+                (setq the-new-buffer-2 (generate-new-buffer (format "*otdb-gear-pattern--%s--%s*"
+                                                                    otdb-gear-item-pattern
+                                                                    (cic:datestamp-current-time)))))
                (tag
-                (setq the-new-buffer-2 (generate-new-buffer (concat "*otdb-gear-tags--" otdb-gear-item-tags "--" (cic:datestamp-current-time) "*"))))
+                (setq the-new-buffer-2 (generate-new-buffer (format "*otdb-gear-tags--%s--%s*"
+                                                                    otdb-gear-item-tags
+                                                                    (cic:datestamp-current-time)))))
                (t
-                (setq the-new-buffer-2 (generate-new-buffer (concat "*otdb-gear--" (cic:datestamp-current-time) "*")))))
+                (setq the-new-buffer-2 (generate-new-buffer (format "*otdb-gear--%s*"
+                                                                    (cic:datestamp-current-time))))))
              (with-current-buffer the-new-buffer-2
                (org-mode)
                (otdb-gear-mode)
@@ -484,14 +503,22 @@ CURRENT-TEMPORARY-BUFFER and filter by CALCULATION-TYPE."
                    (goto-char (cadr collection-location))
                    (cic:org-find-table)
                    ;; advance to table
-                   (otdb-gear-calc-special (cic:org-table-to-lisp-no-separators) current-temporary-buffer calculation-type))))
+                   (otdb-gear-calc-special (cic:org-table-to-lisp-no-separators)
+                                           current-temporary-buffer calculation-type))))
               ((or
                 (eq calculation-type 'all)
-                (and (eq calculation-type 'check)   (otdb-table-check-current-row-lisp lisp-row char-columns "X"))
-                (and (eq calculation-type 'cost)    (otdb-table-check-current-row-lisp lisp-row char-columns "C"))
-                (and (eq calculation-type 'tag)     (and otdb-gear-item-tags (otdb-table-tag-pattern-match otdb-gear-item-tags (otdb-column ctx 'tags lisp-row)))  )
-                (and (eq calculation-type 'pattern) (and otdb-gear-item-pattern (string-match-p otdb-gear-item-pattern (otdb-column ctx 'item lisp-row)))))
+                (and (eq calculation-type 'check)
+                     (otdb-table-check-current-row-lisp lisp-row char-columns "X"))
+                (and (eq calculation-type 'cost)
+                     (otdb-table-check-current-row-lisp lisp-row char-columns "C"))
+                (and (eq calculation-type 'tag)
+                     (and otdb-gear-item-tags (otdb-table-tag-pattern-match otdb-gear-item-tags
+                                                                            (otdb-column ctx 'tags lisp-row)))  )
+                (and (eq calculation-type 'pattern)
+                     (and otdb-gear-item-pattern (string-match-p otdb-gear-item-pattern
+                                                                 (otdb-column ctx 'item lisp-row)))))
                (with-current-buffer current-temporary-buffer
-                 (insert (concat " | " (mapconcat 'identity lisp-row " | ") "\n")))))))))
+                 (insert (format " | %s\n"
+                                 (mapconcat 'identity lisp-row " | "))))))))))
 
 (provide 'otdb-gear)

@@ -1,4 +1,4 @@
-;;; otdb-gear.el --- For calculating the weights of backpacking (or other) gear.
+;;; otdb-gear.el --- For calculating the weights of backpacking (or other) gear -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
@@ -23,9 +23,8 @@
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Commentary:
+
+;;; Commentary:
 ;;
 ;; Use this file with "emacs -q --load otdb-sample-init.el".  See
 ;; the included README.md file for more information on this package.
@@ -34,19 +33,38 @@
 ;;
 ;; Standard Emacs features, to be documented specifically later.  Also
 ;; using (require 'cic-emacs-common) is sufficient.
-;;
+
 ;;; Code:
 
 (require 'cl-lib)
 (require 'cl-generic)
 (require 'eieio)
 
+(require 'org)
+(require 'org-table)
+
+(require 'otdb-utility-functions)
+(require 'otdb-table)
+
+(defvar otdb-gear-current-context
+  'otdb-gear-default-context
+  "The current context for gear.  This variable can be overridden.")
+
+(defun otdb-gear-default-context ()
+  (otdb-ctx-class :database (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database)
+                  :database-headline (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-database-headline)
+                  :collection-files (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-files)
+                  :message-buffer (otdb-gear-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer)
+                  :database-columns (otdb-gear-database-columns-class)
+                  :columns (otdb-gear-columns-class)))
+
+
 ;; XXXX: I'm Canadian and like small weights in grams and large
 ;; weights in pounds.
 (defvar otdb-gear-weight-units
   'lb-g
   "Use 'kg for kilograms, 'lb for pounds, and 'lb-g for lbs for
-  larger weights and g for smaller weights..")
+larger weights and g for smaller weights..")
 ;; (setq otdb-gear-weight-units 'lb)
 ;; (setq otdb-gear-weight-units 'kg)
 
@@ -57,11 +75,11 @@
 (defvar otdb-gear-item-last-pattern
   nil
   "Contains the last regex pattern for filtering special
-  calculations.")
+calculations.")
 
 (defvar otdb-gear-item-tags
   nil
-  "Hold set of tags")
+  "Hold set of tags.")
 
 (defvar otdb-gear-item-last-tags
   nil
@@ -92,17 +110,15 @@
 (add-hook 'otdb-gear-mode-hook 'otdb-gear-mode-hook--init)
 
 (defun otdb-gear-get-variable (ctx lookup-variable)
-  "Helper function to lookup different otdb-gear variables
-depending on context."
-  (let ((current-filename (ignore-errors buffer-file-name))
-        ;; use the standard version
+  "Helper function to lookup otdb-gear variable LOOKUP-VARIABLE using CTX."
+  (let (;; use the standard version
         (normal-gear-files ctx))
     (cdr (assoc lookup-variable normal-gear-files))))
 ;; otdb-gear-normal-alist
 
 (defun otdb-gear-lookup-function (ctx row-list)
-  "Helper function for otdb-table-update to lookup information
-for ROW-LIST from a particular collection."
+  "Helper function for otdb-table-update to lookup information for
+ROW-LIST from a particular collection using CTX."
   (let (key-list
         database-row-alist
         weight-cost-list
@@ -130,9 +146,9 @@ for ROW-LIST from a particular collection."
       (let ((row (cadr row-alist))
             (quantity (cadr (assoc (car row-alist) quantity-alist))))
         (let ((weight (ignore-errors
-                        (otdb-gear-get-weight-database-row row quantity)))
+                        (otdb-gear-get-weight-database-row ctx row quantity)))
               (cost (ignore-errors
-                      (otdb-gear-get-cost-database-row row quantity)))
+                      (otdb-gear-get-cost-database-row ctx row quantity)))
               ;; TODO: unhardcode this
               (tags (ignore-errors (nth 3 row))))
           (push (list (car row-alist)
@@ -143,10 +159,10 @@ for ROW-LIST from a particular collection."
     (append collection-weight-cost-list weight-cost-list)))
 
 (defun otdb-gear-insert-function (ctx collection-filename collection-heading weight-cost-list)
-  "Helper function for otdb-table-update to insert information
-into a recipe.  The recipe is COLLECTION-HEADING in
+  "Helper function for otdb-table-update to insert information into
+a recipe.  The recipe is COLLECTION-HEADING in
 COLLECTION-FILENAME with information to be inserted of
-WEIGHT-COST-LIST."
+WEIGHT-COST-LIST using CTX."
   (let (new-item
         new-weight
         new-cost
@@ -197,21 +213,23 @@ WEIGHT-COST-LIST."
     ""))
 
 (defun otdb-gear-get-weight (ctx row)
-  "Get the weight of key in the ROW."
+  "Get the weight of key in the ROW using CTX."
   (let* ((current-item (otdb-column-value ctx 'item row) )
          (current-quantity (otdb-column-value ctx 'quantity row) )
          (collection-list (otdb-gear-get-collections ctx)))
     (if (member (s-trim-full current-item) collection-list)
-        (/ (car (otdb-gear-get-collection-weight-cost ctx current-item (string-to-number current-quantity))) (otdb-table-number current-quantity))
-      (otdb-gear-get-weight-database current-item current-quantity))))
+        (/ (car (otdb-gear-get-collection-weight-cost ctx current-item (string-to-number current-quantity)))
+           (otdb-table-number current-quantity))
+      (otdb-gear-get-weight-database ctx current-item current-quantity))))
 
-(defun otdb-gear-get-weight-database (item quantity)
-  "Get the weight of QUANTITY of the ITEM from the database."
+(defun otdb-gear-get-weight-database (ctx item quantity)
+  "Get the weight of QUANTITY of the ITEM from the database using CTX."
   (let ((database-row (otdb-gear-database-row item)))
-    (otdb-gear-get-weight-database-row database-row quantity)))
+    (otdb-gear-get-weight-database-row ctx database-row quantity)))
 
-(defun otdb-gear-get-weight-database-row (database-row quantity)
-  "Get the weight of QUANTITY from database row DATABASE-ROW."
+(defun otdb-gear-get-weight-database-row (ctx database-row quantity)
+  "Get the weight of QUANTITY from database row DATABASE-ROW using
+CTX."
   (let ((item-weight (otdb-database-column-value ctx 'weight database-row) ))
     (* (otdb-table-number quantity)
        (otdb-table-number item-weight)
@@ -224,30 +242,31 @@ WEIGHT-COST-LIST."
           (otdb-table-unit-conversion 'weight (otdb-table-unit item-weight) "g"))))))
 
 (defun otdb-gear-get-cost (ctx row)
-  "Get the cost of the item.  No idea if this is actually a valid thing."
+  "Get the cost of the item from ROW using CTX."
   (let ((collection-list (otdb-gear-get-collections ctx)))
-    (if (member (s-trim-full (otdb-column ctx 'item row)) collection-list)
+    (if (member (s-trim-full (otdb-column-value ctx 'item row)) collection-list)
         (/ (cadr (otdb-gear-get-collection-weight-cost ctx
-                                                       (otdb-column ctx 'item row)
+                                                       (otdb-column-value ctx 'item row)
                                                        (string-to-number (otdb-column-value ctx 'quantity row))))
            (otdb-table-number (otdb-column-value ctx 'quantity row)))
       (otdb-gear-get-cost-database (otdb-column-value ctx 'item row)
-                                   (otdb-column ctx 'quantity row)))))
+                                   (otdb-column-value ctx 'quantity row)))))
 
-(defun otdb-gear-get-cost-database (item quantity)
-  "Get the cost of QUANITTY of ITEM from the database."
+(defun otdb-gear-get-cost-database (ctx item quantity)
+  "Get the cost of QUANITTY of ITEM from the database using CTX."
   (let ((database-row (otdb-gear-database-row item)))
     (* (otdb-table-number quantity)
        (otdb-table-number (otdb-database-column-value ctx 'cost database-row)))))
 
-(defun otdb-gear-get-cost-database-row (database-row quantity)
+(defun otdb-gear-get-cost-database-row (ctx database-row quantity)
   "Get the cost of the QUANTITY of the item from the database row
-DATABASE-ROW."
+DATABASE-ROW using CTX."
   (* (otdb-table-number quantity)
      (otdb-table-number (otdb-database-column-value ctx 'cost database-row))))
 
 (defun otdb-gear-get-collection-weight-cost (ctx collection quantity)
-  "Get the weight and cost from gear collection COLLECTION."
+  "Get the weight and cost from gear collection COLLECTION using
+CTX."
   (let ((collection-location (otdb-gear-find-collection ctx collection)))
     (with-current-file-transient (car collection-location)
       (goto-char (cadr collection-location))
@@ -282,14 +301,14 @@ DATABASE-ROW."
                                       (org-table-get nil (+ (otdb-column ctx 'cost) 1)))))))))
 
 (defun otdb-gear-find-item (ctx item)
-  "Find the location of the ITEM."
+  "Find the location of the ITEM using CTX."
   (cic:org-table-lookup-location
    (otdb-ctx ctx 'database)
    (otdb-ctx ctx 'database-headline)
    item 1))
 
 (defun otdb-gear-get-items (ctx)
-  "Get list of all gear items from the database."
+  "Get list of all gear items from the database using CTX."
   ;; TODO: where is this used???
   (let (items)
     (dolist (database (otdb-ctx ctx 'database))
@@ -300,7 +319,7 @@ DATABASE-ROW."
 
 ;; otdb-gear-collection-files (otdb-gear-get-variable ctx 'otdb-gear-files)
 (defun otdb-gear-find-collection (ctx collection)
-  "Get the location of gear collection COLLECTION."
+  "Get the location of gear collection COLLECTION using CTX."
   (let (location)
     (dolist (collection-file (otdb-ctx ctx 'collection-files))
       (with-current-file-transient-min collection-file
@@ -311,7 +330,7 @@ DATABASE-ROW."
     location))
 
 (defun otdb-gear-get-collections (ctx)
-  "Get list of all gear collections."
+  "Get list of all gear collections using CTX."
   (if otdb-table-collections-cache
       otdb-table-collections-cache
     (let (table
@@ -326,7 +345,7 @@ DATABASE-ROW."
       collection-list)))
 
 (defun otdb-gear-database-row (ctx item)
-  "Get the database row corresponding to gear item ITEM."
+  "Get the database row corresponding to gear item ITEM using CTX."
   (cic:org-table-lookup-row (otdb-ctx ctx 'database)
                             (otdb-ctx ctx 'database-headline)
                             item))
@@ -345,58 +364,59 @@ corresponding to a gear collection."
         ;; (new-lisp-table (butlast lisp-table-no-seperators))
         (last-row (car (last lisp-table-no-seperators)))
         (char-columns (otdb-table-parse-char-columns lisp-table-no-seperators))
-        new-last-row)
-    (dolist (lisp-row (cddr (butlast lisp-table 2)))
-      (cond ((eq lisp-row 'hline)
-             (setq cummulative-weight-list (append (butlast cummulative-weight-list) (list cummulative-weight))
-                   cummulative-weight      0.0)
-             t)
-            (t
-             ;; TODO: no marks here for now, maybe only do "X" mark
-             ;; XXXX: do not need to include quantities because they are calculated on insertion
-             (unless (otdb-table-check-invalid-current-row-lisp lisp-row char-columns)
-               (cl-case otdb-gear-weight-units
-                 ((lb kg)
-                  ;; TODO: add here too....
-                  (let* ((current-weight (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'weight)))
-                         (current-weight-converted (* current-weight
-                                                      (otdb-table-unit-conversion 'weight (otdb-table-unit (nth (- (otdb-column ctx 'weight) 1) lisp-row)) "g"))))
-                    (setq weight                  (+ weight current-weight)
-                          cummulative-weight      (+ current-weight-converted cummulative-weight)
-                          cummulative-weight-list (append cummulative-weight-list (cons nil nil)))))
-                 (lb-g
-                  ;; otherwise make sure weight is in grams
-                  (let ((current-weight (* (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'weight))
-                                           (otdb-table-unit-conversion 'weight (otdb-table-unit (otdb-column-value ctx 'weight lisp-row)) "g"))))
-                    (setq weight                  (+ weight current-weight)
-                          cummulative-weight      (+ current-weight cummulative-weight)
-                          cummulative-weight-list (append cummulative-weight-list (cons nil nil))))))
-               (setq cost (+ cost (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'cost))))))))
+        new-last-row
+        (ctx (funcall otdb-gear-current-context)))
+    (dolist (lisp-row (butlast (cdr lisp-table-no-seperators)))
+      ;; cond ;; (eq lisp-row 'hline
+      ;;     (setq cummulative-weight-list (append (butlast cummulative-weight-list) (list cummulative-weight))
+      ;;           cummulative-weight      0.0)
+      ;;     t)
+      ;; t
+      ;; TODO: no marks here for now, maybe only do "X" mark
+      ;; XXXX: do not need to include quantities because they are calculated on insertion
+      (unless (otdb-table-check-invalid-current-row-lisp lisp-row char-columns)
+        (cl-case otdb-gear-weight-units
+          ((lb kg)
+           ;; TODO: add here too....
+           (let* ((current-weight (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'weight)))
+                  (current-weight-converted (* current-weight
+                                               (otdb-table-unit-conversion 'weight (otdb-table-unit (nth (- (otdb-column ctx 'weight) 1) lisp-row)) "g"))))
+             (setq weight                  (+ weight current-weight)
+                   cummulative-weight      (+ current-weight-converted cummulative-weight)
+                   cummulative-weight-list (append cummulative-weight-list (cons nil nil)))))
+          (lb-g
+           ;; otherwise make sure weight is in grams
+           (let ((current-weight (* (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'weight))
+                                    (otdb-table-unit-conversion 'weight (otdb-table-unit (otdb-column-value ctx 'weight lisp-row)) "g"))))
+             (setq weight                  (+ weight current-weight)
+                   cummulative-weight      (+ current-weight cummulative-weight)
+                   cummulative-weight-list (append cummulative-weight-list (cons nil nil))))))
+        (setq cost (+ cost (otdb-table-lisp-row-float lisp-row (otdb-column ctx 'cost))))))
     (pop cummulative-weight-list)
     (when (<= (length (cl-remove-if 'null cummulative-weight-list)) 1)
       (setq cummulative-ignore t))
-    (dolist (lisp-row (cddr (butlast lisp-table 2)))
-      ;; TODO:   if there are adjacent, then ignore, in loop though
-      (cond ((eq lisp-row 'hline)
-             t)
-            (t
-             (let ((the-cummulative (pop cummulative-weight-list))
-                   (item-weight (otdb-column-value ctx 'weight lisp-row) ))
-               (push (nconc
-                      (cl-subseq lisp-row 0 3)
-                      (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
-                                   (setq last-cummulative t)
-                                   (format "%s (%s)"
+    (dolist (lisp-row (cdr (butlast lisp-table-no-seperators)))
+      ;; TODO: if there are adjacent, then ignore, in loop though
+      ;; cond ((eq lisp-row 'hline)
+      ;;       t)
+      ;; t
+      (let ((the-cummulative (pop cummulative-weight-list))
+            (item-weight (otdb-column-value ctx 'weight lisp-row) ))
+        (push (nconc
+               (cl-subseq lisp-row 0 3)
+               (list (cond ((and (not cummulative-ignore) (not last-cummulative) the-cummulative)
+                            (setq last-cummulative t)
+                            (format "%s (%s)"
                                     (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight))
                                     (otdb-gear-weight-string the-cummulative)))
-                                  ((and (not cummulative-ignore) last-cummulative the-cummulative)
-                                   (setq last-cummulative t)
-                                   (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight)))
-                                  (t
-                                   (setq last-cummulative nil)
-                                   (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight)))))
-                      (cl-subseq lisp-row 4 7))
-                     new-lisp-table)))))
+                           ((and (not cummulative-ignore) last-cummulative the-cummulative)
+                            (setq last-cummulative t)
+                            (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight)))
+                           (t
+                            (setq last-cummulative nil)
+                            (s-trim-full (replace-regexp-in-string "(.*)" "" item-weight)))))
+               (cl-subseq lisp-row 4 7))
+              new-lisp-table)))
     ;; TODO: go through and make new version of table, but with cummulative...
     ;; insert into last row
     (setq new-last-row (nconc
@@ -407,7 +427,7 @@ corresponding to a gear collection."
                          (otdb-gear-weight-string weight)
                          (otdb-gear-cost-string cost))
                         ;; TODO: not great, really want only do for single character headers
-                        (mapcar (lambda (e) "") (nthcdr (otdb-column ctx 'tags) last-row))))
+                        (mapcar (lambda (_) "") (nthcdr (otdb-column ctx 'tags) last-row))))
     ;; TODO: add in text indicating char-column if necessary
     (push new-last-row new-lisp-table)
     (setq new-lisp-table (nreverse new-lisp-table))))
@@ -485,7 +505,8 @@ temporary buffer and filter by CALCULATION-TYPE."
 (defun otdb-gear-calc-special (lisp-table current-temporary-buffer calculation-type)
   "Recursively calculate the LISP-TABLE in
 CURRENT-TEMPORARY-BUFFER and filter by CALCULATION-TYPE."
-  (let (current-collection-name
+  (let ((ctx (funcall otdb-gear-current-context))
+        current-collection-name
         (char-columns (otdb-table-parse-char-columns lisp-table)))
     ;; loop over the rows find all the current rows
     (dolist (lisp-row (butlast (cdr lisp-table)))

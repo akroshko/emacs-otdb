@@ -1,4 +1,4 @@
-;;; otdb-utility-functions.el --- Some utility functions imported from elsewhere.
+;;; otdb-utility-functions.el --- Some utility functions imported from elsewhere -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
@@ -23,18 +23,25 @@
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Commentary:
+
+;;; Commentary:
 ;;
 ;; These are utility functions imported from unreleased code of mine.
+
+;;; Code:
+
+(require 'cl-lib)
+(require 'cl-generic)
+
+(require 'org)
+(require 'org-table)
 
 (defmacro with-current-buffer-min (buffer-or-name &rest body)
   "Like with-current-buffer but always go to point min."
   `(save-excursion
-     (set-buffer ,buffer-or-name)
-     (goto-char (point-min))
-     ,@body))
+     (with-current-buffer ,buffer-or-name
+       (goto-char (point-min))
+       ,@body)))
 
 (defun s-trim-full (str)
   "Trim all leading and trailing whitespace from STR.  Does this
@@ -87,30 +94,30 @@ of this macro, just in case."
   (declare (indent 1) ;; (debug t)
            )
   `(save-excursion
-     (set-buffer (find-file-noselect (with-filename-filter ,filename)))
-     (goto-char (point-min))
-     ;; TODO figure out best layout for file and best way to do this
-     (let ((keep-going t))
-       (while keep-going
-         ;; next headline same level
-         (save-match-data
-           (when (string-match cic:headline-regexp (cic:get-current-line))
-             (setq ,table-name (match-string 1 (cic:get-current-line)))))
-         (save-excursion
-           (forward-line 1)
-           (setq ,table nil)
-           (while (not (or (and (cic:org-headline-p (cic:get-current-line)) (= (org-outline-level) 1))
-                           (org-at-table-p) (eobp)))
-             (forward-line 1))
-           (when (org-at-table-p)
-             (setq ,table (cic:org-table-to-lisp-no-separators))))
-         (when (and ,table-name ,table)
-           ,@body)
-         ;; see if we can keep going
-         (setq keep-going (cic:org-check-last-heading-level-1))
-         ;; if not end
-         (when keep-going
-           (org-forward-heading-same-level 1 nil))))))
+     (with-current-buffer (find-file-noselect (with-filename-filter ,filename))
+       (goto-char (point-min))
+       ;; TODO figure out best layout for file and best way to do this
+       (let ((keep-going t))
+         (while keep-going
+           ;; next headline same level
+           (save-match-data
+             (when (string-match cic:headline-regexp (cic:get-current-line))
+               (setq ,table-name (match-string 1 (cic:get-current-line)))))
+           (save-excursion
+             (forward-line 1)
+             (setq ,table nil)
+             (while (not (or (and (cic:org-headline-p (cic:get-current-line)) (= (org-outline-level) 1))
+                             (org-at-table-p) (eobp)))
+               (forward-line 1))
+             (when (org-at-table-p)
+               (setq ,table (cic:org-table-to-lisp-no-separators))))
+           (when (and ,table-name ,table)
+             ,@body)
+           ;; see if we can keep going
+           (setq keep-going (cic:org-check-last-heading-level-1))
+           ;; if not end
+           (when keep-going
+             (org-forward-heading-same-level 1 nil)))))))
 
 (defun cic:org-headline-p (line-substring)
   "Test if LINE-SUBSTRING is an org-mode headline."
@@ -132,41 +139,39 @@ does not already exist Uses with-filename-filter."
   (declare (indent 1) ;; (debug t)
            )
   `(save-excursion
-     (let  ((current-buffer-transient t))
-       (let* ((filtered-filename (with-filename-filter ,filename))
-              (already-existing-buffer (get-file-buffer filtered-filename))
-              current-file-buffer)
-         (if already-existing-buffer
-             (set-buffer already-existing-buffer)
-           (progn
-             (setq current-file-buffer (find-file-noselect filtered-filename))
-             (set-buffer current-file-buffer)))
-         (let ((the-return (progn
-                             ,@body)))
-           (unless already-existing-buffer
-             (kill-buffer current-file-buffer))
-           the-return)))))
+     (let* ((filtered-filename (with-filename-filter ,filename))
+            (already-existing-buffer (get-file-buffer filtered-filename))
+            current-file-buffer)
+       (if already-existing-buffer
+           (set-buffer already-existing-buffer)
+         (progn
+           (setq current-file-buffer (find-file-noselect filtered-filename))
+           (set-buffer current-file-buffer)))
+       (let ((the-return (progn
+                           ,@body)))
+         (unless already-existing-buffer
+           (kill-buffer current-file-buffer))
+         the-return))))
 
 (defmacro with-current-file-transient-min (filename &rest body)
   "Like with-current-file, but always go to point-min."
   (declare (indent 1) ;; (debug t)
            )
   `(save-excursion
-     (let ((current-buffer-transient t))
-       (let* ((filtered-filename (with-filename-filter ,filename))
-              (already-existing-buffer (get-file-buffer filtered-filename))
-              current-file-buffer)
-         (if already-existing-buffer
-             (set-buffer already-existing-buffer)
-           (progn
-             (setq current-file-buffer (find-file-noselect filtered-filename))
-             (set-buffer current-file-buffer)))
-         (goto-char (point-min))
-         (let ((the-return (progn
-                             ,@body)))
-           (unless already-existing-buffer
-             (kill-buffer current-file-buffer))
-           the-return)))))
+     (let* ((filtered-filename (with-filename-filter ,filename))
+            (already-existing-buffer (get-file-buffer filtered-filename))
+            current-file-buffer)
+       (if already-existing-buffer
+           (set-buffer already-existing-buffer)
+         (progn
+           (setq current-file-buffer (find-file-noselect filtered-filename))
+           (set-buffer current-file-buffer)))
+       (goto-char (point-min))
+       (let ((the-return (progn
+                           ,@body)))
+         (unless already-existing-buffer
+           (kill-buffer current-file-buffer))
+         the-return))))
 
 (defun cic:org-find-table (&optional count)
   "Find either the first or COUNT table in BUFFER.  Go to the
@@ -191,13 +196,13 @@ last row of the table."
   (declare (indent 1) ;; (debug t)
            )
   `(save-excursion
-     (let ((current-buffer-transient t))
-       (let ((already-existing-buffer (get-file-buffer (with-filename-filter ,filename)))
-             (current-file-buffer (find-file-noselect (with-filename-filter ,filename))))
-         (set-buffer current-file-buffer)
+     (let ((already-existing-buffer (get-file-buffer (with-filename-filter ,filename)))
+           (current-file-buffer (find-file-noselect (with-filename-filter ,filename))))
+       (with-current-buffer current-file-buffer
          (goto-char (point-min))
          (when (re-search-forward (format "^\* %s$"
-                                          ,table-name) nil t)
+                                          ,table-name)
+                                  nil t)
            (cic:org-find-table)
            (let ((the-return (progn
                                ,@body)))
@@ -243,31 +248,31 @@ ROW contains the current row converted into elisp."
   (declare (indent 1) ;; (debug t)
            )
   `(save-excursion
-     (set-buffer (find-file-noselect (with-filename-filter ,filename)))
-     (goto-char (point-min))
+    (with-current-buffer (find-file-noselect (with-filename-filter ,filename))
+      (goto-char (point-min))
      ;; TODO replace with org-headline-goto???
-     ;; XXXX: complicated regexp deals with tags
-     (when (re-search-forward (format "^\* %s\\([[:space:]]:.*\\)?$"
-                                      ,table-name)
-                              nil t)
-       (cic:org-find-table)
-       (let ((keep-going t)
-             (lisp-table (cic:org-table-to-lisp-no-separators))
-             (row-count 0))
-         (while keep-going
-           (unless (string-match-p "|-+\+.*|" (cic:get-current-line))
-             (setq ,row (nth row-count lisp-table))
-             ,@body
-             (setq row-count (1+ row-count)))
-           (save-excursion
-             ;; TODO need to catch error or whatever from this
-             (forward-line 1)
-             (unless (org-at-table-p)
-               (setq keep-going nil)))
-           (when keep-going
-             (forward-line 1)))))))
+      ;; XXXX: complicated regexp deals with tags
+      (when (re-search-forward (format "^\* %s\\([[:space:]]:.*\\)?$"
+                                       ,table-name)
+                               nil t)
+        (cic:org-find-table)
+        (let ((keep-going t)
+              (lisp-table (cic:org-table-to-lisp-no-separators))
+              (row-count 0))
+          (while keep-going
+            (unless (string-match-p "|-+\+.*|" (cic:get-current-line))
+              (let ((,row (nth row-count lisp-table)))
+                ,@body)
+              (setq row-count (1+ row-count)))
+            (save-excursion
+              ;; TODO need to catch error or whatever from this
+              (forward-line 1)
+              (unless (org-at-table-p)
+                (setq keep-going nil)))
+            (when keep-going
+              (forward-line 1))))))))
 
-(defun tblel-eval (&rest args)
+(defun tblel-eval (&rest _)
   "Get the lisp table and run the appropriate function on it (several functions?)."
   ;; TODO: unwind protect to avoid nuking table
   ;; TODO: avoid back-to-heading/find-table and use a better methodology for tables
@@ -276,7 +281,8 @@ ROW contains the current row converted into elisp."
     (let (lisp-table
           original-lisp-table
           lisp-function
-          new-lisp-table)
+          new-lisp-table
+          lisp-function-args)
       ;; get elisp function to run
       (save-excursion
         (unless (tblel-line-p)

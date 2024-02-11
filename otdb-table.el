@@ -1,5 +1,4 @@
-;;; otdb-table.el --- Create a database using an org-mode table and
-;;; calculate similar to a spreadsheet.
+;;; otdb-table.el --- Create a database using an org-mode table and calculate similar to a spreadsheet -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
@@ -24,9 +23,8 @@
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Commentary:
+
+;;; Commentary:
 ;;
 ;; Use this file with the command "emacs -q --load
 ;; otdb-sample-init.el".  See the included README.md file for more
@@ -38,6 +36,7 @@
 ;; requires features from https://github.com/akroshko/cic-emacs-common,
 ;; using (require 'cic-emacs-common) is sufficient.
 ;;
+
 ;;; Code:
 
 ;; (require 'xml)
@@ -45,6 +44,11 @@
 (require 'cl-lib)
 (require 'cl-generic)
 (require 'eieio)
+
+(require 'org)
+(require 'org-table)
+
+(require 'otdb-utility-functions)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; basic CLOS-like definitions for the data structures
@@ -115,21 +119,27 @@
   "A class to hold a context for a particular database/collection.")
 
 (cl-defmethod otdb-ctx (ctx data-type)
+  "Get data from CTX described by DATA-TYPE."
   (slot-value ctx data-type))
 
 (cl-defmethod otdb-precision (ctx precision-type)
+  "Get the procesion for PRECISION-TYPE from CTX."
   (slot-value (slot-value ctx 'precision) precision-type))
 
 (cl-defmethod otdb-column (ctx column-type)
+  "Get the column for COLUMN-TYPE from CTX."
   (slot-value (slot-value ctx 'columns) column-type))
 
 (cl-defmethod otdb-column-value (ctx column-type row)
+  "Get the column value from ROW for COLUMN-TYPE from CTX."
   (nth (otdb-column ctx column-type) row))
 
 (cl-defmethod otdb-database-column (ctx column-type)
+  "Get the column of the database for COLUMN-TYPE from CTX."
   (slot-value (slot-value ctx 'database-columns) column-type))
 
 (cl-defmethod otdb-database-column-value (ctx column-type row)
+  "Get the column value of COLUMN-TYPE from ROW for CTX."
   (nth (otdb-database-column ctx column-type) row))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -137,8 +147,9 @@
 ;; modes, macros, and utility commands
 
 (defun otdb-table-detect ()
-  "Detect whether we are in a buffer with otdb-tables.  Users should modify this file to meet their file structure.
-May eventually be generalized a little better."
+  "Detect whether we are in a buffer with otdb-tables.  Users
+should modify this file to meet their file structure.  May
+eventually be generalized a little better."
   (cond ((with-current-buffer-min (current-buffer)
                                   (re-search-forward "^\\*.*:recipe:" nil t))
          'recipe)
@@ -168,8 +179,7 @@ May eventually be generalized a little better."
   "Put into appropriate mode if an appropriate otdb file is
 detected."
   (when (otdb-table-buffer-p)
-    (let ((otdb-detect (otdb-table-detect))
-          (current-filename (ignore-errors buffer-file-name)))
+    (let ((otdb-detect (otdb-table-detect)))
       (cl-case otdb-detect
         (backpacking
          (otdb-gear-mode))
@@ -249,7 +259,9 @@ MESSAGE-BUFFER is the buffer where messages are put."
          (t
           (let ((table-filename buffer-file-name)
                 (table-lisp (cic:org-table-to-lisp-no-separators))
-                (table-heading (save-excursion (org-back-to-heading) (cic:get-headline-text (cic:get-current-line))))
+                (table-heading (save-excursion
+                                 (org-back-to-heading)
+                                 (cic:get-headline-text (cic:get-current-line))))
                 looked-up)
             ;; writing table-lookup functions is good
             (setq looked-up (funcall lookup-function ctx table-lisp))
@@ -378,10 +390,10 @@ valid/invalid.  Works even in otdb-table table mode."
          ;; find X column in header and record
          (let* ((x-column (otdb-table-find-column-by-name the-char))
                 (x-column-value (s-trim-full-no-properties (org-table-get nil x-column))))
-           (when (and (x-column
-                       (or
-                        (string= x-column-value "")
-                        (cic:string-integer-p x-column-value))))
+           (when (and x-column
+                      (or
+                       (string= x-column-value "")
+                       (cic:string-integer-p x-column-value)))
              ;; if current value goes to zero
              ;; get number corresponding to arg?
              ;; TODO: reverse arg properly if
@@ -435,19 +447,23 @@ to be updated."
   (otdb-table-reset-cache)
   (otdb-table-inhibit-read-only
    (let ((table-detect (otdb-table-detect))
-         (recipe-context (otdb-ctx-class :database (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
-                                         :database-headline (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
-                                         :collection-files (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-files)
-                                         :message-buffer (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)
-                                         :precision (otdb-precision-class)
-                                         :database-columns (otdb-recipe-database-columns-class)
-                                         :columns (otdb-recipe-columns-class)))
-         (gear-context (otdb-ctx-class :database (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-database)
-                                       :database-headline (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-database-headline)
-                                       :collection-files (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-files)
-                                       :message-buffer (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer)
-                                       :database-columns (otdb-gear-database-columns-class)
-                                       :columns (otdb-gear-columns-class))))
+         (recipe-context (funcall otdb-recipe-current-context)
+                         ;; (otdb-ctx-class :database (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
+                         ;; :database-headline (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
+                         ;; :collection-files (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-files)
+                         ;; :message-buffer (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)
+                         ;; :precision (otdb-precision-class)
+                         ;; :database-columns (otdb-recipe-database-columns-class)
+                         ;; :columns (otdb-recipe-columns-class))
+                         )
+         (gear-context (funcall otdb-gear-current-context)
+                       ;; (otdb-ctx-class :database (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-database)
+                       ;;                 :database-headline (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-database-headline)
+                       ;;                 :collection-files (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-files)
+                       ;;                 :message-buffer (otdb-recipe-get-variable otdb-gear-normal-alist 'otdb-gear-message-buffer)
+                       ;;                 :database-columns (otdb-gear-database-columns-class)
+                       ;;                 :columns (otdb-gear-columns-class))
+                       ))
      (cl-case table-detect
        (recipe
         (otdb-table-update arg
@@ -713,8 +729,7 @@ TODO: Document usage further."
    (let ((table-detect (otdb-table-detect)))
      (cl-case table-detect
        (recipe
-        (let* ((line (cic:get-current-line))
-               (completion-list (if (equal arg '(4))
+        (let* ((completion-list (if (equal arg '(4))
                                     (otdb-recipe-get-ingredients otdb-recipe-normal-alist)
                                   (append (otdb-recipe-get-ingredients otdb-recipe-normal-alist) (otdb-recipe-get-recipes otdb-recipe-normal-alist))))
                (ingredient (ido-completing-read "Ingredient: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-recipe-key-history)))
@@ -724,8 +739,7 @@ TODO: Document usage further."
                 (t
                  (error "Not in valid file!")))))
        (backpacking
-        (let* ((line (cic:get-current-line))
-               (completion-list (if (equal arg '(4))
+        (let* ((completion-list (if (equal arg '(4))
                                     (otdb-gear-get-items)
                                   (append (otdb-gear-get-items) (otdb-gear-get-collections otdb-gear-normal-alist))))
                (item (ido-completing-read "Items: " completion-list nil nil (otdb-table-get-key-at-point) 'otdb-gear-key-history)))
@@ -817,7 +831,8 @@ is a non-zero float"
 
 (defun otdb-table-lisp-row-float (lisp-row index)
   "From LISP-ROW get the float from INDEX."
-  (cic:string-to-float-empty-zero (replace-regexp-in-string "\\$" "" (nth index lisp-row))))
+  (cic:string-to-float-empty-zero
+   (replace-regexp-in-string "\\$" "" (nth index lisp-row))))
 
 (defun otdb-table-format-number-nil (num decimal-places)
   "Format a number NUM with DECIMAL-PLACES or return an empty
@@ -927,7 +942,6 @@ TABLE-NAME and keys KEY-LIST in column COLUMN."
   "Get the columns that have a single character heading from
 LISP-TABLE."
   (let ((top-row (car lisp-table))
-        (bottom-rows (cdr lisp-table))
         single-columns
         (count 0))
     ;; get list of single-char column

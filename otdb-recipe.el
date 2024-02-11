@@ -1,6 +1,4 @@
-;;; otdb-recipe.el --- Allows easy entry of nutritional information
-;;; into org-mode tables and calculation of costs and macronutrient
-;;; amounts.
+;;; otdb-recipe.el --- Allows easy entry of nutritional information into org-mode tables and calculation of costs and macronutrient amounts -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
@@ -25,9 +23,8 @@
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Commentary:
+
+;;; Commentary:
 ;;
 ;; Use this file with the command "emacs -q --load
 ;; otdb-sample-init.el".  See the included README.md file for more
@@ -35,15 +32,35 @@
 ;;
 ;; Features that might be required by this library:
 ;;
-;; Standard Emacs features, to be documented specificly later.  Also
+;; Standard Emacs features, to be documented specifically later.  Also
 ;; requires features from https://github.com/akroshko/cic-emacs-common,
 ;; using (require 'cic-emacs-common) is sufficient.
-;;
+
 ;;; Code:
 
 (require 'cl-lib)
 (require 'cl-generic)
 (require 'eieio)
+
+(require 'org)
+(require 'org-table)
+
+(require 'otdb-utility-functions)
+(require 'otdb-table)
+
+(defvar otdb-recipe-current-context
+  'otdb-recipe-default-context
+  "The current context for recipes.  This variable can be overridden.")
+
+(defun otdb-recipe-default-context ()
+  "Get the default context for recipes."
+  (otdb-ctx-class :database (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database)
+                  :database-headline (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-database-headline)
+                  :collection-files (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-files)
+                  :message-buffer (otdb-recipe-get-variable otdb-recipe-normal-alist 'otdb-recipe-message-buffer)
+                  :precision (otdb-precision-class)
+                  :database-columns (otdb-recipe-database-columns-class)
+                  :columns (otdb-recipe-columns-class)))
 
 ;; TODO: non-functional but here for completeness
 (defvar otdb-recipe-item-pattern
@@ -75,10 +92,9 @@ calculations.")
 (add-hook 'otdb-recipe-mode-hook 'otdb-recipe-mode-hook--init)
 
 (defun otdb-recipe-get-variable (ctx lookup-variable)
-  "Helper function to lookup different otdb-recipe variables
-depending on context."
-  (let ((current-filename (ignore-errors buffer-file-name))
-        (normal-recipe-files ctx))
+  "Helper function to lookup otdb-recipe variables LOOKUP-VARIABLE
+using CTX."
+  (let ((normal-recipe-files ctx))
     (cdr (assoc lookup-variable normal-recipe-files))))
 ;; otdb-recipe-normal-alist
 
@@ -103,7 +119,7 @@ depending on context."
 
 (defun otdb-recipe-get-calories-protein-fat-weight-volume-cost (ctx recipe)
   "Get the totals from a particular RECIPE. Generally to use in a
-another recipe."
+another recipe using CTX."
   (let ((recipe-location (otdb-recipe-find ctx recipe)))
     (with-current-file-transient (car recipe-location)
       (goto-char (cadr recipe-location))
@@ -123,7 +139,7 @@ another recipe."
 
 ;; find recipes
 (defun otdb-recipe-find (ctx recipe)
-  "Find RECIPE and return the location.
+  "Find RECIPE and return the location using CTX.
 TODO return location at beginning of line"
   ;; have an "exact" way of doing this
   (let (location)
@@ -138,7 +154,7 @@ TODO return location at beginning of line"
     location))
 
 (defun otdb-recipe-get-recipes (ctx)
-  "Get the full list of recipes."
+  "Get the full list of recipes using CTX."
   (if otdb-table-collections-cache
       otdb-table-collections-cache
     (let (table
@@ -153,7 +169,7 @@ TODO return location at beginning of line"
       recipe-list)))
 
 (defun otdb-recipe-complete (ctx)
-  "Select and complete a recipe name, then go to it."
+  "Select and complete a recipe name, then go to it using CTX."
   (interactive)
   (let* ((recipe-list (otdb-recipe-get-recipes ctx))
          (recipe (completing-read "Recipe: " recipe-list nil t))
@@ -166,8 +182,8 @@ TODO return location at beginning of line"
 ;; recipes
 (defun otdb-recipe-calories-protein-fat-weight (ctx ingredient-row quantity column to-unit)
   "Return the nutritional values of QUANTITY from database row
-INGREDIENT-ROW from COLUMN converting to units TO-UNIT.  Does the
-right thing based on information available."
+INGREDIENT-ROW from COLUMN converting to units TO-UNIT using CTX.
+Does the right thing based on information available."
   ;; TODO: combine with very similar cost function
   (let* ((ingredient-package-weight (otdb-database-column-value ctx
                                                                 'package-weight ingredient-row))
@@ -250,8 +266,8 @@ right thing based on information available."
        (otdb-table-unit-conversion unit-type quantity-unit (otdb-table-unit to-quantity))
        (cic:string-to-float (nth column ingredient-row)))))))
 
-(defun otdb-recipe-cost-row (ingredient-row quantity)
-  "Return the cost based on the QUANTITY in INGREDIENT-ROW.
+(defun otdb-recipe-cost-row (ctx ingredient-row quantity)
+  "Return the cost based on the QUANTITY in INGREDIENT-ROW using CTX.
 Tries to do the right thing with different types of units."
   (let* ((ingredient-package-weight (otdb-database-column-value ctx 'package-weight ingredient-row))
          (ingredient-package-volume (otdb-database-column-value ctx 'package-volume ingredient-row))
@@ -272,112 +288,115 @@ Tries to do the right thing with different types of units."
          (serving-volume-unit (otdb-table-unit ingredient-serving-volume))
          (serving-weight-number (otdb-table-number ingredient-serving-weight))
          (serving-weight-unit (otdb-table-unit ingredient-serving-weight))
-         (unit-type (otdb-table-unit-type quantity-unit)))
+         (unit-type (otdb-table-unit-type quantity-unit))
+         return-value )
     ;; figure out if we have both weight units for cost or not
     (cl-case unit-type
       (weight
-       (cond ((not package-weight-p)
-              (*
-               ;; quantity
-               quantity-number
-               ;; cost-numbers / quantity-units
-               (otdb-table-unit-conversion
-                'volume
-                quantity-unit
-                package-weight-unit)
-               ;; cost-quantity / cost)
-               (/ cost-number
-                  package-weight-number)))
-             ;; all weight
-             ((and package-weight-p
-                   serving-weight-p)
-              (*
-               (/
-                quantity-number
-                package-weight-number)
-               (otdb-table-unit-conversion
-                'weight
-                quantity-unit
-                package-weight-unit)
-               cost-number))
-             (t
-              ;; quantity / serving-quantity
-              (*
-               (/
-                quantity-number
-                serving-weight-number)
-               ;;  serving-units / quantity-units
-               (otdb-table-unit-conversion
-                'volume
-                quantity-unit
-                serving-weight-unit)
-               ;; serving-quantity(alt)
-               serving-volume-number
-               ;;  serving-units(alt)/cost-numbers
-               (otdb-table-unit-conversion
-                'weight
-                serving-volume-unit
-                package-volume-unit)
-               ;;  cost-quantity/cost
-               (/
-                (cic:string-to-float ingredient-cost)
-                package-volume-number)))))
+       (setq return-value (cond ((not package-weight-p)
+                                 (*
+                                  ;; quantity
+                                  quantity-number
+                                  ;; cost-numbers / quantity-units
+                                  (otdb-table-unit-conversion
+                                   'volume
+                                   quantity-unit
+                                   package-weight-unit)
+                                  ;; cost-quantity / cost)
+                                  (/ cost-number
+                                     package-weight-number)))
+                                ;; all weight
+                                ((and package-weight-p
+                                      serving-weight-p)
+                                 (*
+                                  (/
+                                   quantity-number
+                                   package-weight-number)
+                                  (otdb-table-unit-conversion
+                                   'weight
+                                   quantity-unit
+                                   package-weight-unit)
+                                  cost-number))
+                                (t
+                                 ;; quantity / serving-quantity
+                                 (*
+                                  (/
+                                   quantity-number
+                                   serving-weight-number)
+                                  ;;  serving-units / quantity-units
+                                  (otdb-table-unit-conversion
+                                   'volume
+                                   quantity-unit
+                                   serving-weight-unit)
+                                  ;; serving-quantity(alt)
+                                  serving-volume-number
+                                  ;;  serving-units(alt)/cost-numbers
+                                  (otdb-table-unit-conversion
+                                   'weight
+                                   serving-volume-unit
+                                   package-volume-unit)
+                                  ;;  cost-quantity/cost
+                                  (/
+                                   (cic:string-to-float ingredient-cost)
+                                   package-volume-number))))))
       (volume
-       (cond (package-volume-p
-              (*
-               ;; quantity
-               quantity-number
-               ;; cost-numbers / quantity-units
-               (otdb-table-unit-conversion
-                'volume
-                quantity-unit
-                package-volume-unit)
-               ;; cost-quantity / cost)
-               (/ cost-number
-                  package-volume-number)))
-             (t
-              (*
-               ;; quantity / serving-quantity
-               (/
-                quantity-number
-                serving-volume-number)
-               ;;  serving-units / quantity-units
-               (otdb-table-unit-conversion
-                'volume
-                quantity-unit
-                serving-volume-unit)
-               ;; serving-quantity(alt)/serving-quantity
-               serving-weight-number
-               ;;  serving-units(alt)/cost-numbers
-               (otdb-table-unit-conversion
-                'weight
-                serving-weight-unit
-                package-weight-unit)
-               ;;  cost-quantity/cost
-               (/
-                (cic:string-to-float ingredient-cost)
-                package-weight-number)))))
+       (setq return-value (cond (package-volume-p
+                                 (*
+                                  ;; quantity
+                                  quantity-number
+                                  ;; cost-numbers / quantity-units
+                                  (otdb-table-unit-conversion
+                                   'volume
+                                   quantity-unit
+                                   package-volume-unit)
+                                  ;; cost-quantity / cost)
+                                  (/ cost-number
+                                     package-volume-number)))
+                                (t
+                                 (*
+                                  ;; quantity / serving-quantity
+                                  (/
+                                   quantity-number
+                                   serving-volume-number)
+                                  ;;  serving-units / quantity-units
+                                  (otdb-table-unit-conversion
+                                   'volume
+                                   quantity-unit
+                                   serving-volume-unit)
+                                  ;; serving-quantity(alt)/serving-quantity
+                                  serving-weight-number
+                                  ;;  serving-units(alt)/cost-numbers
+                                  (otdb-table-unit-conversion
+                                   'weight
+                                   serving-weight-unit
+                                   package-weight-unit)
+                                  ;;  cost-quantity/cost
+                                  (/
+                                   (cic:string-to-float ingredient-cost)
+                                   package-weight-number))))))
       (t
-       (cond ((not (cic:full-string-p package-volume-unit))
-              (if (and (not unit-type) (not package-volume-p))
-                  cost-number
-                (*
-                 (/
-                  quantity-number
-                  package-volume-number)
-                 cost-number)))
-             (t
-              (*
-               quantity-number
-               cost-number)))))))
+       (setq return-value (cond ((not (cic:full-string-p package-volume-unit))
+                                 (if (and (not unit-type) (not package-volume-p))
+                                     cost-number
+                                   (*
+                                    (/
+                                     quantity-number
+                                     package-volume-number)
+                                    cost-number)))
+                                (t
+                                 (*
+                                  quantity-number
+                                  cost-number))))))
+    return-value))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tables
 
+
+;; Test on an actual table with (otdb-recipe-lookup-function (funcall otdb-recipe-current-context) (cic:org-table-to-lisp-no-separators))
 (defun otdb-recipe-lookup-function (ctx row-list)
-  "Helper function for otdb-table-update to lookup information
-for ROW-LIST from a particular recipe.
-Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp-no-separators))"
+  "Helper function for otdb-table-update to lookup information for
+ROW-LIST from a particular recipe using CTX."
   (let (database-row-alist
         calories-protein-fat-weight-volume-cost-list
         key-list
@@ -465,7 +484,7 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
                (when (cic:full-string-p (otdb-database-column-value ctx 'serving-tags row))
                  (nth 13 row)))
               (cost (ignore-errors
-                      (otdb-recipe-cost-row row quantity))))
+                      (otdb-recipe-cost-row ctx row quantity))))
           (push (list (car row-alist)
                       (list 'calories calories)
                       (list 'protein protein)
@@ -478,57 +497,57 @@ Test on an actual table with (otdb-recipe-lookup-function (cic:org-table-to-lisp
     (append recipe-calories-protein-fat-weight-volume-cost-list calories-protein-fat-weight-volume-cost-list)))
 
 (defun otdb-recipe-insert-function (ctx recipe-filename recipe-heading calories-protein-fat-weight-volume-cost-list)
-  "Helper function for otdb-table-update to insert information
-into a recipe.  The recipe is RECIPE-HEADING in RECIPE-FILENAME
-with information to be inserted of
-CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST."
+  "Helper function for otdb-table-update to insert information into
+a recipe using CTX.  The recipe is RECIPE-HEADING in
+RECIPE-FILENAME with information to be inserted of
+CALORIES-PROTEIN-FAT-WEIGHT-VOLUME-COST-LIST"
   (let ((count 1))
     (do-org-table-rows recipe-filename recipe-heading row
-                       (setq new-ingredient (s-trim-full-no-properties (otdb-column-value ctx 'item row)))
-                       (unless (equal count 1)
-                         (let* ((ingredient-list (assoc new-ingredient
-                                                        calories-protein-fat-weight-volume-cost-list))
-                                (new-calories (cadr (assoc 'calories ingredient-list)))
-                                (new-protein  (cadr (assoc 'protein  ingredient-list)))
-                                (new-fat      (cadr (assoc 'fat      ingredient-list)))
-                                (new-weight   (cadr (assoc 'weight   ingredient-list)))
-                                (new-volume   (cadr (assoc 'volume   ingredient-list)))
-                                (new-cost     (cadr (assoc 'cost     ingredient-list)))
-                                (new-tags     (cadr (assoc 'tags     ingredient-list))))
-                           (if (not new-calories)
-                               (org-table-put count (+ (otdb-column ctx 'calories) 1) "" )
-                             (org-table-put count (+ (otdb-column ctx 'calories) 1)
-                                            (format "%.1f" new-calories)))
-                           (if (not new-protein)
-                               (org-table-put count (+ (otdb-column ctx 'protein) 1) "")
-                             (org-table-put count (+ (otdb-column ctx 'protein) 1)
-                                            (format "%.1f" new-protein)))
-                           (if (not new-fat)
-                               (org-table-put count (+ (otdb-column ctx 'fat) 1) "")
-                             (org-table-put count (+ (otdb-column ctx 'fat) 1)
-                                            (format "%.1f" new-fat)))
-                           (if (not new-weight)
-                               (org-table-put count (+ (otdb-column ctx 'weight) 1) "")
-                             (org-table-put count (+ (otdb-column ctx 'weight) 1)
-                                            (format "%.3f" new-weight)))
-                           (if (not new-volume)
-                               (org-table-put count (+ (otdb-column ctx 'volume) 1) "")
-                             (org-table-put count (+ (otdb-column ctx 'volume) 1)
-                                            (format "%.3f" new-volume)))
-                           (if (not new-cost)
-                               (org-table-put count (+ (otdb-column ctx 'cost) 1) "")
-                             (org-table-put count (+ (otdb-column ctx 'cost) 1)
-                                            (format "%.3f" new-cost)))
-                           (if (not new-tags)
-                               (org-table-put count (+ (otdb-column ctx 'tags) 1) "")
-                             (org-table-put count (+ (otdb-column ctx 'tags) 1) new-tags))))
+                       (let ((new-ingredient (s-trim-full-no-properties (otdb-column-value ctx 'item row))))
+                         (unless (equal count 1)
+                           (let* ((ingredient-list (assoc new-ingredient
+                                                          calories-protein-fat-weight-volume-cost-list))
+                                  (new-calories (cadr (assoc 'calories ingredient-list)))
+                                  (new-protein  (cadr (assoc 'protein  ingredient-list)))
+                                  (new-fat      (cadr (assoc 'fat      ingredient-list)))
+                                  (new-weight   (cadr (assoc 'weight   ingredient-list)))
+                                  (new-volume   (cadr (assoc 'volume   ingredient-list)))
+                                  (new-cost     (cadr (assoc 'cost     ingredient-list)))
+                                  (new-tags     (cadr (assoc 'tags     ingredient-list))))
+                             (if (not new-calories)
+                                 (org-table-put count (+ (otdb-column ctx 'calories) 1) "" )
+                               (org-table-put count (+ (otdb-column ctx 'calories) 1)
+                                              (format "%.1f" new-calories)))
+                             (if (not new-protein)
+                                 (org-table-put count (+ (otdb-column ctx 'protein) 1) "")
+                               (org-table-put count (+ (otdb-column ctx 'protein) 1)
+                                              (format "%.1f" new-protein)))
+                             (if (not new-fat)
+                                 (org-table-put count (+ (otdb-column ctx 'fat) 1) "")
+                               (org-table-put count (+ (otdb-column ctx 'fat) 1)
+                                              (format "%.1f" new-fat)))
+                             (if (not new-weight)
+                                 (org-table-put count (+ (otdb-column ctx 'weight) 1) "")
+                               (org-table-put count (+ (otdb-column ctx 'weight) 1)
+                                              (format "%.3f" new-weight)))
+                             (if (not new-volume)
+                                 (org-table-put count (+ (otdb-column ctx 'volume) 1) "")
+                               (org-table-put count (+ (otdb-column ctx 'volume) 1)
+                                              (format "%.3f" new-volume)))
+                             (if (not new-cost)
+                                 (org-table-put count (+ (otdb-column ctx 'cost) 1) "")
+                               (org-table-put count (+ (otdb-column ctx 'cost) 1)
+                                              (format "%.3f" new-cost)))
+                             (if (not new-tags)
+                                 (org-table-put count (+ (otdb-column ctx 'tags) 1) "")
+                               (org-table-put count (+ (otdb-column ctx 'tags) 1) new-tags)))))
                        (setq count (1+ count)))
     (tblel-eval)))
 
 ;; TODO: appears broken
 (defun otdb-recipe-find-ingredient (ctx ingredient)
   "Find the location of INGREDIENT ingredient in database (or
-recipe)."
+recipe) using CTX."
   ;; TODO this will probably become a pretty general table lookup function for databases
   (if (member ingredient (otdb-recipe-get-recipes ctx))
       (otdb-recipe-find ctx ingredient)
@@ -538,7 +557,7 @@ recipe)."
 
 ;; TODO: appears to only be called from other broken functions
 (defun otdb-recipe-get-ingredients (ctx)
-  "Get list of all ingredients from the database."
+  "Get list of all ingredients from the database using CTX."
   ;; TODO: will need to be modified for multiple files
   (let (ingredients
         dups)
@@ -555,7 +574,7 @@ recipe)."
 ;; TODO: will need to modified for multiple files
 ;; TODO: does not appear to be used....
 (defun otdb-recipe-ingredient-row (ctx ingredient)
-  "Look up row of INGREDIENT ingredient in the database."
+  "Look up row of INGREDIENT ingredient in the database using CTX."
   ;; XXXX assume on top of table
   ;; XXXX assume Ingredient.... etc. header is first
   (cic:org-table-lookup-row (otdb-ctx ctx 'database)
@@ -680,7 +699,7 @@ deletes volume, weights, and any comments."
     (setq table-elisp (mapcar (lambda (e)
                                 (if (eq e 'hline)
                                     e
-                                  (append (cl-subseq e 0 12) (subseq e 14))))
+                                  (append (cl-subseq e 0 12) (cl-subseq e 14))))
                               table-elisp))
     (with-temp-buffer
       (setq new-header (with-temp-buffer
@@ -747,7 +766,7 @@ clipboards."
         (interprogram-cut-function nil))
     (delete-region (point) (point-max))))
 
-(defun otdb-recipe-calc-recipe (lisp-table lisp-table-no-seperators)
+(defun otdb-recipe-calc-recipe (_ lisp-table-no-seperators)
   "Calculated an updated lisp table from the LISP-TABLE and
 LISP-TABLE-NO-SEPERATORS corresponding to a recipe."
   (let ((calories 0)
@@ -767,7 +786,8 @@ LISP-TABLE-NO-SEPERATORS corresponding to a recipe."
         (weight 0)
         (volume 0)
         (char-columns (otdb-table-parse-char-columns lisp-table-no-seperators))
-        (new-lisp-table (list (car lisp-table-no-seperators))))
+        (new-lisp-table (list (car lisp-table-no-seperators)))
+        (ctx (funcall otdb-recipe-current-context)))
     ;; add up the directly summable columns
     (dolist (lisp-row (butlast (cdr lisp-table-no-seperators)))
       ;; only skip non-intermediate calculations
@@ -926,9 +946,9 @@ CALCULATION-TYPE."
     (switch-to-buffer the-new-buffer)))
 
 (defun otdb-recipe-calc-special (ctx lisp-table current-temporary-buffer &optional quantity calculation-type)
-  "Do a special calculation on the current recipe specified by
-LISP-TABLE in CURRENT-TEMPORARY-BUFFER with QUANTITY potentially
-different than 1 and filtered by CALCULATION-TYPE."
+  "Do a special calculation using CTX on the current recipe
+specified by LISP-TABLE in CURRENT-TEMPORARY-BUFFER with QUANTITY
+potentially different than 1 and filtered by CALCULATION-TYPE."
   (let (current-collection-name
         (char-columns (otdb-table-parse-char-columns lisp-table))
         lisp-row-quantity
@@ -992,64 +1012,65 @@ different than 1 and filtered by CALCULATION-TYPE."
 (defun otdb-table-tblel-calorie-protein-cost-table (lisp-table lisp-table-no-seperators &rest tblel-args)
   "Table tblel function for TBLFM to calculate cost per 1000
 calories in the database and cost per 100g protein."
-  (dolist (therow (nthcdr 1 lisp-table-no-seperators))
-    (let* ((package-weight   (nth (otdb-database-column ctx 'package-weight) therow))
-           (package-volume   (nth (otdb-database-column ctx 'package-volume) therow))
-           (package-cost     (nth (otdb-database-column ctx 'cost) therow))
-           (serving-weight   (nth (otdb-database-column ctx 'serving-weight) therow))
-           (serving-volume   (nth (otdb-database-column ctx 'serving-volume) therow))
-           (serving-calories (nth (otdb-database-column ctx 'serving-calories) therow))
-           (serving-protein  (nth (otdb-database-column ctx 'serving-protein) therow))
-           (package-cost-number (otdb-table-number package-cost))
-           (package-volume-number (otdb-table-number package-volume))
-           (package-volume-unit (otdb-table-unit package-volume))
-           (package-weight-number (otdb-table-number package-weight))
-           (package-weight-unit (otdb-table-unit package-weight))
-           (serving-calories-number (otdb-table-number serving-calories))
-           (serving-protein-number (otdb-table-number serving-protein))
-           (serving-volume-number (otdb-table-number serving-volume))
-           (serving-volume-unit (otdb-table-unit serving-volume))
-           (serving-weight-number (otdb-table-number serving-weight))
-           (serving-weight-unit (otdb-table-unit serving-weight))
-           ;; see comments in otdb-recipe-database-calorie-costs
-           (calorie-cost (cic:number-to-string-nan (ignore-errors (cond ((and (cic:full-string-p package-weight)
-                                                                              (cic:full-string-p serving-weight))
-                                                                         (let ((factor (otdb-table-unit-conversion 'weight
-                                                                                                                   package-weight-unit
-                                                                                                                   serving-weight-unit)))
-                                                                           (* (/ package-cost-number
-                                                                                 (* factor (/ package-weight-number serving-weight-number)
-                                                                                    serving-calories-number))
-                                                                              1000)))
-                                                                        ((and (cic:full-string-p package-volume)
-                                                                              (cic:full-string-p serving-volume))
-                                                                         (let ((factor (otdb-table-unit-conversion 'volume package-volume-unit serving-volume-unit)))
-                                                                           (* (/ package-cost-number
-                                                                                 (* factor (/ package-volume-number serving-volume-number)
-                                                                                    serving-calories-number))
-                                                                              1000)))))))
-           ;; see comments in otdb-recipe-database-protein-costs
-           (protein-cost (cic:number-to-string-nan (ignore-errors (cond ((and (cic:full-string-p package-weight)
-                                                                              (cic:full-string-p serving-weight))
-                                                                         (let ((factor (otdb-table-unit-conversion 'weight
-                                                                                                                   package-weight-unit
-                                                                                                                   serving-weight-unit)))
-                                                                           (* (/ package-cost-number
-                                                                                 (* factor (/ package-weight-number serving-weight-number)
-                                                                                    serving-protein-number))
-                                                                              100)))
-                                                                        ((and (cic:full-string-p package-volume)
-                                                                              (cic:full-string-p serving-volume))
-                                                                         (let ((factor (otdb-table-unit-conversion 'volume
-                                                                                                                   package-volume-unit
-                                                                                                                   serving-volume-unit)))
-                                                                           (* (/ package-cost-number
-                                                                                 (* factor (/ package-volume-number serving-volume-number)
-                                                                                    serving-protein-number))
-                                                                              100))))))))
-      ;; add to row
-      (setcar (nthcdr 11 therow) calorie-cost)
-      (setcar (nthcdr 12 therow) protein-cost)))
+  (let ((ctx (funcall otdb-recipe-current-context)))
+    (dolist (therow (nthcdr 1 lisp-table-no-seperators))
+      (let* ((package-weight   (nth (otdb-database-column ctx 'package-weight) therow))
+             (package-volume   (nth (otdb-database-column ctx 'package-volume) therow))
+             (package-cost     (nth (otdb-database-column ctx 'cost) therow))
+             (serving-weight   (nth (otdb-database-column ctx 'serving-weight) therow))
+             (serving-volume   (nth (otdb-database-column ctx 'serving-volume) therow))
+             (serving-calories (nth (otdb-database-column ctx 'serving-calories) therow))
+             (serving-protein  (nth (otdb-database-column ctx 'serving-protein) therow))
+             (package-cost-number (otdb-table-number package-cost))
+             (package-volume-number (otdb-table-number package-volume))
+             (package-volume-unit (otdb-table-unit package-volume))
+             (package-weight-number (otdb-table-number package-weight))
+             (package-weight-unit (otdb-table-unit package-weight))
+             (serving-calories-number (otdb-table-number serving-calories))
+             (serving-protein-number (otdb-table-number serving-protein))
+             (serving-volume-number (otdb-table-number serving-volume))
+             (serving-volume-unit (otdb-table-unit serving-volume))
+             (serving-weight-number (otdb-table-number serving-weight))
+             (serving-weight-unit (otdb-table-unit serving-weight))
+             ;; see comments in otdb-recipe-database-calorie-costs
+             (calorie-cost (cic:number-to-string-nan (ignore-errors (cond ((and (cic:full-string-p package-weight)
+                                                                                (cic:full-string-p serving-weight))
+                                                                           (let ((factor (otdb-table-unit-conversion 'weight
+                                                                                                                     package-weight-unit
+                                                                                                                     serving-weight-unit)))
+                                                                             (* (/ package-cost-number
+                                                                                   (* factor (/ package-weight-number serving-weight-number)
+                                                                                      serving-calories-number))
+                                                                                1000)))
+                                                                          ((and (cic:full-string-p package-volume)
+                                                                                (cic:full-string-p serving-volume))
+                                                                           (let ((factor (otdb-table-unit-conversion 'volume package-volume-unit serving-volume-unit)))
+                                                                             (* (/ package-cost-number
+                                                                                   (* factor (/ package-volume-number serving-volume-number)
+                                                                                      serving-calories-number))
+                                                                                1000)))))))
+             ;; see comments in otdb-recipe-database-protein-costs
+             (protein-cost (cic:number-to-string-nan (ignore-errors (cond ((and (cic:full-string-p package-weight)
+                                                                                (cic:full-string-p serving-weight))
+                                                                           (let ((factor (otdb-table-unit-conversion 'weight
+                                                                                                                     package-weight-unit
+                                                                                                                     serving-weight-unit)))
+                                                                             (* (/ package-cost-number
+                                                                                   (* factor (/ package-weight-number serving-weight-number)
+                                                                                      serving-protein-number))
+                                                                                100)))
+                                                                          ((and (cic:full-string-p package-volume)
+                                                                                (cic:full-string-p serving-volume))
+                                                                           (let ((factor (otdb-table-unit-conversion 'volume
+                                                                                                                     package-volume-unit
+                                                                                                                     serving-volume-unit)))
+                                                                             (* (/ package-cost-number
+                                                                                   (* factor (/ package-volume-number serving-volume-number)
+                                                                                      serving-protein-number))
+                                                                                100))))))))
+        ;; add to row
+        (setcar (nthcdr 11 therow) calorie-cost)
+        (setcar (nthcdr 12 therow) protein-cost))))
   lisp-table-no-seperators)
 
 (provide 'otdb-recipe)

@@ -1,5 +1,4 @@
-;;; otdb-test-config.el --- Create a database using an org-mode table and
-;;; calculate similar to a spreadsheet.
+;;; otdb-test-config.el --- Create a database using an org-mode table and calculate similar to a spreadsheet -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2015-2023, Andrew Kroshko, all rights reserved.
 ;;
@@ -24,11 +23,13 @@
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Commentary:
+
+;;; Commentary:
 ;;
 ;; A configuration used for testing that can be freely moved anywhere.
+
+;;; Code:
+
 
 (put 'org-image-actual-width 'safe-local-variable #'numberp)
 
